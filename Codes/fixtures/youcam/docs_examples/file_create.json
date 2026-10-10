@@ -1,0 +1,25 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_clothes (Step 2 Sample Response) - also identical in ai_hairstyle & ai_skin_analysis overviews",
+  "example": {
+    "status": 200,
+    "data": {
+      "files": [
+        {
+          "content_type": "image/jpg",
+          "file_name": "full_body_photo_01_3dbd1b6683.jpg",
+          "file_id": "SaGaqpDgKwFrVBgMpQMA3HY0LeqdT9/13W5TOD8/u/FfjK3xgCQ+hRt9MJXBFaud",
+          "requests": [
+            {
+              "method": "PUT",
+              "url": "https://yce-us.s3-accelerate.amazonaws.com/demo/ttl30/...signature...",
+              "headers": {
+                "Content-Length": "547541",
+                "Content-Type": "image/jpg"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

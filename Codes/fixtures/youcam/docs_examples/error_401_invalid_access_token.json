@@ -1,0 +1,8 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_clothes (Invalid API Key error response)",
+  "example": {
+    "status": 401,
+    "error": "Unauthorized",
+    "error_code": "InvalidAccessToken"
+  }
+}

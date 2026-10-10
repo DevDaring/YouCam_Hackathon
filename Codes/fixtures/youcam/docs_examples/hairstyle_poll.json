@@ -1,0 +1,13 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_hairstyle (GET /s2s/v2.1/task/hair-transfer/{task_id})",
+  "example": {
+    "status": 200,
+    "data": {
+      "error": null,
+      "results": {
+        "url": "https://yce-us.s3-accelerate.amazonaws.com/demo/ttl30/...signature..."
+      },
+      "task_status": "success"
+    }
+  }
+}

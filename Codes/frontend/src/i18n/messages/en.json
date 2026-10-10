@@ -1,0 +1,228 @@
+{
+  "app": {
+    "name": "Haan",
+    "tagline": "Wedding and festive looks, decided together",
+    "skipToContent": "Skip to main content",
+    "homeLink": "Haan — go to home page"
+  },
+  "header": {
+    "locationButton": "Location: {{place}}. Change location",
+    "chooseLocation": "Choose location",
+    "languageLabel": "Language",
+    "primaryNav": "Primary"
+  },
+  "footer": {
+    "privacy": "Photos are deleted automatically. Location is kept to city level.",
+    "theme": {
+      "label": "Colour theme: {{mode}}. Tap to change",
+      "system": "Auto",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "madeWith": "Made for families who decide together."
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "close": "Close",
+    "illustration": "Illustration",
+    "regionsError": "We couldn't load the list of countries. Check your connection and try again.",
+    "comingSoon": "Coming soon"
+  },
+  "landing": {
+    "eyebrow": "Virtual try-on for weddings and festivals",
+    "heroTitle": "Your look. Your family's haan.",
+    "heroSubtitle": "Try on complete outfits, jewellery and makeup on your own photo, then send one link so everyone — from Maa to your cousins abroad — can vote Haan, Hmm or Na.",
+    "ctaStart": "Start my look",
+    "ctaDemo": "Try the demo family",
+    "heroIllustrationAlt": "Abstract line illustration of a person in a draped outfit with earrings, glowing in marigold light",
+    "stepsTitle": "How it works",
+    "stepsIntro": "Three simple steps, under five minutes to your first look.",
+    "steps": {
+      "try": {
+        "title": "Try on",
+        "body": "Upload one photo and see three complete looks — outfit, jewellery, makeup and hair — built for your event."
+      },
+      "vote": {
+        "title": "Family votes",
+        "body": "Share one link on WhatsApp. Family vote in their own language — no app, no sign-up."
+      },
+      "decide": {
+        "title": "Decide together",
+        "body": "See where everyone agrees, apply their suggestions, and lock the look you all love."
+      }
+    },
+    "trustTitle": "Your photos, your family, your call",
+    "trust": {
+      "deletion": {
+        "title": "Photos auto-deleted",
+        "body": "Your photos and renders are deleted automatically after {{hours}} hours — or instantly, whenever you ask."
+      },
+      "noJudgment": {
+        "title": "No skin judgments",
+        "body": "We match colours to your look. We never score, rank or comment on your skin."
+      },
+      "location": {
+        "title": "City level only",
+        "body": "We use your location only to find the nearest city. Exact coordinates are never kept."
+      }
+    },
+    "availableTitle": "Available in",
+    "availableLoading": "Loading countries…"
+  },
+  "location": {
+    "sheetTitle": "Where is the celebration?",
+    "sheetIntro": "We use this to show prices in your currency and events your family celebrates.",
+    "useMyLocation": "Use my location",
+    "explainTitle": "Before we ask your browser",
+    "explainBody": "Your browser will ask to share your location once. We only keep the nearest city — never your exact coordinates.",
+    "explainConfirm": "OK, find my city",
+    "explainCancel": "Not now",
+    "locating": "Finding your nearest city…",
+    "found": "Found you near {{city}}, {{country}}.",
+    "foundCountry": "Found you in {{country}}.",
+    "unsupported": "Haan isn't available where you are yet. You can still pick a country and city below.",
+    "denied": "Location permission was turned off. No problem — pick your country and city below.",
+    "unavailable": "We couldn't get your location on this device. Please pick your country and city below.",
+    "error": "Something went wrong while finding your city. Please pick it below.",
+    "countryLabel": "Country",
+    "cityLabel": "City",
+    "cityPlaceholder": "Choose a city",
+    "done": "Done",
+    "currencyNote": "Prices will be shown in {{currency}}.",
+    "languagesNote": "Languages available: {{languages}}",
+    "source": {
+      "timezone": "Guessed from your time zone",
+      "geolocation": "From your location (city only)",
+      "manual": "Chosen by you",
+      "default": "Default — please confirm"
+    }
+  },
+  "setup": {
+    "title": "Set up your event",
+    "progress": "Step {{current}} of {{total}}",
+    "back": "Back",
+    "next": "Continue",
+    "skip": "Skip",
+    "reset": "Start over",
+    "steps": {
+      "location": {
+        "title": "Confirm your location",
+        "help": "We'll show prices in your currency and the events celebrated where you are."
+      },
+      "role": {
+        "title": "Who are you dressing as?",
+        "help": "This helps us suggest the right weight of outfit and jewellery."
+      },
+      "event": {
+        "title": "Which event?",
+        "help": "Pick one — you can set up more events later."
+      },
+      "date": {
+        "title": "When is it?",
+        "help": "We'll plan your prep timeline backwards from this date."
+      },
+      "budget": {
+        "title": "What's your budget?",
+        "help": "For the complete look: outfit, jewellery and makeup."
+      },
+      "style": {
+        "title": "What's your style?",
+        "help": "Pick as many as you like."
+      },
+      "summary": {
+        "title": "Here's your event",
+        "help": "Check everything looks right. You can change any answer."
+      }
+    },
+    "roles": {
+      "bride": "Bride",
+      "groom": "Groom",
+      "family": "Family member",
+      "guest": "Guest"
+    },
+    "roleHints": {
+      "bride": "The full bridal look",
+      "groom": "Sherwani, kurta, safa and more",
+      "family": "Close family of the couple",
+      "guest": "Attending and celebrating"
+    },
+    "styles": {
+      "traditional": "Traditional",
+      "modern": "Modern",
+      "minimal": "Minimal",
+      "statement": "Statement"
+    },
+    "dateLabel": "Event date",
+    "dateInvalid": "Please choose a date from today onwards.",
+    "budgetPresetsLabel": "Quick picks",
+    "budgetCustomLabel": "Or enter your own amount",
+    "budgetCustomPlaceholder": "Amount",
+    "budgetInvalid": "Please enter an amount greater than zero.",
+    "eventsEmpty": "No events listed for this country yet.",
+    "summaryLabels": {
+      "location": "Location",
+      "role": "Role",
+      "event": "Event",
+      "date": "Date",
+      "budget": "Budget",
+      "style": "Style"
+    },
+    "edit": "Edit",
+    "editLabel": "Edit {{field}}",
+    "notSet": "Not set",
+    "submit": "Take my photo",
+    "submitNote": "Photo capture arrives in M2.",
+    "draftSaved": "Your answers are saved on this device."
+  },
+  "events": {
+    "haldi": "Haldi",
+    "mehendi": "Mehendi",
+    "sangeet": "Sangeet",
+    "wedding": "Wedding",
+    "reception": "Reception",
+    "engagement": "Engagement",
+    "puja": "Puja",
+    "party": "Party",
+    "gaye_holud": "Gaye Holud",
+    "bou_bhat": "Bou Bhat",
+    "baraat": "Baraat",
+    "walima": "Walima",
+    "nikah": "Nikah",
+    "eid": "Eid",
+    "diwali": "Diwali",
+    "durga_puja": "Durga Puja",
+    "teej": "Teej",
+    "dashain": "Dashain",
+    "avurudu": "Avurudu",
+    "homecoming": "Homecoming"
+  },
+  "placeholder": {
+    "comingIn": "Coming in milestone {{milestone}}",
+    "backHome": "Back to home",
+    "room": {
+      "title": "Family Room",
+      "body": "Your family will open this link to vote Haan, Hmm or Na on each look — in Bengali, Hindi or English."
+    },
+    "studio": {
+      "title": "Look Studio",
+      "body": "Three complete looks, layer by layer — outfit, jewellery, makeup and hair — each checked for accuracy."
+    },
+    "pack": {
+      "title": "Decision Pack",
+      "body": "Your final look with a shopping list, a brief for your makeup artist and a prep countdown."
+    },
+    "store": {
+      "title": "Store Insights",
+      "body": "What families agree on, by event and region — for the stores that dress them."
+    },
+    "demo": {
+      "title": "Demo family",
+      "body": "A ready-made family with looks and votes, so you can try every feature without uploading a photo."
+    }
+  },
+  "notFound": {
+    "title": "This page wandered off",
+    "body": "The link may be old or mistyped."
+  }
+}

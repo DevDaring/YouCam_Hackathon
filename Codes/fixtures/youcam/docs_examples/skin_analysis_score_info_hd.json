@@ -1,0 +1,132 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_analysis (score_info.json inside ZIP, format=zip, HD)",
+  "example": {
+    "hd_redness": {
+      "raw_score": 72.011962890625,
+      "ui_score": 77,
+      "output_mask_name": "hd_redness_output.png"
+    },
+    "hd_oiliness": {
+      "raw_score": 60.74365234375,
+      "ui_score": 72,
+      "output_mask_name": "hd_oiliness_output.png"
+    },
+    "hd_age_spot": {
+      "raw_score": 83.23274230957031,
+      "ui_score": 77,
+      "output_mask_name": "hd_age_spot_output.png"
+    },
+    "hd_radiance": {
+      "raw_score": 76.57244205474854,
+      "ui_score": 79,
+      "output_mask_name": "hd_radiance_output.png"
+    },
+    "hd_moisture": {
+      "raw_score": 48.694559931755066,
+      "ui_score": 70,
+      "output_mask_name": "hd_moisture_output.png"
+    },
+    "hd_dark_circle": {
+      "raw_score": 80.1993191242218,
+      "ui_score": 76,
+      "output_mask_name": "hd_dark_circle_output.png"
+    },
+    "hd_eye_bag": {
+      "raw_score": 76.67280435562134,
+      "ui_score": 79,
+      "output_mask_name": "hd_eye_bag_output.png"
+    },
+    "hd_droopy_upper_eyelid": {
+      "raw_score": 79.05348539352417,
+      "ui_score": 80,
+      "output_mask_name": "hd_droopy_upper_eyelid_output.png"
+    },
+    "hd_droopy_lower_eyelid": {
+      "raw_score": 79.97175455093384,
+      "ui_score": 81,
+      "output_mask_name": "hd_droopy_lower_eyelid_output.png"
+    },
+    "hd_firmness": {
+      "raw_score": 89.66898322105408,
+      "ui_score": 85,
+      "output_mask_name": "hd_firmness_output.png"
+    },
+    "hd_texture": {
+      "whole": {
+        "raw_score": 66.3921568627451,
+        "ui_score": 75,
+        "output_mask_name": "hd_texture_output.png"
+      }
+    },
+    "hd_acne": {
+      "whole": {
+        "raw_score": 59.92677688598633,
+        "ui_score": 76,
+        "output_mask_name": "hd_acne_output.png"
+      }
+    },
+    "hd_pore": {
+      "forehead": {
+        "raw_score": 79.59770965576172,
+        "ui_score": 80,
+        "output_mask_name": "hd_pore_output_forehead.png"
+      },
+      "nose": {
+        "raw_score": 29.139814376831055,
+        "ui_score": 58,
+        "output_mask_name": "hd_pore_output_nose.png"
+      },
+      "cheek": {
+        "raw_score": 44.11081314086914,
+        "ui_score": 65,
+        "output_mask_name": "hd_pore_output_cheek.png"
+      },
+      "whole": {
+        "raw_score": 49.23978805541992,
+        "ui_score": 67,
+        "output_mask_name": "hd_pore_output_all.png"
+      }
+    },
+    "hd_wrinkle": {
+      "forehead": {
+        "raw_score": 55.96956729888916,
+        "ui_score": 67,
+        "output_mask_name": "hd_wrinkle_output_forehead.png"
+      },
+      "glabellar": {
+        "raw_score": 76.7251181602478,
+        "ui_score": 75,
+        "output_mask_name": "hd_wrinkle_output_glabellar.png"
+      },
+      "crowfeet": {
+        "raw_score": 83.4361481666565,
+        "ui_score": 78,
+        "output_mask_name": "hd_wrinkle_output_crowfeet.png"
+      },
+      "periocular": {
+        "raw_score": 67.88706302642822,
+        "ui_score": 72,
+        "output_mask_name": "hd_wrinkle_output_periocular.png"
+      },
+      "nasolabial": {
+        "raw_score": 74.03312683105469,
+        "ui_score": 74,
+        "output_mask_name": "hd_wrinkle_output_nasolabial.png"
+      },
+      "marionette": {
+        "raw_score": 71.94477319717407,
+        "ui_score": 73,
+        "output_mask_name": "hd_wrinkle_output_marionette.png"
+      },
+      "whole": {
+        "raw_score": 49.64699745178223,
+        "ui_score": 65,
+        "output_mask_name": "hd_wrinkle_output_all.png"
+      }
+    },
+    "all": {
+      "score": 75.75757575757575
+    },
+    "skin_age": 37
+  }
+}

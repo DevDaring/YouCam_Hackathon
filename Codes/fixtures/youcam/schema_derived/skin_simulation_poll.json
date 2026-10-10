@@ -1,0 +1,15 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_simulation (schema)",
+  "_note": "SCHEMA-DERIVED",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "success",
+      "error": null,
+      "error_message": null,
+      "results": {
+        "url": "https://example.com/sample-result-url"
+      }
+    }
+  }
+}

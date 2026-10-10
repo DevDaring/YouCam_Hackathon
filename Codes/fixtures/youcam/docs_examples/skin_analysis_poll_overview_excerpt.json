@@ -1,0 +1,29 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_analysis (Step 7 Example Response; docs omit entries \"for brevity\")",
+  "example": {
+    "status": 200,
+    "data": {
+      "results": {
+        "output": [
+          {
+            "type": "texture",
+            "ui_score": 68,
+            "raw_score": 57.33,
+            "mask_urls": [
+              "https://yce-us.s3-accelerate.amazonaws.com/...texture_output.jpg"
+            ]
+          },
+          {
+            "type": "pore",
+            "ui_score": 92,
+            "raw_score": 95.34,
+            "mask_urls": [
+              "https://yce-us.s3-accelerate.amazonaws.com/...pore_output.jpg"
+            ]
+          }
+        ]
+      },
+      "task_status": "success"
+    }
+  }
+}

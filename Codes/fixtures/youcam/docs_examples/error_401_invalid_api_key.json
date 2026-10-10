@@ -1,0 +1,7 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/makeup_vto (Example Query Error Response)",
+  "example": {
+    "status": 401,
+    "error_code": "InvalidApiKey"
+  }
+}

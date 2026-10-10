@@ -1,0 +1,12 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_look_vto (Sample Success Response)",
+  "example": {
+    "status": 200,
+    "data": {
+      "results": {
+        "url": "https://yce-us.s3-accelerate.amazonaws.com/demo/.../result.jpg?..."
+      },
+      "task_status": "success"
+    }
+  }
+}

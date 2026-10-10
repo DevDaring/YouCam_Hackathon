@@ -1,0 +1,79 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_analysis (score_info.json inside ZIP, format=zip, SD)",
+  "example": {
+    "wrinkle": {
+      "raw_score": 36.09360456466675,
+      "ui_score": 60,
+      "output_mask_name": "wrinkle_output.png"
+    },
+    "droopy_upper_eyelid": {
+      "raw_score": 79.05348539352417,
+      "ui_score": 80,
+      "output_mask_name": "droopy_upper_eyelid_output.png"
+    },
+    "droopy_lower_eyelid": {
+      "raw_score": 79.97175455093384,
+      "ui_score": 81,
+      "output_mask_name": "droopy_lower_eyelid_output.png"
+    },
+    "firmness": {
+      "raw_score": 89.66898322105408,
+      "ui_score": 85,
+      "output_mask_name": "firmness_output.png"
+    },
+    "acne": {
+      "raw_score": 92.29713000000001,
+      "ui_score": 88,
+      "output_mask_name": "acne_output.png"
+    },
+    "moisture": {
+      "raw_score": 48.694559931755066,
+      "ui_score": 70,
+      "output_mask_name": "moisture_output.png"
+    },
+    "eye_bag": {
+      "raw_score": 76.67280435562134,
+      "ui_score": 79,
+      "output_mask_name": "eye_bag_output.png"
+    },
+    "dark_circle_v2": {
+      "raw_score": 80.1993191242218,
+      "ui_score": 76,
+      "output_mask_name": "dark_circle_v2_output.png"
+    },
+    "age_spot": {
+      "raw_score": 83.23274230957031,
+      "ui_score": 77,
+      "output_mask_name": "age_spot_output.png"
+    },
+    "radiance": {
+      "raw_score": 76.57244205474854,
+      "ui_score": 79,
+      "output_mask_name": "radiance_output.png"
+    },
+    "redness": {
+      "raw_score": 72.011962890625,
+      "ui_score": 77,
+      "output_mask_name": "redness_output.png"
+    },
+    "oiliness": {
+      "raw_score": 60.74365234375,
+      "ui_score": 72,
+      "output_mask_name": "oiliness_output.png"
+    },
+    "pore": {
+      "raw_score": 88.38014125823975,
+      "ui_score": 84,
+      "output_mask_name": "pore_output.png"
+    },
+    "texture": {
+      "raw_score": 80.09742498397827,
+      "ui_score": 76,
+      "output_mask_name": "texture_output.png"
+    },
+    "all": {
+      "score": 75.75757575757575
+    },
+    "skin_age": 37
+  }
+}

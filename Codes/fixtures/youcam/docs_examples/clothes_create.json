@@ -1,0 +1,9 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_clothes (Step 5 Sample Response, POST /s2s/v2.0/task/cloth-v4)",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_id": "SaGaqpDgKwFrVBgMpQMA3HY0LeqdT9_13W5TOD8_u_GPi6NqQ3dhlmN-6ntFwhzT"
+    }
+  }
+}

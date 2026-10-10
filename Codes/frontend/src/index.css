@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+/* Dark mode follows the resolved theme: system preference unless [data-theme] overrides it. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Design tokens — spec §10.1                                          */
+/* ------------------------------------------------------------------ */
+:root {
+  /* Brand palette (exact spec values) */
+  --maroon-900: #4a0e1c;
+  --maroon-700: #7a1f33;
+  --marigold-500: #f2a93b;
+  --marigold-300: #f8cf86;
+  --gold-500: #c9a24d;
+  --ivory-50: #fff9f0;
+  --sand-100: #f3e6d3;
+  --ink-900: #1e1416;
+  --leaf-600: #2f7a4d;
+  --amber-600: #c27c0e;
+  --rose-600: #b3364a;
+
+  /* Dark palette (spec) */
+  --night-950: #140a0d;
+  --night-900: #22131a;
+  --parchment-100: #f6ebdd;
+
+  /* Derived helpers (added for AA-compliant text; documented in README) */
+  --ink-600: #5c464a; /* muted body text: 8.3:1 on ivory, 7.0:1 on sand */
+  --amber-800: #8c5a0a; /* "Hmm" text: amber-600 is only 3.2:1 on ivory */
+  --parchment-300: #cdb9a6; /* muted text in dark: 9.4:1 on cards */
+
+  /* Semantic roles — light */
+  --bg: var(--ivory-50);
+  --surface: var(--sand-100);
+  --surface-raised: #fffdf9;
+  --text: var(--ink-900);
+  --text-muted: var(--ink-600);
+  --heading: var(--maroon-900);
+  --primary: var(--maroon-900);
+  --primary-hover: var(--maroon-700);
+  --on-primary: var(--ivory-50);
+  --accent: var(--marigold-500);
+  --accent-soft: var(--marigold-300);
+  --on-accent: var(--maroon-900);
+  --rule: var(--gold-500);
+  --border: color-mix(in srgb, var(--gold-500) 45%, transparent);
+  --focus: var(--maroon-700);
+  --success: var(--leaf-600);
+  --warning: var(--amber-800);
+  --danger: var(--rose-600);
+  --glow: color-mix(in srgb, var(--marigold-500) 55%, transparent);
+
+  --font-display-stack: "Fraunces", "Noto Serif", Georgia, "Times New Roman", serif;
+  --font-body-stack: "Inter", "Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--night-950);
+    --surface: var(--night-900);
+    --surface-raised: #2b1922;
+    --text: var(--parchment-100);
+    --text-muted: var(--parchment-300);
+    --heading: var(--marigold-300);
+    --primary: var(--marigold-500);
+    --primary-hover: var(--marigold-300);
+    --on-primary: var(--night-950);
+    --accent: var(--marigold-500);
+    --accent-soft: color-mix(in srgb, var(--marigold-500) 22%, var(--night-900));
+    --on-accent: var(--parchment-100);
+    --border: color-mix(in srgb, var(--gold-500) 35%, transparent);
+    --focus: var(--marigold-300);
+    --success: #6fcf97;
+    --warning: #f0b45a;
+    --danger: #f08a9a;
+    --glow: color-mix(in srgb, var(--marigold-500) 35%, transparent);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: var(--night-950);
+  --surface: var(--night-900);
+  --surface-raised: #2b1922;
+  --text: var(--parchment-100);
+  --text-muted: var(--parchment-300);
+  --heading: var(--marigold-300);
+  --primary: var(--marigold-500);
+  --primary-hover: var(--marigold-300);
+  --on-primary: var(--night-950);
+  --accent: var(--marigold-500);
+  --accent-soft: color-mix(in srgb, var(--marigold-500) 22%, var(--night-900));
+  --on-accent: var(--parchment-100);
+  --border: color-mix(in srgb, var(--gold-500) 35%, transparent);
+  --focus: var(--marigold-300);
+  --success: #6fcf97;
+  --warning: #f0b45a;
+  --danger: #f08a9a;
+  --glow: color-mix(in srgb, var(--marigold-500) 35%, transparent);
+  color-scheme: dark;
+}
+
+/* Script-aware font stacks: follow <html lang>. Fraunces/Inter have no
+   Bengali or Devanagari glyphs, so those scripts lead with Noto. */
+:root:lang(bn) {
+  --font-display-stack: "Noto Sans Bengali", "Fraunces", Georgia, serif;
+  --font-body-stack: "Noto Sans Bengali", "Inter", system-ui, sans-serif;
+}
+:root:lang(hi) {
+  --font-display-stack: "Noto Sans Devanagari", "Fraunces", Georgia, serif;
+  --font-body-stack: "Noto Sans Devanagari", "Inter", system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tailwind theme mapping                                              */
+/* ------------------------------------------------------------------ */
+@theme inline {
+  --color-maroon-900: var(--maroon-900);
+  --color-maroon-700: var(--maroon-700);
+  --color-marigold-500: var(--marigold-500);
+  --color-marigold-300: var(--marigold-300);
+  --color-gold-500: var(--gold-500);
+  --color-ivory-50: var(--ivory-50);
+  --color-sand-100: var(--sand-100);
+  --color-ink-900: var(--ink-900);
+  --color-leaf-600: var(--leaf-600);
+  --color-amber-600: var(--amber-600);
+  --color-rose-600: var(--rose-600);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-heading: var(--heading);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-rule: var(--rule);
+  --color-line: var(--border);
+  --color-focus: var(--focus);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --font-display: var(--font-display-stack);
+  --font-sans: var(--font-body-stack);
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body-stack);
+    line-height: 1.6;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display-stack);
+    color: var(--heading);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+  :lang(bn) h1,
+  :lang(bn) h2,
+  :lang(bn) h3,
+  :lang(hi) h1,
+  :lang(hi) h2,
+  :lang(hi) h3 {
+    line-height: 1.35;
+  }
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: var(--marigold-300);
+    color: var(--ink-900);
+  }
+  dialog::backdrop {
+    background: rgb(20 10 13 / 0.55);
+  }
+}
+
+@layer components {
+  /* The "Haan" wordmark is always Latin Fraunces, whatever the UI language. */
+  .font-wordmark {
+    font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  }
+  .gold-rule {
+    display: block;
+    width: 3.5rem;
+    height: 2px;
+    border: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--rule) 20%, var(--rule) 80%, transparent);
+  }
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/makeup_vto (Example Payload; add src_file_url/src_file_id)",
+  "example": {
+    "version": "1.0",
+    "effects": [
+      {
+        "category": "skin_smooth",
+        "skinSmoothStrength": 55,
+        "skinSmoothColorIntensity": 45
+      },
+      {
+        "category": "blush",
+        "pattern": {
+          "name": "2colors1"
+        },
+        "palettes": [
+          {
+            "color": "#e19f9f",
+            "texture": "matte",
+            "colorIntensity": 60,
+            "shimmerColor": "#d63252",
+            "shimmerDensity": 50
+          },
+          {
+            "color": "#c98a8a",
+            "texture": "satin",
+            "glowStrength": 40,
+            "colorIntensity": 70
+          }
+        ]
+      },
+      {
+        "category": "lip_color",
+        "shape": {
+          "name": "plump"
+        },
+        "morphology": {
+          "fullness": 30,
+          "wrinkless": 25
+        },
+        "style": {
+          "type": "full"
+        },
+        "palettes": [
+          {
+            "color": "#e11c43",
+            "texture": "gloss",
+            "colorIntensity": 80,
+            "gloss": 75
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_analysis OpenAPI ...examples.format_zip_success",
+  "_note": "CONTRADICTION: schema says data.results = {\"url\": \"...\"} for zip, but this example shows data.results as a bare string. Handle both.",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "success",
+      "results": "https://example.com/sample-result-url"
+    }
+  }
+}

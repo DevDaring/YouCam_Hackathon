@@ -1,0 +1,8 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_analysis (Debugging Guide)",
+  "example": {
+    "status": 400,
+    "error": "Not available dst_action abc123",
+    "error_code": "InvalidParameters"
+  }
+}

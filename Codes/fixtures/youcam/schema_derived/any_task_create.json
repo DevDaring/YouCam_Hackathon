@@ -1,0 +1,10 @@
+{
+  "_source": "BasicRunTaskResponseV2 schema (all features)",
+  "_note": "SCHEMA-DERIVED; identical create response for every feature",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_id": "grH0CvsgXuAIHLUzD0V1Ol34hoet3R1tvdbtiVHrDb6_UqCLKIejAIajwxrhOAfe"
+    }
+  }
+}

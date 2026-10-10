@@ -1,0 +1,23 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_fitzpatrick_skin_type (pre-process schema)",
+  "_note": "SCHEMA-DERIVED; values illustrative",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "success",
+      "error": null,
+      "error_message": null,
+      "results": {
+        "timed": 0.5,
+        "result": [
+          {
+            "left": 120,
+            "top": 80,
+            "width": 300,
+            "height": 300
+          }
+        ]
+      }
+    }
+  }
+}

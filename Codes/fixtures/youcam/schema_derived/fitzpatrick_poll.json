@@ -1,0 +1,16 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_fitzpatrick_skin_type (schema)",
+  "_note": "SCHEMA-DERIVED; values illustrative",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "success",
+      "error": null,
+      "error_message": null,
+      "results": {
+        "fitzpatrick_scale": "III",
+        "timed": 1.23
+      }
+    }
+  }
+}

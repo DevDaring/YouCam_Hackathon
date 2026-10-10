@@ -1,0 +1,9 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_hairstyle (POST /s2s/v2.1/task/hair-transfer Sample Response)",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_id": "SaGaqpDgKwFrVBgMpQMA3HY0LeqdT9_13W5TOD8_u_GPi6NqQ3dhlmN-6ntFwhzT"
+    }
+  }
+}

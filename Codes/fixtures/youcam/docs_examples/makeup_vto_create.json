@@ -1,0 +1,9 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/makeup_vto (Example Response)",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_id": "grH0CvsgXuAIHLUzD0V1Ol34hoet3R1tvdbtiVHrDb6_UqCLKIejAIajwxrhOAfe"
+    }
+  }
+}

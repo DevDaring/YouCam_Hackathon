@@ -1,0 +1,8 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_analysis (Debugging Guide)",
+  "example": {
+    "status": 400,
+    "error": "cannot mix HD and SD dst_actions",
+    "error_code": "InvalidParameters"
+  }
+}

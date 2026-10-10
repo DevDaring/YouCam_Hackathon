@@ -1,0 +1,50 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/makeup_vto (Example Request Body)",
+  "example": {
+    "src_file_url": "https://plugins-media.makeupar.com/strapi/assets/sample_Image_1_202b6bf6e6.jpg",
+    "effects": [
+      {
+        "category": "blush",
+        "pattern": {
+          "name": "2colors6"
+        },
+        "palettes": [
+          {
+            "color": "#FF0000",
+            "texture": "matte",
+            "colorIntensity": 50
+          },
+          {
+            "color": "#F2A53E",
+            "texture": "matte",
+            "colorIntensity": 50
+          }
+        ]
+      },
+      {
+        "category": "eye_liner",
+        "pattern": {
+          "name": "3colors5"
+        },
+        "palettes": [
+          {
+            "color": "#000000",
+            "texture": "matte",
+            "colorIntensity": 50
+          },
+          {
+            "color": "#BA0656",
+            "texture": "matte",
+            "colorIntensity": 50
+          },
+          {
+            "color": "#089085",
+            "texture": "matte",
+            "colorIntensity": 50
+          }
+        ]
+      }
+    ],
+    "version": "1.0"
+  }
+}

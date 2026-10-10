@@ -1,0 +1,9 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/makeup_vto (Example In-Progress Response)",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "running"
+    }
+  }
+}

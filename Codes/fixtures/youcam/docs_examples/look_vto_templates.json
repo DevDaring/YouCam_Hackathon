@@ -1,0 +1,18 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_look_vto (Sample Successful Response, GET /s2s/v2.0/task/template/look-vto)",
+  "_note": "docs show next_token unquoted (invalid JSON); quoted here",
+  "example": {
+    "status": 200,
+    "data": {
+      "templates": [
+        {
+          "id": "good_template_001",
+          "thumb": "thumbnail preview image URL",
+          "title": "Berry Smooth",
+          "category_name": "Daily"
+        }
+      ],
+      "next_token": "73a3c9e69b89"
+    }
+  }
+}

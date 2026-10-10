@@ -1,0 +1,12 @@
+.env
+*.env.local
+storage/
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+fixtures/youcam/private/
+scripts/probe/inputs/
+.DS_Store

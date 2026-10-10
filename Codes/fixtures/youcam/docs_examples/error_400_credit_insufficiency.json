@@ -1,0 +1,8 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/makeup_vto (Example Error Response)",
+  "example": {
+    "status": 400,
+    "error": "The operation could not be completed",
+    "error_code": "CreditInsufficiency"
+  }
+}

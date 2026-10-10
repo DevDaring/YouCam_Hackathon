@@ -1,0 +1,131 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_face_analyzer (schema; ratio numbers are the schema examples)",
+  "_note": "SCHEMA-DERIVED; whether only requested features are present is UNVERIFIED",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "success",
+      "error": null,
+      "error_message": null,
+      "results": {
+        "face_quality": {
+          "has_face": true,
+          "area": "good",
+          "frontal": "good",
+          "lighting": "good",
+          "faceangle": "good"
+        },
+        "facialratio": {
+          "horizontal_third": [
+            33,
+            33,
+            33
+          ],
+          "vertical_fifth": [
+            20,
+            20,
+            20,
+            20,
+            20
+          ],
+          "face_aspect_ratio": [
+            1,
+            1.46
+          ],
+          "left_eye_aspect_ratio": [
+            1,
+            3
+          ],
+          "right_eye_aspect_ratio": [
+            1,
+            3
+          ],
+          "left_eyebrow_arch_to_eyebrow_width": [
+            1,
+            1.476
+          ],
+          "right_eyebrow_arch_to_eyebrow_width": [
+            1,
+            1.523
+          ],
+          "left_eye_height_to_eyebrow_distance": [
+            1,
+            2.69
+          ],
+          "right_eye_height_to_eyebrow_distance": [
+            1,
+            2.775
+          ],
+          "overall_eye_height_to_eyebrow_distance": [
+            1,
+            2.733
+          ],
+          "nose_aspect_ratio": [
+            1,
+            1.172
+          ],
+          "nose_width_to_mouth_width": [
+            1,
+            1.475
+          ],
+          "nose_to_lip_to_chin": [
+            1,
+            2.098
+          ],
+          "upper_lip_to_lower_lip": [
+            1,
+            1.099
+          ]
+        },
+        "cheekbone": {
+          "left": "High Cheekbone",
+          "right": "High Cheekbone",
+          "overall": "High Cheekbone"
+        },
+        "eyelid": {
+          "left_eyelid": "Double-lid",
+          "left_angle": "Average",
+          "left_shape": "Almond",
+          "right_eyelid": "Double-lid",
+          "right_angle": "Average",
+          "right_shape": "Almond",
+          "setting": "Average",
+          "size": "Average"
+        },
+        "eyebrow": {
+          "gap": "Average",
+          "left_shape": "Soft Angled",
+          "left_body_thickness": "Average",
+          "left_tail_thickness": "Average",
+          "left_thinness": "Normal",
+          "left_shortness": "Normal",
+          "right_shape": "Soft Angled",
+          "right_body_thickness": "Average",
+          "right_tail_thickness": "Average",
+          "right_thinness": "Normal",
+          "right_shortness": "Normal"
+        },
+        "faceshape": "Oval",
+        "lipshape": [
+          "Full"
+        ],
+        "nose": {
+          "width": "Average",
+          "length": "Average"
+        },
+        "color": {
+          "eye_color": "#3B2A20",
+          "eye_color_name": "Brown",
+          "lip_color": "#B5525C",
+          "eyebrow_color": "#3A2A25",
+          "hair_color": "#000000",
+          "hair_color_name": "Black"
+        },
+        "agegender": {
+          "age": 28,
+          "gender": "female"
+        }
+      }
+    }
+  }
+}

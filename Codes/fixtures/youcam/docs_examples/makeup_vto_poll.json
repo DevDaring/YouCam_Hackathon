@@ -1,0 +1,12 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/makeup_vto (Example Success Response)",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "success",
+      "results": {
+        "url": "https://s3.storage.prod/processed/image_123.jpg?token=..."
+      }
+    }
+  }
+}

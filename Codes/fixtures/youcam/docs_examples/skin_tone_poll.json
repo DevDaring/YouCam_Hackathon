@@ -1,0 +1,20 @@
+{
+  "_source": "https://docs.perfectcorp.com/reference/ai_skin_tone_analysis (Inputs & Outputs)",
+  "example": {
+    "status": 200,
+    "data": {
+      "task_status": "success",
+      "results": {
+        "color": {
+          "eye_color": "#293F9B",
+          "eye_color_name": "Blue",
+          "lip_color": "#D23245",
+          "eyebrow_color": "#5B2B31",
+          "skin_color": "#b9947c",
+          "hair_color": "#a0a0a0",
+          "hair_color_name": "Auburn"
+        }
+      }
+    }
+  }
+}
