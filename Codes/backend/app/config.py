@@ -68,6 +68,12 @@ class Settings(BaseSettings):
     STORE_DASHBOARD_PASSWORD: str
     IMAGE_RETENTION_HOURS: int = 72
 
+    # ---------- Auth ----------
+    AUTH_SESSION_DAYS: int = 7
+    COOKIE_SECURE: bool = False          # true in production (HTTPS)
+    DEMO_USER: str | None = "TestUser"   # jury demo account, seeded at startup; empty = none
+    DEMO_PASSWORD: str | None = "TestUser11"
+
     @property
     def openrouter_keys(self) -> list[str]:
         return [k for k in (self.OPENROUTER_API_KEY, self.OPENROUTER_API_KEY_2) if k]

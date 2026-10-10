@@ -1,16 +1,20 @@
-import { ChevronDown, MapPin } from 'lucide-react'
+import { ChevronDown, LogIn, LogOut, MapPin } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../lib/useAuth'
 import { countryName, flagEmoji } from '../lib/format'
 import { useRegion } from '../lib/region'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { LocationSheet } from './LocationSheet'
+import { Logo } from './Logo'
 
 export function Header() {
   const { t } = useTranslation()
   const { countryCode, city, locale, status } = useRegion()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const { user, status: authStatus, logout } = useAuth()
+  const navigate = useNavigate()
 
   const place = countryCode ? (city ? `${city}, ${countryName(countryCode, locale)}` : countryName(countryCode, locale)) : null
   const chipText = countryCode ? (city ?? countryName(countryCode, locale)) : t('header.chooseLocation')
@@ -21,10 +25,9 @@ export function Header() {
         <Link
           to="/"
           aria-label={t('app.homeLink')}
-          className="mr-auto flex min-h-12 items-center rounded-lg font-wordmark text-[1.75rem] font-bold leading-none tracking-tight text-heading"
+          className="mr-auto flex min-h-12 shrink-0 items-center rounded-lg"
         >
-          Haan
-          <span aria-hidden="true" className="ml-0.5 inline-block size-1.5 translate-y-2 rounded-full bg-accent" />
+          <Logo hideWordmarkOnTiny />
         </Link>
 
         <button
@@ -47,6 +50,30 @@ export function Header() {
         </button>
 
         <LanguageSwitcher />
+
+        {authStatus === 'authenticated' && user ? (
+          <button
+            type="button"
+            onClick={async () => {
+              await logout()
+              navigate('/')
+            }}
+            aria-label={t('header.account', { name: user.username })}
+            title={t('header.account', { name: user.username })}
+            className="inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised text-heading hover:bg-surface"
+          >
+            <LogOut aria-hidden="true" className="size-5" />
+          </button>
+        ) : authStatus === 'anonymous' ? (
+          <Link
+            to="/login"
+            aria-label={t('header.signIn')}
+            className="inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised text-heading hover:bg-surface md:w-auto md:gap-2 md:px-4"
+          >
+            <LogIn aria-hidden="true" className="size-5" />
+            <span className="hidden text-sm font-semibold md:inline">{t('header.signIn')}</span>
+          </Link>
+        ) : null}
       </div>
       <LocationSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
     </header>

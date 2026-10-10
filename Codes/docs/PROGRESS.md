@@ -22,6 +22,12 @@
   1. The live YouCam balance is **0 units** (`scripts/probe/balance.py`).
   2. It needs `scripts/probe/inputs/shopper.jpg` (the owner's own photo) and AI-generated or licensed garment images with a `manifest.json`.
 
+## Rebrand, login, hosting (Oct 10 2026)
+- **DearMe:** new name and original logo (D-005).
+- **Login:** a sign-in page with a jury demo card that has a **Fill in** button (D-006).
+- **Live:** https://dearme.koushikdeb.com (D-007). Deploy with `bash scripts/deploy.sh`.
+- **Tests:** backend 26 passed; frontend 27 passed; claim linter 0 hits.
+
 ## Next
 - Owner adds units and provides the probe inputs. Run `garment_probe.py --yes` and review the drape results.
 - Then M2: Look Studio.

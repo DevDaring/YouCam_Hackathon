@@ -1,15 +1,18 @@
 {
   "app": {
-    "name": "Haan",
+    "name": "DearMe",
     "tagline": "Wedding and festive looks, decided together",
     "skipToContent": "Skip to main content",
-    "homeLink": "Haan — go to home page"
+    "homeLink": "DearMe — go to home page"
   },
   "header": {
     "locationButton": "Location: {{place}}. Change location",
     "chooseLocation": "Choose location",
     "languageLabel": "Language",
-    "primaryNav": "Primary"
+    "primaryNav": "Primary",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "account": "Signed in as {{name}}. Sign out"
   },
   "footer": {
     "privacy": "Photos are deleted automatically. Location is kept to city level.",
@@ -31,7 +34,7 @@
   },
   "landing": {
     "eyebrow": "Virtual try-on for weddings and festivals",
-    "heroTitle": "Your look. Your family's haan.",
+    "heroTitle": "Your look. Your family's yes.",
     "heroSubtitle": "Try on complete outfits, jewellery and makeup on your own photo, then send one link so everyone — from Maa to your cousins abroad — can vote Haan, Hmm or Na.",
     "ctaStart": "Start my look",
     "ctaDemo": "Try the demo family",
@@ -81,7 +84,7 @@
     "locating": "Finding your nearest city…",
     "found": "Found you near {{city}}, {{country}}.",
     "foundCountry": "Found you in {{country}}.",
-    "unsupported": "Haan isn't available where you are yet. You can still pick a country and city below.",
+    "unsupported": "DearMe isn't available where you are yet. You can still pick a country and city below.",
     "denied": "Location permission was turned off. No problem — pick your country and city below.",
     "unavailable": "We couldn't get your location on this device. Please pick your country and city below.",
     "error": "Something went wrong while finding your city. Please pick it below.",
@@ -224,5 +227,23 @@
   "notFound": {
     "title": "This page wandered off",
     "body": "The link may be old or mistyped."
+  },
+  "auth": {
+    "title": "Welcome to DearMe",
+    "subtitle": "Sign in to build your looks and share them with your family.",
+    "username": "Username",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "errorInvalid": "That username and password don't match. Please try again.",
+    "errorRateLimited": "Too many attempts. Please wait a few minutes and try again.",
+    "errorGeneric": "We couldn't sign you in right now. Check your connection and try again.",
+    "demoTitle": "Jury demo account",
+    "demoBody": "Judges can use this account. Tap “Fill in”, then “Sign in”.",
+    "demoFill": "Fill in",
+    "demoFilled": "Filled in — now tap Sign in",
+    "familyNote": "Family members never need an account — they vote straight from the shared link."
   }
 }

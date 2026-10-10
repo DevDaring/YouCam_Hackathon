@@ -28,8 +28,8 @@ export function removeKey(key: string): void {
 }
 
 export const STORAGE_KEYS = {
-  region: 'haan.region.v1',
-  lang: 'haan.lang.v1',
-  theme: 'haan.theme.v1',
-  draft: 'haan.draft.v1',
+  region: 'dearme.region.v1',
+  lang: 'dearme.lang.v1',
+  theme: 'dearme.theme.v1',
+  draft: 'dearme.draft.v1',
 } as const

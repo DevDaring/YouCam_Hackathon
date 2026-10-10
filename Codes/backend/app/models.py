@@ -222,3 +222,23 @@ class UnitLedger(Base):
     balance_after: Mapped[int | None] = mapped_column(Integer)
     note: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = _created()
+
+
+class User(Base):
+    """Shopper account. The jury demo account is seeded from DEMO_USER / DEMO_PASSWORD."""
+    __tablename__ = "users"
+    id: Mapped[uuid.UUID] = _uuid()
+    username: Mapped[str] = mapped_column(String(40), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(200))
+    display_name: Mapped[str | None] = mapped_column(String(60))
+    is_demo: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class AuthSession(Base):
+    __tablename__ = "auth_sessions"
+    id: Mapped[uuid.UUID] = _uuid()
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)  # sha256 of the cookie value
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    created_at: Mapped[datetime] = _created()

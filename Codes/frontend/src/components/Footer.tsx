@@ -2,6 +2,7 @@ import { ShieldCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { MotifDivider } from './Motifs'
+import { Logo } from './Logo'
 import { ThemeToggle } from './ThemeToggle'
 
 const PREVIEW_LINKS = [
@@ -19,7 +20,9 @@ export function Footer() {
       <MotifDivider />
       <div className="mx-auto mt-8 flex max-w-6xl flex-col gap-6 px-4 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="max-w-md space-y-2">
-          <p className="font-wordmark text-xl font-bold text-heading">Haan</p>
+          <p>
+            <Logo size="sm" />
+          </p>
           <p className="text-sm text-muted">{t('app.tagline')}</p>
           <p className="flex items-start gap-2 text-sm text-muted">
             <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-success" />

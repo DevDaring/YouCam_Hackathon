@@ -33,3 +33,23 @@ The owner asked for the product to work across countries, with the user choosing
 
 ## D-004 · Unit ledger counts only live calls
 Cache hits and mock calls are recorded with `units=0` semantics (excluded from spend). Refused calls are recorded with `status=refused`, so the store view can show how often the budget blocked a render.
+
+## D-005 · Name: DearMe (owner, Oct 10 2026)
+The product is called **DearMe**. The family vote buttons keep the words Haan / Hmm / Na.
+- **Logo:** an original mark of a hand mirror shaped like a jharokha (ogee) arch, holding a heart, so "see yourself, loved". Wordmark is Fraunces, with italic "Dear" and bold "Me".
+- **Files:** `frontend/src/components/Logo.tsx`, `public/favicon.svg`, `public/logo-mark.svg`, `public/og-image.png`, `public/apple-touch-icon.png`.
+
+## D-006 · Shopper login with a public jury account (owner, Oct 10 2026)
+The owner asked for a login page that shows the demo credentials, with a "Fill in" button.
+- **Credentials:** `DEMO_USER` / `DEMO_PASSWORD` (default `TestUser` / `TestUser11`). They are seeded at startup and served by `GET /api/auth/demo`.
+- **Sessions:** passwords are hashed with scrypt. The session cookie is an opaque, HttpOnly, SameSite=Lax value, Secure in production, and only its sha256 is stored. Failed logins are limited to 10 per IP per 5 minutes; uvicorn runs with `--proxy-headers` so the limiter sees real IPs behind Caddy.
+- **What is protected:** `/start`, `/studio`, `/pack`, `/store` and `/demo` need a login. `/` and `/room/:token` stay public, because family voters never sign in (spec K2).
+
+## D-007 · Hosting (owner, Oct 10 2026)
+- **URL:** `https://dearme.koushikdeb.com`. The NameSilo A record `dearme` points to 154.12.116.152, and Caddy handles TLS through ACME.
+- **Files:** everything lives in `/home/Debz/Host/dearme`: `web/` (static build), `backend/` (own venv), and a generated `.env` that holds only DearMe's keys with production overrides.
+- **Process and proxy:** uvicorn runs on `127.0.0.1:8160` and Caddy proxies `/api/*` to it. The Caddy block sits between `# >>> dearme` markers in `/home/Debz/Host/saarthi/Caddyfile`.
+- **Restarts:** cron runs `@reboot` and a `*/5` watchdog (`autostart.sh`), the same pattern as the owner's other apps.
+- **Database:** a separate Postgres database, `dearme`, so dev and test data never reach production.
+- **Mode:** production runs `MOCK_MODE=true` until YouCam units are available.
+- **Permissions-Policy:** allows camera, microphone and geolocation for the site's own origin only, for photo capture, voice notes and the nearest-city lookup.

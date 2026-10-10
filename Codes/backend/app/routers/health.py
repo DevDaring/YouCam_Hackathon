@@ -11,6 +11,7 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health")
+@router.get("/api/health")
 async def health(db: AsyncSession = Depends(get_db)) -> dict:
     s = get_settings()
     db_ok = (await db.execute(text("select 1"))).scalar() == 1

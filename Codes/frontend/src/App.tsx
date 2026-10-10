@@ -2,12 +2,14 @@ import { MotionConfig } from 'framer-motion'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { AuthProvider, RequireAuth } from './lib/auth'
 import { RegionProvider } from './lib/region'
 import Landing from './pages/Landing'
 import NotFound from './pages/NotFound'
 import Placeholder from './pages/Placeholder'
 
 const Start = lazy(() => import('./pages/Start'))
+const Login = lazy(() => import('./pages/Login'))
 
 function PageFallback() {
   return (
@@ -24,18 +26,29 @@ export function AppRoutes() {
       <Route element={<Layout />}>
         <Route index element={<Landing />} />
         <Route
-          path="start"
+          path="login"
           element={
             <Suspense fallback={<PageFallback />}>
-              <Start />
+              <Login />
             </Suspense>
           }
         />
+        {/* Family room is public: voters never sign in (spec K2). */}
         <Route path="room/:token" element={<Placeholder page="room" milestone="M4" />} />
-        <Route path="studio" element={<Placeholder page="studio" milestone="M2" />} />
-        <Route path="pack/:lookId" element={<Placeholder page="pack" milestone="M6" />} />
-        <Route path="store" element={<Placeholder page="store" milestone="M7" />} />
-        <Route path="demo" element={<Placeholder page="demo" milestone="M6" />} />
+        <Route
+          path="start"
+          element={
+            <RequireAuth>
+              <Suspense fallback={<PageFallback />}>
+                <Start />
+              </Suspense>
+            </RequireAuth>
+          }
+        />
+        <Route path="studio" element={<RequireAuth><Placeholder page="studio" milestone="M2" /></RequireAuth>} />
+        <Route path="pack/:lookId" element={<RequireAuth><Placeholder page="pack" milestone="M6" /></RequireAuth>} />
+        <Route path="store" element={<RequireAuth><Placeholder page="store" milestone="M7" /></RequireAuth>} />
+        <Route path="demo" element={<RequireAuth><Placeholder page="demo" milestone="M6" /></RequireAuth>} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
@@ -46,9 +59,11 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <RegionProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
       </RegionProvider>
     </MotionConfig>
   )
