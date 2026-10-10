@@ -31,8 +31,9 @@ echo "==> production .env (only the keys DearMe uses, plus prod overrides)"
 python3 - "$SRC/.env" "$DEST/.env" "$DOMAIN" "$DEST" <<'PY'
 import re, sys
 src, dest, domain, root = sys.argv[1:]
-keep = re.compile(r"^(YOUCAM_.*|YouCam_Phd_API_KEY|OPENROUTER_API_KEY(_1|_2)?|OPENROUTER_API_BASE_URL|"
-                  r"OPENROUTER_PRIMARY_MODEL_NAME|LLM_.*|SARVAM_API_KEY|SARVAM_2009_API_KEY|STT_PROVIDER|TTS_ENABLED|"
+keep = re.compile(r"^(YOUCAM_.*|YouCam_Phd_API_KEY|DEEPSEEK_API_KEY(_1|_2)?|DEEPSEEK_API_BASE_URL|DEEPSEEK_MODEL|"
+                  r"KIMI_.*|KIMI_2009_API_KEY|NANOGPT_.*|NanoGPT_2009_API_KEY|LLM_.*|SARVAM_API_KEY|SARVAM_2009_API_KEY|"
+                  r"Open_AI_2009_Key|OPENAI_API_KEY|STT_PROVIDER|TTS_ENABLED|"
                   r"INTEGRITY_SHARED_SECRET|SHARE_TOKEN_SECRET|STORE_DASHBOARD_PASSWORD|IMAGE_RETENTION_HOURS|"
                   r"DEFAULT_LOCALE|DATABASE_URL|DEMO_USER|DEMO_PASSWORD)$")
 out = {}

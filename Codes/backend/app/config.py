@@ -42,17 +42,25 @@ class Settings(BaseSettings):
     YOUCAM_USE_MCP: bool = False
     YOUCAM_MCP_URL: str | None = None
 
-    # ---------- LLM ----------
-    LLM_PROVIDER: Literal["openrouter", "anthropic", "openai"] = "openrouter"
-    LLM_MODEL: str | None = Field(None, validation_alias=_alias("LLM_MODEL", "OPENROUTER_PRIMARY_MODEL_NAME"))
-    OPENROUTER_API_BASE_URL: str = "https://openrouter.ai/api/v1"
-    OPENROUTER_API_KEY: str | None = Field(None, validation_alias=_alias("OPENROUTER_API_KEY", "OPENROUTER_API_KEY_1"))
-    OPENROUTER_API_KEY_2: str | None = None
-    ANTHROPIC_API_KEY: str | None = Field(None, validation_alias=_alias("ANTHROPIC_API_KEY", "Calude_2009_API_Key"))
-    OPENAI_API_KEY: str | None = Field(None, validation_alias=_alias("OPENAI_API_KEY", "Open_AI_2009_Key"))
+    # ---------- LLM (language tasks: change plans, translation, rewording) ----------
+    # Owner choice (D-008): cheap OpenAI-compatible providers. Tried in order; each key is a fallback.
+    LLM_PROVIDER_ORDER: str = "deepseek,kimi"
+    DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com/v1"
+    DEEPSEEK_API_KEY: str | None = Field(None, validation_alias=_alias("DEEPSEEK_API_KEY", "DEEPSEEK_API_KEY_1"))
+    DEEPSEEK_API_KEY_2: str | None = None
+    DEEPSEEK_MODEL: str = "deepseek-flash"       # live-tested 2026-10-10: 1.7 s, correct JSON
+    KIMI_API_BASE_URL: str = "https://api.moonshot.ai/v1"
+    KIMI_API_KEY: str | None = Field(None, validation_alias=_alias("KIMI_API_KEY", "KIMI_2009_API_KEY"))
+    KIMI_MODEL: str = "kimi-k2.6"                # reasoning model: temperature must be 1, slow
+    LLM_TIMEOUT_S: float = 45.0
+
+    # ---------- Images (demo catalogue / probe garments) ----------
+    NANOGPT_API_BASE_URL: str = "https://nano-gpt.com/api/v1"
+    NANOGPT_API_KEY: str | None = Field(None, validation_alias=_alias("NANOGPT_API_KEY", "NanoGPT_2009_API_KEY", "Nano_GPT_API_KEY"))
 
     # ---------- Speech ----------
     STT_PROVIDER: Literal["sarvam", "whisper"] = "sarvam"
+    OPENAI_API_KEY: str | None = Field(None, validation_alias=_alias("OPENAI_API_KEY", "Open_AI_2009_Key"))  # Whisper fallback only
     SARVAM_API_KEY: str | None = Field(None, validation_alias=_alias("SARVAM_API_KEY", "SARVAM_2009_API_KEY", "SARVAM_88_API_KEY"))
     TTS_ENABLED: bool = False
 
@@ -73,10 +81,6 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool = False          # true in production (HTTPS)
     DEMO_USER: str | None = "TestUser"   # jury demo account, seeded at startup; empty = none
     DEMO_PASSWORD: str | None = "TestUser11"
-
-    @property
-    def openrouter_keys(self) -> list[str]:
-        return [k for k in (self.OPENROUTER_API_KEY, self.OPENROUTER_API_KEY_2) if k]
 
     @property
     def youcam_spendable_units(self) -> int:

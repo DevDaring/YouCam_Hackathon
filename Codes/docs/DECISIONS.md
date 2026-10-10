@@ -53,3 +53,20 @@ The owner asked for a login page that shows the demo credentials, with a "Fill i
 - **Database:** a separate Postgres database, `dearme`, so dev and test data never reach production.
 - **Mode:** production runs `MOCK_MODE=true` until YouCam units are available.
 - **Permissions-Policy:** allows camera, microphone and geolocation for the site's own origin only, for photo capture, voice notes and the nearest-city lookup.
+
+## D-008 · AI models other than YouCam (owner, Oct 10 2026)
+**Language tasks** (change plans, translation, rewording, explanations): **DeepSeek first, Kimi as fallback.** The owner chose these because they are cheap. OpenRouter, Anthropic and Gemini are no longer used for this. Client: `backend/app/agent/llm.py`.
+
+Live comparison on 2026-10-10, using a Bengali voice-note test with strict JSON output:
+
+| Model | Time | Result | Role |
+|---|---|---|---|
+| `deepseek-flash` | 1.7 s | Correct layer (necklace); the skin remark was turned into colour-contrast advice | **Primary.** Key 1 has $42.69, key 2 has $6.17. |
+| `deepseek-v4-pro` | 11.5 s | Merged two requests into one "outfit" change | Not used |
+| `kimi-k2.6` | 60 s | Spent its whole token budget reasoning and returned no answer. It only accepts temperature = 1 | Last-resort fallback only, run with temperature 1 and a 4k token budget. $14.21 available. |
+
+The model in `.env` (`deepseek-chat`) does not appear in the live model list, so the app ignores it.
+
+**Image generation** (demo catalogue, probe garments, labelled AI demo shopper): **NanoGPT** (owner's choice, replacing Gemini). It lists 243 image models. The only key in `.env`, stored under two names, is rejected (401 "Invalid session"), so a new key is needed before choosing the model.
+
+**Speech:** Sarvam for speech-to-text, with Whisper as fallback. **Identity Lock and Harmony Score** need no AI model (MediaPipe and colour maths).
