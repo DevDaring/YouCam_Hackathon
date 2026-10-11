@@ -34,8 +34,8 @@ The owner asked for the product to work across countries, with the user choosing
 ## D-004 · Unit ledger counts only live calls
 Cache hits and mock calls are recorded with `units=0` semantics (excluded from spend). Refused calls are recorded with `status=refused`, so the store view can show how often the budget blocked a render.
 
-## D-005 · Name: DearMe (owner, Oct 10 2026)
-The product is called **DearMe**. The family vote buttons keep the words Haan / Hmm / Na.
+## D-005 · Name: DearYou (owner, Oct 10 2026)
+The product is called **DearYou**. The family vote buttons keep the words Haan / Hmm / Na.
 - **Logo:** an original mark of a hand mirror shaped like a jharokha (ogee) arch, holding a heart, so "see yourself, loved". Wordmark is Fraunces, with italic "Dear" and bold "Me".
 - **Files:** `frontend/src/components/Logo.tsx`, `public/favicon.svg`, `public/logo-mark.svg`, `public/og-image.png`, `public/apple-touch-icon.png`.
 
@@ -46,11 +46,11 @@ The owner asked for a login page that shows the demo credentials, with a "Fill i
 - **What is protected:** `/start`, `/studio`, `/pack`, `/store` and `/demo` need a login. `/` and `/room/:token` stay public, because family voters never sign in (spec K2).
 
 ## D-007 · Hosting (owner, Oct 10 2026)
-- **URL:** `https://dearme.koushikdeb.com`. The NameSilo A record `dearme` points to 154.12.116.152, and Caddy handles TLS through ACME.
-- **Files:** everything lives in `/home/Debz/Host/dearme`: `web/` (static build), `backend/` (own venv), and a generated `.env` that holds only DearMe's keys with production overrides.
-- **Process and proxy:** uvicorn runs on `127.0.0.1:8160` and Caddy proxies `/api/*` to it. The Caddy block sits between `# >>> dearme` markers in `/home/Debz/Host/saarthi/Caddyfile`.
+- **URL:** `https://dearyou.koushikdeb.com`. The NameSilo A record `dearyou` points to 154.12.116.152, and Caddy handles TLS through ACME.
+- **Files:** everything lives in `/home/Debz/Host/dearyou`: `web/` (static build), `backend/` (own venv), and a generated `.env` that holds only DearYou's keys with production overrides.
+- **Process and proxy:** uvicorn runs on `127.0.0.1:8160` and Caddy proxies `/api/*` to it. The Caddy block sits between `# >>> dearyou` markers in `/home/Debz/Host/saarthi/Caddyfile`.
 - **Restarts:** cron runs `@reboot` and a `*/5` watchdog (`autostart.sh`), the same pattern as the owner's other apps.
-- **Database:** a separate Postgres database, `dearme`, so dev and test data never reach production.
+- **Database:** a separate Postgres database, `dearyou`, so dev and test data never reach production.
 - **Mode:** production runs `MOCK_MODE=true` until YouCam units are available.
 - **Permissions-Policy:** allows camera, microphone and geolocation for the site's own origin only, for photo capture, voice notes and the nearest-city lookup.
 
@@ -70,3 +70,12 @@ The model in `.env` (`deepseek-chat`) does not appear in the live model list, so
 **Image generation** (demo catalogue, probe garments, labelled AI demo shopper): **NanoGPT** (owner's choice, replacing Gemini). It lists 243 image models. The only key in `.env`, stored under two names, is rejected (401 "Invalid session"), so a new key is needed before choosing the model.
 
 **Speech:** Sarvam for speech-to-text, with Whisper as fallback. **Identity Lock and Harmony Score** need no AI model (MediaPipe and colour maths).
+
+## D-009 · Name: DearYou, new logo, new domain (owner, Oct 11 2026)
+The product is renamed **DearYou** everywhere. Entries above that were written as "DearMe" were updated in place.
+- **Logo:** two paisleys, standing for two families, meet as one heart, outlined in gold. A glowing marigold "flower soul" sits in the dip of the heart, echoing the hero animation. The left half is maroon and the right half marigold, and each carries a paisley swirl. The wordmark is Fraunces, with an italic "Dear" and a bold "You". The app icon is a light ivory tile with a gold edge, because a maroon tile would hide the maroon half.
+- **Hosting:**
+  - The site now lives at `https://dearyou.koushikdeb.com`, served from `/home/Debz/Host/dearyou` with the database `dearyou`. The folder and the database were renamed, so no data was copied.
+  - `dearme.koushikdeb.com` now sends a permanent redirect (301) to the new domain.
+  - Cron and the Caddy block, now between `# >>> dearyou` markers, were updated to match.
+- **Hero:** an animated line-art sequence of brides from several traditions, with falling glowing "flower souls". Each bride is identified only by her attire and jewellery, never by religious symbols.

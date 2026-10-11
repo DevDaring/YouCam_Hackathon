@@ -1,9 +1,9 @@
 {
   "app": {
-    "name": "DearMe",
+    "name": "DearYou",
     "tagline": "Wedding and festive looks, decided together",
     "skipToContent": "Skip to main content",
-    "homeLink": "DearMe — go to home page"
+    "homeLink": "DearYou — go to home page"
   },
   "header": {
     "locationButton": "Location: {{place}}. Change location",
@@ -71,7 +71,20 @@
       }
     },
     "availableTitle": "Available in",
-    "availableLoading": "Loading countries…"
+    "availableLoading": "Loading countries…",
+    "brides": {
+      "label": "Every bride, every tradition",
+      "alt": "{{bride}}: an original line drawing sketched under an arch, with glowing petals falling",
+      "bengali": "Bengali bride",
+      "christian": "Christian bride",
+      "muslim": "Muslim bride",
+      "jewish": "Jewish bride",
+      "sikh": "Sikh bride",
+      "kandyan": "Kandyan bride",
+      "next": "Next bride",
+      "pause": "Pause animation",
+      "play": "Play animation"
+    }
   },
   "location": {
     "sheetTitle": "Where is the celebration?",
@@ -84,7 +97,7 @@
     "locating": "Finding your nearest city…",
     "found": "Found you near {{city}}, {{country}}.",
     "foundCountry": "Found you in {{country}}.",
-    "unsupported": "DearMe isn't available where you are yet. You can still pick a country and city below.",
+    "unsupported": "DearYou isn't available where you are yet. You can still pick a country and city below.",
     "denied": "Location permission was turned off. No problem — pick your country and city below.",
     "unavailable": "We couldn't get your location on this device. Please pick your country and city below.",
     "error": "Something went wrong while finding your city. Please pick it below.",
@@ -229,7 +242,7 @@
     "body": "The link may be old or mistyped."
   },
   "auth": {
-    "title": "Welcome to DearMe",
+    "title": "Welcome to DearYou",
     "subtitle": "Sign in to build your looks and share them with your family.",
     "username": "Username",
     "password": "Password",

@@ -127,8 +127,8 @@ function Hero() {
             className="absolute -inset-6 rounded-full blur-3xl"
             style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
           />
-          <div className="relative overflow-hidden rounded-[2rem] border border-rule/60 shadow-xl shadow-[color:var(--glow)]">
-            <HeroIllustration title={t('landing.heroIllustrationAlt')} />
+          <div className="relative">
+            <HeroIllustration />
           </div>
           <figcaption className="absolute left-3 top-3 rounded-full bg-maroon-900/85 px-3 py-1 text-xs font-semibold text-ivory-50">
             {t('common.illustration')}

@@ -20,7 +20,7 @@ from app.config import get_settings
 from app.db import get_db
 from app.models import AuthSession, User
 
-COOKIE_NAME = "dm_session"
+COOKIE_NAME = "dy_session"
 _N, _R, _P = 2**14, 8, 1
 
 

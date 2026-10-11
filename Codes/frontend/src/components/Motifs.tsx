@@ -1,5 +1,5 @@
 /**
- * Original line-art motifs (paisley + rosette), drawn for DearMe.
+ * Original line-art motifs (paisley + rosette), drawn for DearYou.
  * Purely decorative: always aria-hidden and rendered at low opacity.
  */
 

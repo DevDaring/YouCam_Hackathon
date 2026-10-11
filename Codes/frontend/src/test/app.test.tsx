@@ -88,7 +88,7 @@ describe('app shell', () => {
   it('sends signed-out shoppers to login, and Fill in loads the jury demo account', async () => {
     mockFetch()
     renderAt('/start')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Welcome to DearMe' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Welcome to DearYou' })).toBeTruthy()
     const fill = await screen.findByRole('button', { name: 'Fill in' })
     fireEvent.click(fill)
     expect((screen.getByLabelText('Username') as HTMLInputElement).value).toBe('TestUser')

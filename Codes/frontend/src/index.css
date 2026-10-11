@@ -210,7 +210,7 @@
 }
 
 @layer components {
-  /* The "DearMe" wordmark is always Latin Fraunces, whatever the UI language. */
+  /* The "DearYou" wordmark is always Latin Fraunces, whatever the UI language. */
   .font-wordmark {
     font-family: "Fraunces", Georgia, "Times New Roman", serif;
   }

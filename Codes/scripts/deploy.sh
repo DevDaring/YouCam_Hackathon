@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# DearMe — build and deploy to /home/Debz/Host/dearme (https://dearme.koushikdeb.com).
-# Caddy serves web/ and proxies /api/* to uvicorn on 127.0.0.1:8160 (block "# >>> dearme" in
+# DearYou — build and deploy to /home/Debz/Host/dearyou (https://dearyou.koushikdeb.com).
+# Caddy serves web/ and proxies /api/* to uvicorn on 127.0.0.1:8160 (block "# >>> dearyou" in
 # /home/Debz/Host/saarthi/Caddyfile). Safe to re-run: idempotent.
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="${DEST:-/home/Debz/Host/dearme}"
-DOMAIN="${DOMAIN:-dearme.koushikdeb.com}"
+DEST="${DEST:-/home/Debz/Host/dearyou}"
+DOMAIN="${DOMAIN:-dearyou.koushikdeb.com}"
 PORT="${PORT:-8160}"
 
 echo "==> tests"
@@ -27,7 +27,7 @@ rsync -a --delete --exclude private "$SRC/fixtures/" "$DEST/fixtures/"
 cp "$SRC/scripts/host/run.sh" "$SRC/scripts/host/stop.sh" "$SRC/scripts/host/autostart.sh" "$DEST/"
 chmod +x "$DEST"/{run,stop,autostart}.sh
 
-echo "==> production .env (only the keys DearMe uses, plus prod overrides)"
+echo "==> production .env (only the keys DearYou uses, plus prod overrides)"
 python3 - "$SRC/.env" "$DEST/.env" "$DOMAIN" "$DEST" <<'PY'
 import re, sys
 src, dest, domain, root = sys.argv[1:]
@@ -41,7 +41,7 @@ for line in open(src, encoding="utf-8"):
     m = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$", line.rstrip("\n"))
     if m and keep.match(m.group(1)):
         out[m.group(1)] = m.group(2)
-out["DATABASE_URL"] = re.sub(r"/[^/]+$", "/dearme", out["DATABASE_URL"])
+out["DATABASE_URL"] = re.sub(r"/[^/]+$", "/dearyou", out["DATABASE_URL"])
 out.update(APP_ENV="production", APP_URL=f"https://{domain}", MOCK_MODE="true", COOKIE_SECURE="true",
            STORAGE_DIR=f"{root}/storage", GEO_REVERSE_PROVIDER="offline")
 with open(dest, "w", encoding="utf-8") as f:

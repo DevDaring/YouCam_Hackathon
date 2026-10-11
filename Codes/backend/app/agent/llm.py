@@ -19,7 +19,7 @@ from pydantic import BaseModel, ValidationError
 
 from app.config import get_settings
 
-log = logging.getLogger("dearme.llm")
+log = logging.getLogger("dearyou.llm")
 T = TypeVar("T", bound=BaseModel)
 SKIP_STATUS = {401, 402, 403, 404, 408, 409, 429, 500, 502, 503, 504}
 
