@@ -101,12 +101,15 @@ export default function Start() {
             <span />
           )}
           {!isLast ? (
-            <button type="submit" className={buttonClass.primary} disabled={!canContinue}>
+            // Distinct keys: React must not reuse the "Start over" <button> as this submit button,
+            // or the click that resets the form also submits it and skips a step.
+            <button key="next" type="submit" className={buttonClass.primary} disabled={!canContinue}>
               {t('setup.next')}
               <ArrowRight aria-hidden="true" className="size-5" />
             </button>
           ) : (
             <button
+              key="reset"
               type="button"
               className={buttonClass.ghost}
               onClick={() => {

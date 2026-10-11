@@ -92,3 +92,28 @@ export function useEventDraft() {
 
   return { draft, update, reset }
 }
+
+/**
+ * "Try the demo family": a complete, valid draft for the selected country so judges reach the
+ * review step in one tap (bride · wedding-type event ~4 months out · mid budget · traditional).
+ */
+export function demoFamilyDraft(country: Country, today = new Date()): EventDraft {
+  const preferred = ['wedding', 'nikah', 'baraat', 'reception']
+  const eventType = preferred.find((e) => country.events.includes(e)) ?? country.events[0] ?? null
+  const d = new Date(today.getFullYear(), today.getMonth() + 4, 14)
+  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const presets = country.budget_presets
+  const amount = presets[Math.min(1, presets.length - 1)] ?? 0
+  return {
+    step: SETUP_STEPS.indexOf('summary'),
+    role: 'bride',
+    eventType,
+    date,
+    budget: amount > 0 ? { amount, currency: country.currency } : null,
+    styles: ['traditional'],
+  }
+}
+
+export function saveDraft(draft: EventDraft): void {
+  writeJSON(STORAGE_KEYS.draft, draft)
+}

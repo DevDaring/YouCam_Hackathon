@@ -64,7 +64,7 @@ describe('app shell', () => {
     mockFetch()
     renderAt('/')
     expect(screen.getByRole('heading', { level: 1, name: "Your look. Your family's yes." })).toBeTruthy()
-    expect(screen.getByRole('link', { name: /Start my look/ }).getAttribute('href')).toBe('/start')
+    expect(screen.getAllByRole('link', { name: /Start my look/ }).every((a) => a.getAttribute('href') === '/start')).toBe(true)
     expect(await screen.findByText('Pakistan')).toBeTruthy()
     // Timezone guess → India; chip shows it.
     await waitFor(() => expect(screen.getByRole('button', { name: /Location: India/ })).toBeTruthy())

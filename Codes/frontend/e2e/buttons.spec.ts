@@ -1,0 +1,361 @@
+/**
+ * Every button, link and control in the app, exercised in a real browser.
+ * Phone (Pixel 7) and desktop projects; fake camera + fake GPS (Kolkata).
+ */
+import { expect, test, type Page } from '@playwright/test'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const PORTRAIT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures', 'portrait.png')
+
+async function fresh(page: Page) {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.clear())
+}
+
+async function login(page: Page) {
+  await page.goto('/login')
+  await page.getByRole('button', { name: 'Fill in' }).click()
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await expect(page).not.toHaveURL(/\/login/)
+}
+
+/** Creates a session through the real UI (demo family → consent → continue) and returns its id. */
+async function newSession(page: Page): Promise<string> {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Try the demo family' }).click()
+  await expect(page.getByRole('heading', { name: "Here's your event" })).toBeVisible()
+  await page.getByRole('checkbox').check()
+  await page.getByRole('button', { name: 'Continue to photo' }).click()
+  await expect(page).toHaveURL(/\/photo\/[0-9a-f-]{36}$/)
+  return page.url().split('/photo/')[1]
+}
+
+test.describe('public pages', () => {
+  test.beforeEach(async ({ page }) => fresh(page))
+
+  test('landing: hero controls, CTAs, logo, skip link', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByRole('heading', { level: 1, name: "Your look. Your family's yes." })).toBeVisible()
+
+    // Hero animation controls: pause → play, next bride.
+    await page.getByRole('button', { name: 'Pause animation' }).click()
+    await expect(page.getByRole('button', { name: 'Play animation' })).toBeVisible()
+    await expect(page.getByText('Bengali bride', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Next bride' }).click()
+    await expect(page.getByText('Christian bride', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Play animation' }).click()
+    await expect(page.getByRole('button', { name: 'Pause animation' })).toBeVisible()
+
+    // Skip link (first Tab on a fresh page) moves focus to <main>.
+    await page.reload()
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('main')).toBeFocused()
+
+    // "Start my look" when signed out → login, which returns to /start.
+    await page.getByRole('main').getByRole('link', { name: /Start my look/ }).click()
+    await expect(page).toHaveURL(/\/login\?next=%2Fstart/)
+    // Logo goes home.
+    await page.getByRole('link', { name: 'DearYou — go to home page' }).click()
+    await expect(page).toHaveURL(/\/$/)
+  })
+
+  test('countries list retry button recovers from an API error', async ({ page }) => {
+    await page.route('**/api/regions', (r) => r.fulfill({ status: 500, body: '{}' }))
+    await page.goto('/')
+    const retry = page.getByRole('button', { name: 'Try again' }).first()
+    await expect(retry).toBeVisible()
+    await page.unroute('**/api/regions')
+    await retry.click()
+    await expect(page.getByText('Bangladesh').first()).toBeVisible()
+  })
+
+  test('location sheet: open, country, city, use my location, not now, done, close', async ({ page }) => {
+    await page.goto('/')
+    const chip = page.getByRole('button', { name: /Location: India/ })
+    await chip.click()
+    const sheet = page.getByRole('dialog', { name: 'Where is the celebration?' })
+    await expect(sheet).toBeVisible()
+
+    await sheet.getByLabel('Country').selectOption('BD')
+    await sheet.getByLabel('City').selectOption('Dhaka')
+    await sheet.getByRole('button', { name: 'Use my location' }).click()
+    await sheet.getByRole('button', { name: 'Not now' }).click()
+    await expect(sheet.getByRole('button', { name: 'Use my location' })).toBeVisible()
+    await sheet.getByRole('button', { name: 'Use my location' }).click()
+    await sheet.getByRole('button', { name: 'OK, find my city' }).click()
+    await expect(sheet.getByText('Found you near Kolkata, India.')).toBeVisible()
+    await sheet.getByRole('button', { name: 'Done' }).click()
+    await expect(sheet).toBeHidden()
+    await expect(page.getByRole('button', { name: /Location: Kolkata, India/ })).toBeVisible()
+
+    await page.getByRole('button', { name: /Location: Kolkata/ }).click()
+    await sheet.getByRole('button', { name: 'Close' }).click()
+    await expect(sheet).toBeHidden()
+  })
+
+  test('language switcher: Bengali, Hindi, English', async ({ page, isMobile }) => {
+    await page.goto('/')
+    const pick = async (code: string, label: string) => {
+      if (isMobile) await page.getByRole('combobox', { name: 'Language' }).selectOption(code)
+      else await page.getByRole('button', { name: label, exact: true }).click()
+    }
+    await pick('bn', 'বাংলা')
+    await expect(page.getByRole('heading', { level: 1, name: 'আপনার সাজ। আপনার পরিবারের হ্যাঁ।' })).toBeVisible()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'bn')
+    if (isMobile) await page.getByRole('combobox').first().selectOption('hi')
+    else await page.getByRole('button', { name: 'हिन्दी', exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1, name: 'आपका लुक। आपके परिवार की हाँ।' })).toBeVisible()
+    if (isMobile) await page.getByRole('combobox').first().selectOption('en')
+    else await page.getByRole('button', { name: 'English', exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1, name: "Your look. Your family's yes." })).toBeVisible()
+  })
+
+  test('theme toggle cycles Auto → Light → Dark → Auto', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /Colour theme: Auto/ }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await page.getByRole('button', { name: /Colour theme: Light/ }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await page.getByRole('button', { name: /Colour theme: Dark/ }).click()
+    await expect(page.getByRole('button', { name: /Colour theme: Auto/ })).toBeVisible()
+  })
+
+  test('placeholder and 404 pages have a working way home', async ({ page }) => {
+    await page.goto('/room/abc123')
+    await page.getByRole('link', { name: 'Back to home' }).click()
+    await expect(page).toHaveURL(/\/$/)
+    await page.goto('/no-such-page')
+    await expect(page.getByRole('heading', { name: 'This page wandered off' })).toBeVisible()
+    await page.getByRole('link', { name: 'Back to home' }).click()
+    await expect(page).toHaveURL(/\/$/)
+  })
+})
+
+test.describe('login', () => {
+  test.beforeEach(async ({ page }) => fresh(page))
+
+  test('wrong password, show/hide, fill in, sign in, sign out', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('link', { name: 'Sign in' }).click()
+    await expect(page.getByRole('heading', { name: 'Welcome to DearYou' })).toBeVisible()
+
+    await page.getByLabel('Username').fill('TestUser')
+    await page.getByLabel('Password', { exact: true }).fill('wrong-password')
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+    await expect(page.getByRole('alert')).toHaveText("That username and password don't match. Please try again.")
+
+    await page.getByRole('button', { name: 'Show password' }).click()
+    await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'text')
+    await page.getByRole('button', { name: 'Hide password' }).click()
+    await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'password')
+
+    await page.getByRole('button', { name: 'Fill in' }).click()
+    await expect(page.getByLabel('Username')).toHaveValue('TestUser')
+    await expect(page.getByLabel('Password', { exact: true })).toHaveValue('TestUser11')
+    await expect(page.getByRole('button', { name: 'Filled in — now tap Sign in' })).toBeVisible()
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+    await expect(page).toHaveURL(/\/start$/)
+
+    await page.getByRole('button', { name: 'Signed in as TestUser. Sign out' }).click()
+    await expect(page).toHaveURL(/\/$/)
+    await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible()
+  })
+})
+
+test.describe('signed in', () => {
+  test.beforeEach(async ({ page }) => {
+    await fresh(page)
+    await login(page)
+  })
+
+  test('event setup: every option, back, edit buttons, consent, continue to photo', async ({ page }) => {
+    await page.goto('/start')
+    const next = page.getByRole('button', { name: 'Continue', exact: true })
+    const heading = (name: string) => expect(page.getByRole('heading', { name })).toBeVisible()
+
+    await heading('Confirm your location')
+    await next.click()
+
+    await heading('Who are you dressing as?')
+    await expect(next).toBeDisabled()
+    for (const r of ['Groom', 'Family member', 'Guest', 'Bride']) await page.getByText(r, { exact: true }).click()
+    await next.click()
+
+    await heading('Which event?')
+    await expect(next).toBeDisabled()
+    for (const e of ['Haldi', 'Mehendi', 'Sangeet', 'Wedding']) await page.getByText(e, { exact: true }).click()
+    await next.click()
+
+    await heading('When is it?')
+    const date = page.getByLabel('Event date')
+    await date.fill('2020-01-01')
+    await expect(next).toBeDisabled()
+    await date.fill('2027-02-14')
+    await expect(next).toBeEnabled()
+    await next.click()
+
+    await heading("What's your budget?")
+    const presets = page.getByRole('radio')
+    for (let i = 0; i < (await presets.count()); i++) await presets.nth(i).check({ force: true })
+    await page.getByLabel(/Or enter your own amount/).fill('60000')
+    await next.click()
+
+    await heading("What's your style?")
+    for (const s of ['Traditional', 'Modern', 'Minimal', 'Statement']) await page.getByText(s, { exact: true }).click()
+    for (const s of ['Minimal', 'Statement']) await page.getByText(s, { exact: true }).click()
+    await next.click()
+
+    await heading("Here's your event")
+    await expect(page.getByText('Traditional · Modern')).toBeVisible()
+
+    // Back from summary, then forward again.
+    await page.getByRole('button', { name: 'Back' }).click()
+    await heading("What's your style?")
+    await next.click()
+
+    // Every Edit button opens its step; Continue returns to the summary.
+    for (const [field, title] of [
+      ['Location', 'Confirm your location'],
+      ['Role', 'Who are you dressing as?'],
+      ['Event', 'Which event?'],
+      ['Date', 'When is it?'],
+      ['Budget', "What's your budget?"],
+      ['Style', "What's your style?"],
+    ]) {
+      await page.getByRole('button', { name: `Edit ${field}` }).click()
+      await heading(title)
+      const from = Number((await page.getByText(/^Step \d of 7$/).textContent())?.match(/\d/)?.[0])
+      for (let n = from + 1; n <= 7; n++) {
+        await next.click()
+        await expect(page.getByText(`Step ${n} of 7`)).toBeVisible()
+      }
+      await heading("Here's your event")
+    }
+
+    const go = page.getByRole('button', { name: 'Continue to photo' })
+    await expect(go).toBeDisabled()
+    await page.getByRole('checkbox').check()
+    await go.click()
+    await expect(page).toHaveURL(/\/photo\//)
+  })
+
+  test('start over resets the setup', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Try the demo family' }).click()
+    await expect(page.getByRole('heading', { name: "Here's your event" })).toBeVisible()
+    await page.getByRole('button', { name: 'Start over' }).click()
+    await expect(page.getByRole('heading', { name: 'Confirm your location' })).toBeVisible()
+    await page.getByRole('button', { name: 'Continue', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Continue', exact: true })).toBeDisabled() // role cleared
+  })
+
+  test('try the demo family fills every answer', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Try the demo family' }).click()
+    await expect(page.getByRole('heading', { name: "Here's your event" })).toBeVisible()
+    for (const v of ['Bride', 'Wedding', 'Traditional']) await expect(page.getByText(v, { exact: true })).toBeVisible()
+    await expect(page.getByText('Not set')).toHaveCount(0)
+  })
+
+  test('camera: open, light check, timer, flip, close, escape, capture, retake', async ({ page }) => {
+    await newSession(page)
+    const dialog = page.getByRole('dialog', { name: 'Full-length photo' })
+
+    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByText(/Light ✓|Too dark|Too bright/)).toBeVisible()
+    await dialog.getByRole('button', { name: /Self-timer: 3 seconds/ }).click()
+    await dialog.getByRole('button', { name: /Self-timer: 10 seconds/ }).click()
+    await expect(dialog.getByRole('button', { name: /Self-timer: 0 seconds/ })).toBeVisible()
+    await dialog.getByRole('button', { name: 'Switch camera' }).click()
+    await expect(dialog.getByText(/Light ✓|Too dark|Too bright/)).toBeVisible()
+    await dialog.getByRole('button', { name: 'Close' }).click()
+    await expect(dialog).toBeHidden()
+
+    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await expect(dialog).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+
+    // Self-timer path: 3-second countdown then capture.
+    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await expect(dialog.getByRole('button', { name: 'Take photo' })).toBeEnabled()
+    await dialog.getByRole('button', { name: 'Take photo' }).click()
+    await expect(page.getByRole('list', { name: 'Photo check' })).toBeVisible({ timeout: 20_000 })
+    // The fake camera shows a test pattern, not a person — reported honestly.
+    await expect(page.getByText("We couldn't find a face — face the camera in good light")).toBeVisible()
+    await expect(page.getByRole('button', { name: /Continue anyway/ })).toBeVisible()
+    await page.getByRole('button', { name: 'Retake' }).click()
+    await expect(page.getByRole('button', { name: 'Take my photo' })).toBeVisible()
+  })
+
+  test('upload: full photo, back, face photo, skip, studio buttons, footer links', async ({ page }) => {
+    const sid = await newSession(page)
+
+    // Upload a photo (real file chooser from the label).
+    const chooser = page.waitForEvent('filechooser')
+    await page.getByText('Upload a photo', { exact: true }).click()
+    await (await chooser).setFiles(PORTRAIT)
+    await expect(page.getByText('Face found')).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('img', { name: 'Your full-length photo' })).toBeVisible()
+    await page.getByRole('button', { name: /Use this photo/ }).click()
+
+    await expect(page.getByRole('heading', { name: 'A close-up of your face' })).toBeVisible()
+    await page.getByRole('button', { name: 'Back' }).click()
+    await expect(page.getByRole('heading', { name: 'Your full-length photo' })).toBeVisible()
+    await page.getByRole('button', { name: /Use this photo/ }).click()
+
+    const chooser2 = page.waitForEvent('filechooser')
+    await page.getByText('Upload a photo', { exact: true }).click()
+    await (await chooser2).setFiles(PORTRAIT)
+    await expect(page.getByText(/Face fills the frame|Move closer so your face/)).toBeVisible({ timeout: 20_000 })
+    await page.getByRole('button', { name: /Use this photo/ }).click()
+
+    await expect(page).toHaveURL(new RegExp(`/studio/${sid}$`))
+    await expect(page.getByRole('heading', { name: 'Your look studio' })).toBeVisible()
+    await expect(page.getByRole('img', { name: 'Your face close-up' })).toBeVisible()
+    for (const n of ['Sindoor Dusk', 'Marigold Morning', 'Ivory Moon']) await expect(page.getByText(n)).toBeVisible()
+
+    await page.getByRole('link', { name: 'Retake photos' }).click()
+    await expect(page).toHaveURL(new RegExp(`/photo/${sid}$`))
+    await page.goto(`/studio/${sid}`)
+    await page.getByRole('link', { name: 'Edit event' }).click()
+    await expect(page).toHaveURL(/\/start$/)
+
+    const footer = page.getByRole('contentinfo')
+    await footer.getByRole('link', { name: 'Look studio' }).click()
+    await expect(page.getByRole('heading', { name: 'Your look studio' })).toBeVisible()
+    await footer.getByRole('link', { name: 'Start my look' }).click()
+    await expect(page).toHaveURL(/\/start$/)
+  })
+
+  test('face step skip and back-to-setup link', async ({ page }) => {
+    const sid = await newSession(page)
+    await page.getByRole('link', { name: 'Back to event setup' }).click()
+    await expect(page).toHaveURL(/\/start$/)
+    await page.goto(`/photo/${sid}`)
+    await page.locator('input[type=file]').setInputFiles(PORTRAIT)
+    await page.getByRole('button', { name: /Use this photo/ }).click()
+    await page.getByRole('button', { name: 'Skip for now' }).click()
+    await expect(page.getByRole('heading', { name: 'Your look studio' })).toBeVisible()
+    await expect(page.getByText("No close-up — that's fine")).toBeVisible()
+  })
+
+  test('camera blocked: friendly message and upload instead', async ({ page }) => {
+    await page.addInitScript(() => {
+      navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('blocked', 'NotAllowedError'))
+    })
+    await newSession(page)
+    await page.getByRole('button', { name: 'Take my photo' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Full-length photo' })
+    await expect(dialog.getByRole('alert')).toHaveText(/Camera access was blocked/)
+    const chooser = page.waitForEvent('filechooser')
+    await dialog.getByText('Upload a photo', { exact: true }).click()
+    await (await chooser).setFiles(PORTRAIT)
+    await expect(dialog).toBeHidden()
+    await expect(page.getByText('Face found')).toBeVisible({ timeout: 20_000 })
+  })
+})

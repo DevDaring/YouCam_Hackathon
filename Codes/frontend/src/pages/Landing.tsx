@@ -1,12 +1,13 @@
 import { motion, type Variants } from 'framer-motion'
 import { ArrowRight, Clock3, EyeOff, HeartHandshake, MapPin, Shirt, Sparkles, Vote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { HeroIllustration } from '../components/HeroIllustration'
 import { GoldRule, MotifDivider, Paisley, Rosette } from '../components/Motifs'
 import { SectionHeading } from '../components/SectionHeading'
 import { buttonClass, cardClass } from '../components/ui'
 import { IMAGE_RETENTION_HOURS } from '../lib/config'
+import { demoFamilyDraft, saveDraft } from '../lib/draft'
 import { countryName, flagEmoji, formatNumber } from '../lib/format'
 import { useRegion } from '../lib/region'
 
@@ -91,6 +92,8 @@ export default function Landing() {
 
 function Hero() {
   const { t } = useTranslation()
+  const { country } = useRegion()
+  const navigate = useNavigate()
   return (
     <section aria-labelledby="hero-title" className="relative overflow-hidden">
       <Rosette size={220} className="pointer-events-none absolute -left-16 top-8 text-rule opacity-[0.07]" />
@@ -110,9 +113,18 @@ function Hero() {
               {t('landing.ctaStart')}
               <ArrowRight aria-hidden="true" className="size-5 rtl:rotate-180" />
             </Link>
-            <Link to="/demo" className={buttonClass.secondary}>
+            <button
+              type="button"
+              disabled={!country}
+              onClick={() => {
+                if (!country) return
+                saveDraft(demoFamilyDraft(country))
+                navigate('/start')
+              }}
+              className={buttonClass.secondary}
+            >
               {t('landing.ctaDemo')}
-            </Link>
+            </button>
           </div>
         </motion.div>
 

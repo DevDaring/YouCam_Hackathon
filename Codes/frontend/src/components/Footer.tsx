@@ -5,12 +5,10 @@ import { MotifDivider } from './Motifs'
 import { Logo } from './Logo'
 import { ThemeToggle } from './ThemeToggle'
 
-const PREVIEW_LINKS = [
-  { to: '/studio', key: 'studio' },
-  { to: '/room/demo', key: 'room' },
-  { to: '/pack/demo', key: 'pack' },
-  { to: '/store', key: 'store' },
-  { to: '/demo', key: 'demo' },
+// Only pages that work today; unbuilt milestones are not linked (no dead ends).
+const LINKS = [
+  { to: '/start', key: 'landing.ctaStart' },
+  { to: '/studio', key: 'studio.title' },
 ] as const
 
 export function Footer() {
@@ -31,10 +29,10 @@ export function Footer() {
         </div>
         <nav aria-label={t('header.primaryNav')}>
           <ul className="flex flex-wrap gap-x-1 gap-y-1 text-sm">
-            {PREVIEW_LINKS.map((l) => (
+            {LINKS.map((l) => (
               <li key={l.key}>
                 <Link to={l.to} className="inline-flex min-h-12 items-center rounded-full px-3 text-heading underline-offset-4 hover:underline">
-                  {t(`placeholder.${l.key}.title`)}
+                  {t(l.key)}
                 </Link>
               </li>
             ))}

@@ -54,9 +54,10 @@ export function Header() {
         {authStatus === 'authenticated' && user ? (
           <button
             type="button"
-            onClick={async () => {
-              await logout()
+            onClick={() => {
+              // Leave protected pages first, or the sign-in guard redirects to /login.
               navigate('/')
+              void logout()
             }}
             aria-label={t('header.account', { name: user.username })}
             title={t('header.account', { name: user.username })}

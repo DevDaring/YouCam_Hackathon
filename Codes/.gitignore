@@ -10,3 +10,5 @@ frontend/dist/
 fixtures/youcam/private/
 scripts/probe/inputs/
 .DS_Store
+frontend/test-results/
+frontend/playwright-report/
