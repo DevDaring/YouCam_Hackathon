@@ -32,6 +32,8 @@ async def _schema():
         await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
+    from app.integrity.quality import close_detector
+    close_detector()
 
 
 @pytest.fixture

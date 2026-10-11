@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -9,7 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.auth import seed_demo_user
 from app.db import SessionLocal
-from app.routers import auth, health, ledger, regions
+from app.integrity.quality import close_detector
+from app.retention import purge_loop
+from app.routers import auth, health, ledger, regions, sessions
 
 log = logging.getLogger("dearyou")
 
@@ -23,7 +26,11 @@ async def lifespan(_: FastAPI):
         await seed_demo_user(db)
     log.warning("DearYou API starting — MOCK_MODE=%s, unit budget %s (reserve %s)",
                 settings.MOCK_MODE, settings.YOUCAM_UNIT_BUDGET, settings.YOUCAM_UNIT_RESERVE)
+    purger = asyncio.create_task(purge_loop()) if settings.APP_ENV != "test" else None
     yield
+    if purger:
+        purger.cancel()
+    close_detector()
 
 
 app = FastAPI(title="DearYou API", version="0.1.0", lifespan=lifespan)
@@ -40,4 +47,5 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(regions.router)
 app.include_router(ledger.router)
+app.include_router(sessions.router)
 

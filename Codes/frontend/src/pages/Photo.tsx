@@ -1,0 +1,214 @@
+import { AlertTriangle, ArrowRight, Camera, CheckCircle2, ImageUp, Loader2, RotateCcw, ShieldCheck, XCircle } from 'lucide-react'
+import { useCallback, useEffect, useId, useState, type ChangeEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { GoldRule } from '../components/Motifs'
+import { ProgressDots } from '../components/ProgressDots'
+import { CameraCapture } from '../components/photo/CameraCapture'
+import { buttonClass, cardClass } from '../components/ui'
+import { ApiError, getSession, uploadPhoto, type PhotoInfo, type PhotoKind, type QualityCheck } from '../lib/api'
+import { IMAGE_RETENTION_HOURS } from '../lib/config'
+import { prepareUpload } from '../lib/image'
+
+const KINDS: PhotoKind[] = ['full', 'face']
+const ACCEPT = 'image/jpeg,image/png,image/webp'
+
+export default function Photo() {
+  const { t } = useTranslation()
+  const { sessionId = '' } = useParams()
+  const navigate = useNavigate()
+  const fileInputId = useId()
+
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+  const [stage, setStage] = useState<PhotoKind>('full')
+  const [photos, setPhotos] = useState<Partial<Record<PhotoKind, PhotoInfo>>>({})
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const ctrl = new AbortController()
+    getSession(sessionId, ctrl.signal)
+      .then((s) => {
+        const map: Partial<Record<PhotoKind, PhotoInfo>> = {}
+        s.photos.forEach((p) => (map[p.kind] = p))
+        setPhotos(map)
+        setLoading(false)
+      })
+      .catch((err) => {
+        if (ctrl.signal.aborted) return
+        setNotFound(err instanceof ApiError && err.status === 404)
+        setLoading(false)
+      })
+    return () => ctrl.abort()
+  }, [sessionId])
+
+  const send = useCallback(
+    async (blob: Blob, source: 'camera' | 'upload') => {
+      setCameraOpen(false)
+      setUploading(true)
+      setError(null)
+      try {
+        const prepared = await prepareUpload(blob)
+        const info = await uploadPhoto(sessionId, stage, prepared, source)
+        setPhotos((p) => ({ ...p, [stage]: info }))
+      } catch (err) {
+        const code = err instanceof ApiError ? err.detail : ''
+        setError(['too_large', 'not_image', 'unsupported_format', 'too_small'].includes(code) ? t(`photo.errors.${code}`) : t('photo.errors.generic'))
+      } finally {
+        setUploading(false)
+      }
+    },
+    [sessionId, stage, t],
+  )
+
+  const onFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow choosing the same file again
+    setCameraOpen(false)
+    if (file) void send(file, 'upload')
+  }
+
+  const next = () => {
+    setError(null)
+    if (stage === 'full') setStage('face')
+    else navigate(`/studio/${sessionId}`)
+  }
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-12" aria-busy="true">
+        <div className="mx-auto h-9 w-2/3 animate-pulse rounded-xl bg-line/60" />
+        <div className="mt-8 h-96 animate-pulse rounded-3xl bg-line/40" />
+      </div>
+    )
+  }
+  if (notFound) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16 text-center">
+        <p className="text-lg">{t('photo.notFound')}</p>
+        <Link to="/start" className={`${buttonClass.primary} mt-6`}>
+          {t('photo.backToSetup')}
+        </Link>
+      </div>
+    )
+  }
+
+  const current = photos[stage]
+  const checks = current?.quality?.checks ?? []
+  const hardFail = current?.quality ? !current.quality.ok : false
+
+  return (
+    <div className="mx-auto max-w-xl px-4 py-8 sm:px-6 sm:py-12">
+      <div className="flex flex-col items-center text-center">
+        <h1 className="text-3xl font-bold sm:text-4xl">{t(`photo.title.${stage}`)}</h1>
+        <GoldRule />
+        <p className="mt-4 text-muted">{t(`photo.intro.${stage}`)}</p>
+      </div>
+      <div className="mt-6">
+        <ProgressDots total={KINDS.length} current={KINDS.indexOf(stage)} label={t('photo.progress', { current: KINDS.indexOf(stage) + 1, total: KINDS.length })} />
+      </div>
+
+      <input id={fileInputId} type="file" accept={ACCEPT} className="sr-only" tabIndex={-1} onChange={onFile} />
+
+      <section className={`${cardClass} mt-6 space-y-5`} aria-live="polite" aria-busy={uploading}>
+        {uploading ? (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <Loader2 aria-hidden="true" className="size-10 animate-spin text-heading" />
+            <p className="font-semibold text-heading">{t('photo.checking')}</p>
+          </div>
+        ) : current ? (
+          <>
+            <div className="overflow-hidden rounded-2xl border border-line bg-surface-raised">
+              <img src={current.url} alt={t(`photo.previewAlt.${stage}`)} className="mx-auto max-h-[60vh] w-auto object-contain" />
+            </div>
+            <QualityChips checks={checks} kind={stage} />
+            <div className="flex flex-col gap-3 sm:flex-row-reverse">
+              <button type="button" onClick={next} className={`${buttonClass.primary} flex-1`}>
+                {hardFail ? t('photo.continueAnyway') : t('photo.usePhoto')}
+                <ArrowRight aria-hidden="true" className="size-5" />
+              </button>
+              <button type="button" onClick={() => setPhotos((p) => ({ ...p, [stage]: undefined }))} className={`${buttonClass.secondary} flex-1`}>
+                <RotateCcw aria-hidden="true" className="size-5" />
+                {t('photo.retake')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <ul className="space-y-2 text-sm">
+              {Object.values(t(`photo.tips.${stage}`, { returnObjects: true }) as Record<string, string>).map((tip) => (
+                <li key={tip} className="flex items-start gap-2">
+                  <CheckCircle2 aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-success" />
+                  {tip}
+                </li>
+              ))}
+            </ul>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button type="button" onClick={() => setCameraOpen(true)} className={`${buttonClass.primary} w-full`}>
+                <Camera aria-hidden="true" className="size-5" />
+                {t('photo.take')}
+              </button>
+              <label htmlFor={fileInputId} className={`${buttonClass.secondary} w-full cursor-pointer`}>
+                <ImageUp aria-hidden="true" className="size-5" />
+                {t('photo.upload')}
+              </label>
+            </div>
+            {stage === 'face' ? (
+              <button type="button" onClick={next} className={`${buttonClass.ghost} w-full`}>
+                {t('photo.skipFace')}
+              </button>
+            ) : null}
+          </>
+        )}
+        {error ? (
+          <p role="alert" className="rounded-2xl bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
+            {error}
+          </p>
+        ) : null}
+      </section>
+
+      <p className="mt-5 flex items-start justify-center gap-2 text-center text-sm text-muted">
+        <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-success" />
+        {t('photo.privacy', { hours: IMAGE_RETENTION_HOURS })}
+      </p>
+
+      <div className="mt-6 flex justify-center">
+        {stage === 'face' ? (
+          <button type="button" onClick={() => setStage('full')} className={buttonClass.ghost}>
+            {t('setup.back')}
+          </button>
+        ) : (
+          <Link to="/start" className={buttonClass.ghost}>
+            {t('photo.backToSetup')}
+          </Link>
+        )}
+      </div>
+
+      {cameraOpen ? (
+        <CameraCapture kind={stage} fileInputId={fileInputId} onCapture={(b) => void send(b, 'camera')} onClose={() => setCameraOpen(false)} />
+      ) : null}
+    </div>
+  )
+}
+
+function QualityChips({ checks, kind }: { checks: QualityCheck[]; kind: PhotoKind }) {
+  const { t } = useTranslation()
+  if (!checks.length) return null
+  return (
+    <ul className="space-y-2" aria-label={t('photo.qualityTitle')}>
+      {checks.map((c) => {
+        const Icon = c.status === 'pass' ? CheckCircle2 : c.status === 'warn' ? AlertTriangle : XCircle
+        const tone = c.status === 'pass' ? 'text-success' : c.status === 'warn' ? 'text-warning' : 'text-danger'
+        const msgKey = c.key === 'face_size' ? `photo.checks.face_size_${kind}.${c.status}` : `photo.checks.${c.key}.${c.status}`
+        return (
+          <li key={c.key} className="flex items-start gap-2 text-sm">
+            <Icon aria-hidden="true" className={`mt-0.5 size-4 shrink-0 ${tone}`} />
+            <span>{t(msgKey)}</span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}

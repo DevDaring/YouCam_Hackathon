@@ -28,6 +28,17 @@
 - **Live:** https://dearyou.koushikdeb.com (D-007). Deploy with `bash scripts/deploy.sh`.
 - **Tests:** backend 26 passed; frontend 27 passed; claim linter 0 hits.
 
+## Photo step (Oct 11 2026, owner report: "stuck on this page")
+- **Review step:** a consent checkbox, then "Continue to photo". This creates a server session (`POST /api/sessions`), checked against the country's events, currency and cities.
+- **`/photo/:id`:** a full-length photo (required), then an optional face close-up. Each has **Take my photo** and **Upload a photo**.
+  - **Camera:** a full-screen viewfinder with a body outline or face oval, a live light check, front/back switch, and a 3s/10s timer. If the camera is denied or missing, it offers upload instead.
+  - **Upload:** large photos are shrunk in the browser first.
+- **Server intake:** Pillow decodes the file, EXIF rotation is applied, and the image is re-encoded with all metadata, including GPS, stripped. Limits are 12 MB and a 320 px minimum.
+- **Quality check:** light, sharpness, face found (MediaPipe BlazeFace, with a tiled pass for small faces in full-length photos), face size and framing. Results are shown as translated messages, and "Continue anyway" is always offered.
+- **`/studio/:id`:** shows the saved photos, the event, when the photos will be deleted, and three look slots. It says honestly that try-on rendering is waiting on YouCam units.
+- **Retention job:** expired sessions, their files and their rows are deleted every 15 minutes.
+- **Tests:** backend 37 passed, frontend 28 passed. Verified live on production with a real portrait.
+
 ## Next
 - Owner adds units and provides the probe inputs. Run `garment_probe.py --yes` and review the drape results.
 - Then M2: Look Studio.

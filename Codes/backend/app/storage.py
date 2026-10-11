@@ -26,3 +26,9 @@ def read(rel_path: str) -> bytes:
     if _root().resolve() not in p.parents:
         raise ValueError("path escapes storage root")
     return p.read_bytes()
+
+
+def remove(rel_path: str) -> None:
+    p = (_root() / rel_path).resolve()
+    if _root().resolve() in p.parents and p.exists():
+        p.unlink()

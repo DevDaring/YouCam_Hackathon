@@ -10,6 +10,8 @@ import Placeholder from './pages/Placeholder'
 
 const Start = lazy(() => import('./pages/Start'))
 const Login = lazy(() => import('./pages/Login'))
+const Photo = lazy(() => import('./pages/Photo'))
+const Studio = lazy(() => import('./pages/Studio'))
 
 function PageFallback() {
   return (
@@ -45,7 +47,29 @@ export function AppRoutes() {
             </RequireAuth>
           }
         />
-        <Route path="studio" element={<RequireAuth><Placeholder page="studio" milestone="M2" /></RequireAuth>} />
+        <Route
+          path="photo/:sessionId"
+          element={
+            <RequireAuth>
+              <Suspense fallback={<PageFallback />}>
+                <Photo />
+              </Suspense>
+            </RequireAuth>
+          }
+        />
+        {['studio', 'studio/:sessionId'].map((path) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <RequireAuth>
+                <Suspense fallback={<PageFallback />}>
+                  <Studio />
+                </Suspense>
+              </RequireAuth>
+            }
+          />
+        ))}
         <Route path="pack/:lookId" element={<RequireAuth><Placeholder page="pack" milestone="M6" /></RequireAuth>} />
         <Route path="store" element={<RequireAuth><Placeholder page="store" milestone="M7" /></RequireAuth>} />
         <Route path="demo" element={<RequireAuth><Placeholder page="demo" milestone="M6" /></RequireAuth>} />

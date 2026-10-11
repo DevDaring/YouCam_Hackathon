@@ -55,6 +55,7 @@ class Session(Base):
     __tablename__ = "sessions"
     id: Mapped[uuid.UUID] = _uuid()
     created_at: Mapped[datetime] = _created()
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     role: Mapped[str] = mapped_column(String(16))  # bride | groom | family | guest
     event_type: Mapped[str] = mapped_column(String(32))  # key from seed/regions.json for the country
     event_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -77,6 +78,9 @@ class Photo(Base):
     storage_path: Mapped[str] = mapped_column(Text)
     quality_json: Mapped[dict | None] = mapped_column(JSONB)
     hash: Mapped[str] = mapped_column(String(64), index=True)
+    width: Mapped[int | None] = mapped_column(Integer)
+    height: Mapped[int | None] = mapped_column(Integer)
+    created_at: Mapped[datetime] = _created()
 
 
 class Analysis(Base):

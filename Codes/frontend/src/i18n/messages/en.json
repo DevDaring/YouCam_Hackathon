@@ -187,9 +187,11 @@
     "edit": "Edit",
     "editLabel": "Edit {{field}}",
     "notSet": "Not set",
-    "submit": "Take my photo",
-    "submitNote": "Photo capture arrives in M2.",
-    "draftSaved": "Your answers are saved on this device."
+    "submit": "Continue to photo",
+    "submitNote": "Next: take a photo or upload one from your gallery.",
+    "draftSaved": "Your answers are saved on this device.",
+    "submitError": "We couldn't save your event. Check your connection and try again.",
+    "consent": "I agree that my photos are used only to create my looks, are never used to judge my skin, and are deleted automatically after {{hours}} hours."
   },
   "events": {
     "haldi": "Haldi",
@@ -258,5 +260,129 @@
     "demoFill": "Fill in",
     "demoFilled": "Filled in — now tap Sign in",
     "familyNote": "Family members never need an account — they vote straight from the shared link."
+  },
+  "photo": {
+    "title": {
+      "full": "Your full-length photo",
+      "face": "A close-up of your face"
+    },
+    "intro": {
+      "full": "Your looks are built on this photo — outfit, jewellery, makeup and hair.",
+      "face": "Optional. A clear close-up helps match makeup shades and colours to you."
+    },
+    "progress": "Photo {{current}} of {{total}}",
+    "tips": {
+      "full": {
+        "1": "Stand about 2 metres away, facing the camera",
+        "2": "Whole body in the frame, head to feet",
+        "3": "Good daylight, plain background",
+        "4": "Only you in the photo"
+      },
+      "face": {
+        "1": "Face fills most of the frame",
+        "2": "Soft daylight, facing the camera",
+        "3": "No filters, no sunglasses"
+      }
+    },
+    "take": "Take my photo",
+    "upload": "Upload a photo",
+    "skipFace": "Skip for now",
+    "checking": "Checking your photo…",
+    "usePhoto": "Use this photo",
+    "continueAnyway": "Continue anyway",
+    "retake": "Retake",
+    "previewAlt": {
+      "full": "Your full-length photo",
+      "face": "Your face close-up"
+    },
+    "qualityTitle": "Photo check",
+    "checks": {
+      "light": {
+        "pass": "Good light",
+        "warn": "Light could be better — try facing a window",
+        "fail": "Too dark — move to brighter light"
+      },
+      "sharp": {
+        "pass": "Sharp and clear",
+        "warn": "A little blurry — hold steady or use the timer"
+      },
+      "face": {
+        "pass": "Face found",
+        "warn": "More than one person found — the photo should show only you",
+        "fail": "We couldn't find a face — face the camera in good light"
+      },
+      "face_size_full": {
+        "pass": "Good distance",
+        "warn": "You're quite far away — step a little closer"
+      },
+      "face_size_face": {
+        "pass": "Face fills the frame",
+        "warn": "Move closer so your face fills more of the frame"
+      },
+      "framing": {
+        "pass": "Whole body in frame",
+        "warn": "Step back so your whole body fits in the frame"
+      }
+    },
+    "errors": {
+      "too_large": "That file is larger than 12 MB. Please choose a smaller photo.",
+      "not_image": "That file isn't a photo we can read. Please choose a JPG, PNG or WebP image.",
+      "unsupported_format": "Please choose a JPG, PNG or WebP photo.",
+      "too_small": "That photo is too small. Please use one at least 320 pixels wide.",
+      "generic": "We couldn't upload your photo. Check your connection and try again."
+    },
+    "privacy": "Your photos are private and deleted automatically after {{hours}} hours.",
+    "notFound": "We couldn't find this session. Please set up your event again.",
+    "backToSetup": "Back to event setup"
+  },
+  "camera": {
+    "title": {
+      "full": "Full-length photo",
+      "face": "Face close-up"
+    },
+    "starting": "Starting camera…",
+    "shutter": "Take photo",
+    "flip": "Switch camera",
+    "timer": "Self-timer: {{seconds}} seconds. Tap to change",
+    "timerOff": "Off",
+    "light": {
+      "ok": "Light ✓",
+      "dark": "Too dark",
+      "bright": "Too bright"
+    },
+    "hint": {
+      "full": "Fit your whole body inside the outline. Use the timer and prop your phone up, or ask someone to help.",
+      "face": "Fit your face inside the oval."
+    },
+    "errors": {
+      "unsupported": "This browser can't open the camera here. You can upload a photo instead.",
+      "denied": "Camera access was blocked. Allow the camera in your browser settings, or upload a photo instead.",
+      "nocamera": "We couldn't find a camera on this device. You can upload a photo instead.",
+      "failed": "The camera didn't start. You can upload a photo instead."
+    }
+  },
+  "studio": {
+    "title": "Your look studio",
+    "intro": "Your photos are saved. Three complete looks for your {{event}} will appear here.",
+    "photosTitle": "Your photos",
+    "photoLabel": {
+      "full": "Full length",
+      "face": "Face close-up"
+    },
+    "noFace": "No close-up — that's fine",
+    "deleteOn": "Deleted automatically on {{when}}.",
+    "retake": "Retake photos",
+    "editEvent": "Edit event",
+    "looksTitle": "Your three looks",
+    "renderingTitle": "Try-on rendering is switching on soon",
+    "renderingBody": "Outfit, jewellery, makeup and hair are rendered on your photo by the YouCam try-on service. It is being connected for this demo — your photos are saved and will be used as soon as it's live.",
+    "waiting": "Waiting for try-on",
+    "lookNumber": "Look {{n}}",
+    "lookNames": {
+      "look1": "Sindoor Dusk",
+      "look2": "Marigold Morning",
+      "look3": "Ivory Moon"
+    },
+    "layers": "Outfit · Jewellery · Makeup · Hair"
   }
 }

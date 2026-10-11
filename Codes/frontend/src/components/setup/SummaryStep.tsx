@@ -1,6 +1,9 @@
 import { Camera, Pencil } from 'lucide-react'
-import { useId, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { createSession } from '../../lib/api'
+import { IMAGE_RETENTION_HOURS } from '../../lib/config'
 import { SETUP_STEPS, type EventDraft, type SetupStep } from '../../lib/draft'
 import { countryName, flagEmoji, formatEventDate } from '../../lib/format'
 import { useRegion } from '../../lib/region'
@@ -13,8 +16,38 @@ interface Props {
 
 export function SummaryStep({ draft, goTo }: Props) {
   const { t } = useTranslation()
-  const { countryCode, city, locale, formatMoney } = useRegion()
+  const { countryCode, city, locale, source, country, formatMoney } = useRegion()
+  const navigate = useNavigate()
   const noteId = useId()
+  const consentId = useId()
+  const [consent, setConsent] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function continueToPhoto() {
+    if (!country || !draft.role || !draft.eventType) return
+    setBusy(true)
+    setError(null)
+    try {
+      const session = await createSession({
+        country_code: country.code,
+        city,
+        location_source: source,
+        role: draft.role,
+        event_type: draft.eventType,
+        event_date: draft.date,
+        budget_amount: draft.budget?.amount ?? null,
+        currency: country.currency,
+        locale,
+        style_tags: draft.styles,
+        consent: true,
+      })
+      navigate(`/photo/${session.id}`)
+    } catch {
+      setError(t('setup.submitError'))
+      setBusy(false)
+    }
+  }
   const notSet = <span className="text-muted">{t('setup.notSet')}</span>
 
   const rows: { step: Exclude<SetupStep, 'summary'>; value: ReactNode }[] = [
@@ -59,13 +92,32 @@ export function SummaryStep({ draft, goTo }: Props) {
         })}
       </dl>
 
-      <div className="space-y-2">
-        <button type="button" disabled aria-describedby={noteId} className={`${buttonClass.primary} w-full`}>
+      <div className="space-y-3">
+        <label
+          htmlFor={consentId}
+          className="flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-surface-raised p-4 text-sm has-[input:focus-visible]:outline-3 has-[input:focus-visible]:outline-focus"
+        >
+          <input
+            id={consentId}
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-0.5 size-5 shrink-0 accent-[var(--primary)]"
+          />
+          <span>{t('setup.consent', { hours: IMAGE_RETENTION_HOURS })}</span>
+        </label>
+        <button
+          type="button"
+          onClick={continueToPhoto}
+          disabled={!consent || busy}
+          aria-describedby={noteId}
+          className={`${buttonClass.primary} w-full`}
+        >
           <Camera aria-hidden="true" className="size-5" />
-          {t('setup.submit')}
+          {busy ? t('common.loading') : t('setup.submit')}
         </button>
-        <p id={noteId} className="text-center text-sm font-medium text-muted">
-          {t('setup.submitNote')}
+        <p id={noteId} role={error ? 'alert' : undefined} className={`text-center text-sm font-medium ${error ? 'text-danger' : 'text-muted'}`}>
+          {error ?? t('setup.submitNote')}
         </p>
       </div>
     </div>
