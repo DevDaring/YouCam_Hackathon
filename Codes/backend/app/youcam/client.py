@@ -56,13 +56,15 @@ def mime_for(data: bytes) -> tuple[str, str]:
 
 
 class YouCamClient:
-    def __init__(self, http: httpx.AsyncClient | None = None, raw: httpx.AsyncClient | None = None):
+    def __init__(self, http: httpx.AsyncClient | None = None, raw: httpx.AsyncClient | None = None, account: int = 1):
         s = get_settings()
-        if not s.YOUCAM_API_KEY:
-            raise YouCamError("NoApiKey", "YOUCAM_API_KEY is not configured")
+        keys = s.youcam_keys
+        if not keys or account > len(keys):
+            raise YouCamError("NoApiKey", f"YouCam account {account} is not configured")
+        self.account = account
         self._http = http or httpx.AsyncClient(
             base_url=s.YOUCAM_API_BASE_URL,
-            headers={"Authorization": f"Bearer {s.YOUCAM_API_KEY}"},
+            headers={"Authorization": f"Bearer {keys[account - 1]}"},
             timeout=httpx.Timeout(30, connect=10),
         )
         # Unauthenticated client for presigned PUTs and result downloads (never send the API key there).
@@ -108,10 +110,13 @@ class YouCamClient:
         return TaskResult(status=data.get("task_status", "running"), url=url, results=results or {},
                           error=data.get("error"), error_message=data.get("error_message"), raw=body)
 
-    async def wait_task(self, feature: str, task_id: str, on_tick=None, sleep=None) -> TaskResult:
+    async def wait_task(self, feature: str, task_id: str, on_tick=None, sleep=None, total: float | None = None) -> TaskResult:
         # Docs suggest ~10 s polling; spec §7.4 asks 1.5 s→6 s cap within 90 s. 250 req/300 s limit leaves room.
+        # Units are charged when a task succeeds, even if we stopped waiting — so wait generously.
+        limit = total or (480 if feature == "image_gen" else 300)
         res = await poll_until(lambda: self.poll_task(feature, task_id), lambda r: r.status in ("success", "error"),
-                               on_tick=on_tick, total=120, **({"sleep": sleep} if sleep else {}))
+                               on_tick=on_tick, total=limit, cap=10 if feature == "image_gen" else 6,
+                               **({"sleep": sleep} if sleep else {}))
         if res.status == "error":
             raise YouCamError(res.error or "unknown_internal_error", res.error_message or "", engine=True)
         return res

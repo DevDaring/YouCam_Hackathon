@@ -35,7 +35,8 @@ class Settings(BaseSettings):
 
     # ---------- YouCam / Perfect Corp ----------
     YOUCAM_API_KEY: str | None = Field(None, validation_alias=_alias("YOUCAM_API_KEY", "YouCam_Phd_API_KEY"))
-    YOUCAM_SECRET_KEY: str | None = Field(None, validation_alias=_alias("YOUCAM_SECRET_KEY", "YouCam_Secret_Key"))
+    YOUCAM_API_KEY_2: str | None = Field(None, validation_alias=_alias("YOUCAM_API_KEY_2", "YouCam_Phd_API_KEY2"))  # second account (D-011)
+    YOUCAM_SECRET_KEY: str | None = Field(None, validation_alias=_alias("YOUCAM_SECRET_KEY", "YouCam_Secret_Key"))  # unused: Bearer key suffices
     YOUCAM_API_BASE_URL: str = "https://yce-api-01.makeupar.com"
     YOUCAM_UNIT_BUDGET: int = 900
     YOUCAM_UNIT_RESERVE: int = 150
@@ -56,7 +57,10 @@ class Settings(BaseSettings):
 
     # ---------- Images (demo catalogue / probe garments) ----------
     NANOGPT_API_BASE_URL: str = "https://nano-gpt.com/api/v1"
-    NANOGPT_API_KEY: str | None = Field(None, validation_alias=_alias("NANOGPT_API_KEY", "NanoGPT_2009_API_KEY", "Nano_GPT_API_KEY"))
+    # Owner rule (D-010): YouCam AI Image Generator first; these two NanoGPT accounts are fallbacks, in order.
+    NANOGPT_API_KEY: str | None = Field(None, validation_alias=_alias("NANOGPT_API_KEY", "NanoGPT_2009_API_KEY"))
+    NANOGPT_API_KEY_2: str | None = Field(None, validation_alias=_alias("NANOGPT_API_KEY_2", "NanoGPT_88_API_Key"))
+    NANOGPT_IMAGE_MODEL: str = "nano-banana-pro"
 
     # ---------- Speech ----------
     STT_PROVIDER: Literal["sarvam", "whisper"] = "sarvam"
@@ -81,6 +85,11 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool = False          # true in production (HTTPS)
     DEMO_USER: str | None = "TestUser"   # jury demo account, seeded at startup; empty = none
     DEMO_PASSWORD: str | None = "TestUser11"
+
+    @property
+    def youcam_keys(self) -> list[str]:
+        """Account keys in priority order; account number = index + 1."""
+        return [k for k in (self.YOUCAM_API_KEY, self.YOUCAM_API_KEY_2) if k]
 
     @property
     def youcam_spendable_units(self) -> int:

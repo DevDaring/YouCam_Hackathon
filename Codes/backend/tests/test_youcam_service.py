@@ -29,6 +29,8 @@ def jpeg(color=(200, 150, 120), size=(600, 800)) -> bytes:
 @pytest.fixture(autouse=True)
 def _fast_mock(monkeypatch):
     monkeypatch.setenv("MOCK_DELAY_SCALE", "0")
+    service._balances.clear()  # each test starts with no cached account balance
+    service._calls.clear()
 
 
 def test_unit_costs_match_live_price_list():
@@ -62,7 +64,7 @@ async def test_validation_errors(db):
         await service.simulate_skin(db, jpeg(), {"radiance": 0})
 
 
-def fake_youcam(poll_payload, calls):
+def fake_youcam(poll_payload, calls, balance=100):
     def api(request: httpx.Request):
         calls.append((request.method, request.url.path))
         assert request.headers["authorization"].startswith("Bearer ")
@@ -71,7 +73,7 @@ def fake_youcam(poll_payload, calls):
             assert body["files"][0]["file_size"] > 0
             return httpx.Response(200, json=ex("file_create.json"))
         if request.url.path == "/s2s/v1.0/client/credit":
-            return httpx.Response(200, json={"status": 200, "results": [{"id": 1, "type": "ApiPaygToken", "amount_dec": 100}]})
+            return httpx.Response(200, json={"status": 200, "results": [{"id": 1, "type": "ApiPaygToken", "amount_dec": balance}]})
         if request.method == "POST" and "/task/" in request.url.path:
             return httpx.Response(200, json={"status": 200, "data": {"task_id": "t-123"}})
         if request.method == "GET" and request.url.path.endswith("/t-123"):
@@ -148,3 +150,44 @@ async def test_budget_refusal_blocks_live_call(db, monkeypatch):
     with pytest.raises(ledger.BudgetExceeded):
         await service.run_feature(db, "skin_tone", jpeg((7, 7, 7)), {}, client=fake_youcam({}, calls))
     assert calls == []
+
+
+async def test_account_reserve_guard_blocks_even_when_ledger_has_room(db, monkeypatch):
+    """Dev and prod ledgers are separate; the real account balance protects the judging reserve."""
+    monkeypatch.setattr(get_settings(), "MOCK_MODE", False)
+    monkeypatch.setattr(get_settings(), "YOUCAM_API_KEY", "test")
+    calls = []
+    with pytest.raises(ledger.BudgetExceeded):  # account has 21, reserve is 20, cloth costs 2
+        await service.run_feature(db, "cloth", jpeg((3, 3, 3)), {"garment_category": "full_body"},
+                                  refs={"garment": jpeg((4, 4, 4))}, client=fake_youcam({}, calls, balance=21))
+    assert not any(c[1].startswith("/s2s/v2.0/task") for c in calls)
+
+
+async def test_switches_account_when_one_is_out_of_credit(db, monkeypatch):
+    monkeypatch.setattr(get_settings(), "MOCK_MODE", False)
+    monkeypatch.setattr(get_settings(), "YOUCAM_API_KEY", "k1")
+    monkeypatch.setattr(get_settings(), "YOUCAM_API_KEY_2", "k2")
+    calls = {1: [], 2: []}
+
+    def factory(account=1, **_):
+        if account == 1:
+            def api(request):
+                calls[1].append(request.url.path)
+                if request.url.path == "/s2s/v1.0/client/credit":
+                    return httpx.Response(200, json={"status": 200, "results": [{"amount_dec": 900}]})
+                if request.url.path == "/s2s/v2.0/file":
+                    return httpx.Response(200, json=ex("file_create.json"))
+                return httpx.Response(400, json={"status": 400, "error": "no credit", "error_code": "CreditInsufficiency"})
+            c = YouCamClient(http=httpx.AsyncClient(base_url="https://a1.test", transport=httpx.MockTransport(api)),
+                             raw=httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(200))), account=1)
+            return c
+        c = fake_youcam(ex("clothes_poll.json"), calls[2], balance=900)
+        c.account = 2
+        return c
+
+    monkeypatch.setattr(service, "YouCamClient", factory)
+    monkeypatch.setattr(service, "_turn", iter([0, 0, 0]))  # start with account 1
+    r = await service.run_feature(db, "cloth", jpeg((5, 1, 1)), {"garment_category": "full_body"}, refs={"garment": jpeg((6, 1, 1))},
+                                  build_body=lambda s, refs: {"src_file_id": s, "ref_file_id": refs["garment"], "garment_category": "full_body"})
+    assert r.account == 2 and r.units == 2
+    assert service._balances[1] == 0.0  # account 1 marked empty after CreditInsufficiency

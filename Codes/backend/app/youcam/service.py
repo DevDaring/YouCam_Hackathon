@@ -5,6 +5,7 @@ Typed wrappers below build the documented request bodies (docs/API_NOTES.md §5)
 """
 from __future__ import annotations
 
+import itertools
 import logging
 import uuid
 from dataclasses import dataclass, field
@@ -19,8 +20,15 @@ from app.youcam import cache, mock
 from app.youcam.client import YouCamClient, YouCamError
 from app.youcam.features import FEATURES, GARMENT_CATEGORIES, SKIN_SIM_SLIDERS
 
-log = logging.getLogger("haan.youcam")
+log = logging.getLogger("dearyou.youcam")
 BALANCE_REFRESH_EVERY = 20
+ACCOUNT_SWITCH_CODES = {"CreditInsufficiency", "InvalidApiKey", "InactiveApiKey", "ExpiredApiKey", "Invalid API key"}
+# Last known real balance per YouCam account (D-011). The accounts themselves are the source of truth
+# for the judging reserve, because dev and prod keep separate ledgers. Refreshed on first use and
+# every 20 calls; decremented locally in between.
+_balances: dict[int, float] = {}
+_calls: dict[int, int] = {}
+_turn = itertools.count()
 
 
 @dataclass
@@ -32,16 +40,39 @@ class FeatureResult:
     cache_hit: bool = False
     mock: bool = False
     units: int = 0
+    account: int | None = None
 
 
-async def _maybe_refresh_balance(db: AsyncSession, client: YouCamClient) -> float | None:
-    n = await ledger.live_call_count(db)
-    if n == 0 or n % BALANCE_REFRESH_EVERY == 0:
+def accounts() -> list[int]:
+    return list(range(1, len(get_settings().youcam_keys) + 1))
+
+
+async def account_balance(account: int, client: YouCamClient | None = None, force: bool = False) -> float | None:
+    if force or account not in _balances or _calls.get(account, 0) >= BALANCE_REFRESH_EVERY:
+        own = client is None
+        client = client or YouCamClient(account=account)
         try:
-            return await client.get_credit_balance()
+            _balances[account] = await client.get_credit_balance()
+            _calls[account] = 0
         except YouCamError as e:
-            log.warning("balance refresh failed: %s", e)
-    return None
+            log.warning("balance refresh failed for account %s: %s", account, e)
+        finally:
+            if own:
+                await client.aclose()
+    return _balances.get(account)
+
+
+async def pick_accounts(estimate: int) -> list[int]:
+    """Accounts that can pay `estimate` without touching their reserve, starting round-robin."""
+    reserve = get_settings().YOUCAM_UNIT_RESERVE
+    accts = accounts()
+    start = next(_turn) % max(1, len(accts))
+    ok = []
+    for a in accts[start:] + accts[:start]:
+        bal = await account_balance(a)
+        if bal is not None and bal - estimate >= reserve:
+            ok.append(a)
+    return ok
 
 
 async def run_feature(
@@ -56,7 +87,9 @@ async def run_feature(
     client: YouCamClient | None = None,
 ) -> FeatureResult:
     """refs: named reference images (garment, necklace…) uploaded alongside src.
-    build_body(src_file_id, ref_file_ids) -> request body for the task."""
+    build_body(src_file_id, ref_file_ids) -> request body for the task.
+    Uploads, task and polling all use ONE account (file ids are per account); on a credit/key
+    error at task creation the next account is tried with fresh uploads."""
     spec = FEATURES[feature]
     refs = refs or {}
     key = cache.cache_key(feature, [cache.sha256_bytes(src), *(cache.sha256_bytes(b) for b in refs.values())], params)
@@ -75,40 +108,64 @@ async def run_feature(
     estimate = spec.units(params)
     await ledger.ensure_budget(db, feature, estimate, session_id)
 
-    own_client = client is None
-    client = client or YouCamClient()
-    try:
-        balance_before = await _maybe_refresh_balance(db, client)
-        src_id = await client.upload_file(src)
-        ref_ids = {name: await client.upload_file(data) for name, data in refs.items()}
-        body = build_body(src_id, ref_ids) if build_body else {"src_file_id": src_id, **params}
-        task_id = await client.start_task(feature, body)
+    if client is not None:  # injected (tests / probes): use exactly that account
+        candidates = [client.account]
+        await account_balance(client.account, client)
+        reserve = get_settings().YOUCAM_UNIT_RESERVE
+        if _balances.get(client.account) is not None and _balances[client.account] - estimate < reserve:
+            candidates = []
+    else:
+        candidates = await pick_accounts(estimate)
+    if not candidates:
+        await ledger.record(db, feature=feature, units=0, status="refused", session_id=session_id,
+                            note=f"refused: every account would drop below the reserve ({dict(_balances)})")
+        raise ledger.BudgetExceeded(int(min(_balances.values(), default=0)), estimate, 0)
+
+    last_error: YouCamError | None = None
+    for account in candidates:
+        c = client or YouCamClient(account=account)
         try:
-            res = await client.wait_task(feature, task_id)
-        except YouCamError as e:
-            # Engine errors are not charged (API_NOTES §2.5).
-            await ledger.record(db, feature=feature, units=0, status="failed", session_id=session_id,
-                                note=f"{e.code}: {e.message}"[:500])
-            raise
-        image_path = None
-        if spec.returns_image and res.url:
-            image_path = storage.save(f"renders/{feature}/{key}.jpg", await client.download(res.url))
-        data = {} if spec.returns_image else res.results
-        await cache.put(db, key, feature, image_path, data or None)
-        balance_after = None
-        if balance_before is not None:  # first call / every 20th: measure real cost (spec §7.6)
+            balance_before = _balances.get(account)
+            src_id = await c.upload_file(src)
+            ref_ids = {name: await c.upload_file(data) for name, data in refs.items()}
+            body = build_body(src_id, ref_ids) if build_body else {"src_file_id": src_id, **params}
             try:
-                balance_after = await client.get_credit_balance()
-            except YouCamError:
-                pass
-        await ledger.record(db, feature=feature, units=estimate, session_id=session_id,
-                            balance_before=int(balance_before) if balance_before is not None else None,
-                            balance_after=int(balance_after) if balance_after is not None else None,
-                            note=f"task {task_id}")
-        return FeatureResult(feature, key, image_path, data, units=estimate)
-    finally:
-        if own_client:
-            await client.aclose()
+                task_id = await c.start_task(feature, body)
+            except YouCamError as e:
+                if e.code in ACCOUNT_SWITCH_CODES:
+                    _balances[account] = 0.0 if e.code == "CreditInsufficiency" else _balances.get(account, 0.0)
+                    last_error = e
+                    log.warning("account %s refused %s (%s); trying the next account", account, feature, e.code)
+                    continue
+                raise
+            try:
+                res = await c.wait_task(feature, task_id)
+            except YouCamError as e:
+                # Engine errors are not charged (API_NOTES §2.5).
+                await ledger.record(db, feature=feature, units=0, status="failed", session_id=session_id,
+                                    account=account, task_id=task_id, note=f"{e.code}: {e.message}"[:500])
+                raise
+            except TimeoutError:
+                # The task may still finish — and be charged. Keep the id so the result can be fetched later.
+                await ledger.record(db, feature=feature, units=estimate, status="timeout", session_id=session_id,
+                                    account=account, task_id=task_id, note="stopped waiting; task may still be charged")
+                raise YouCamError("poll_timeout", f"task {task_id} still running") from None
+            image_path = None
+            if spec.returns_image and res.url:
+                image_path = storage.save(f"renders/{feature}/{key}.jpg", await c.download(res.url))
+            data = {} if spec.returns_image else res.results
+            await cache.put(db, key, feature, image_path, data or None)
+            _calls[account] = _calls.get(account, 0) + 1
+            if account in _balances:
+                _balances[account] -= estimate
+            await ledger.record(db, feature=feature, units=estimate, session_id=session_id, account=account, task_id=task_id,
+                                balance_before=int(balance_before) if balance_before is not None else None)
+            return FeatureResult(feature, key, image_path, data, units=estimate, account=account)
+        finally:
+            if client is None:
+                await c.aclose()
+    assert last_error is not None
+    raise last_error
 
 
 # ---------------------------------------------------------------- typed wrappers
@@ -159,8 +216,9 @@ async def apply_look(db, src: bytes, template_id: str, *, session_id=None) -> Fe
     return await run_feature(db, "look", src, {"template_id": template_id}, session_id=session_id)
 
 
-async def apply_hairstyle(db, src: bytes, template_id: str, *, hair_color: str = "ref", session_id=None) -> FeatureResult:
-    return await run_feature(db, "hairstyle", src, {"template_id": template_id, "hair_color": hair_color}, session_id=session_id)
+async def apply_hairstyle(db, src: bytes, template_id: str, *, session_id=None) -> FeatureResult:
+    # Template mode: hair_color only applies to reference-photo mode (API_NOTES §5.7), so it is not sent.
+    return await run_feature(db, "hairstyle", src, {"template_id": template_id}, session_id=session_id)
 
 
 async def analyze_skin(db, src: bytes, dst_actions: list[str], *, session_id=None) -> FeatureResult:
@@ -189,9 +247,13 @@ async def simulate_skin(db, src: bytes, sliders: dict[str, float], *, session_id
     return await run_feature(db, "skin_simulation", src, dict(sliders), session_id=session_id)
 
 
-async def get_credit_balance() -> float:
-    client = YouCamClient()
-    try:
-        return await client.get_credit_balance()
-    finally:
-        await client.aclose()
+async def get_credit_balance(account: int | None = None) -> float:
+    """One account's balance, or the total across all accounts when account is None."""
+    total = 0.0
+    for a in ([account] if account else accounts()):
+        client = YouCamClient(account=a)
+        try:
+            total += await client.get_credit_balance()
+        finally:
+            await client.aclose()
+    return total

@@ -180,3 +180,69 @@ export function uploadPhoto(sessionId: string, kind: PhotoKind, file: Blob, sour
   form.append('file', file, source === 'camera' ? `${kind}.jpg` : (file as File).name || `${kind}.jpg`)
   return request<PhotoInfo>(`/api/sessions/${encodeURIComponent(sessionId)}/photos`, { method: 'POST', body: form })
 }
+
+// ---------------------------------------------------------------- Look Studio
+
+export type Wear = 'women' | 'men'
+export type LayerName = 'outfit' | 'necklace' | 'earrings' | 'makeup' | 'hair'
+export type LayerStatus = 'pending' | 'rendering' | 'done' | 'failed' | 'skipped'
+export type LookPreset = 'sindoor_dusk' | 'marigold_morning' | 'ivory_moon'
+
+export interface LookItem {
+  id: string
+  sku: string
+  name: string
+  /** Decimal string in the session currency; null when the item has no price in this country. */
+  price: string | null
+  image_url: string
+  metal: string | null
+  licence: string | null
+}
+
+export interface LookLayer {
+  layer: LayerName
+  status: LayerStatus
+  /** Machine code: "no_face", "budget", "interrupted", or a YouCam error code. */
+  error: string | null
+  units: number
+  render_url: string | null
+  item: LookItem | null
+  params: { template_id: string | null } | null
+}
+
+export interface Look {
+  id: string
+  slot: 1 | 2 | 3
+  preset: LookPreset
+  status: string
+  total_price: string | null
+  currency: string
+  over_budget: boolean
+  image_url: string | null
+  layers_done: number
+  layers_total: number
+  layers: LookLayer[]
+}
+
+export interface LooksPayload {
+  wear: Wear | null
+  /** 0 until the first set of looks is planned. */
+  round: number
+  rounds_left: number
+  rendering: boolean
+  looks: Look[]
+}
+
+export function getLooks(sessionId: string, signal?: AbortSignal): Promise<LooksPayload> {
+  return request<LooksPayload>(`/api/sessions/${encodeURIComponent(sessionId)}/looks`, { signal })
+}
+
+/** Plans and starts rendering. Idempotent unless `replan` is set (which spends a round). */
+export function startLooks(sessionId: string, body: { wear?: Wear; replan?: boolean } = {}): Promise<LooksPayload> {
+  return request<LooksPayload>(`/api/sessions/${encodeURIComponent(sessionId)}/looks`, { method: 'POST', body: JSON.stringify(body) })
+}
+
+/** Re-renders a look from its first failed or skipped layer. */
+export function retryLook(lookId: string): Promise<LooksPayload> {
+  return request<LooksPayload>(`/api/looks/${encodeURIComponent(lookId)}/retry`, { method: 'POST' })
+}

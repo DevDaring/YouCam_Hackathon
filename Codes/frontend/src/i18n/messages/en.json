@@ -374,15 +374,101 @@
     "retake": "Retake photos",
     "editEvent": "Edit event",
     "looksTitle": "Your three looks",
-    "renderingTitle": "Try-on rendering is switching on soon",
-    "renderingBody": "Outfit, jewellery, makeup and hair are rendered on your photo by the YouCam try-on service. It is being connected for this demo — your photos are saved and will be used as soon as it's live.",
-    "waiting": "Waiting for try-on",
     "lookNumber": "Look {{n}}",
     "lookNames": {
       "look1": "Sindoor Dusk",
       "look2": "Marigold Morning",
       "look3": "Ivory Moon"
     },
-    "layers": "Outfit · Jewellery · Makeup · Hair"
+    "layer": {
+      "outfit": "Outfit",
+      "necklace": "Necklace",
+      "earrings": "Earrings",
+      "makeup": "Makeup",
+      "hair": "Hair"
+    },
+    "layerStatus": {
+      "pending": "waiting",
+      "rendering": "rendering now",
+      "done": "done",
+      "failed": "couldn't be rendered",
+      "skipped": "skipped"
+    },
+    "card": {
+      "starting": "Starting…",
+      "rendering": "Rendering…",
+      "adding": "Adding {{layer}}…",
+      "partial": "Partly rendered",
+      "ready": "Ready",
+      "imageAlt": "{{name}} on your photo, {{done}} of {{total}} layers",
+      "open": "Open {{name}} layer by layer",
+      "added": "{{layer}} added",
+      "progress": "{{done}} of {{total}} layers",
+      "progressLabel": "{{name}} rendering progress",
+      "layersLabel": "{{name}} layers",
+      "partialSummary": "{{done}} of {{total}} layers rendered — retry {{layers}}",
+      "retryLabel": "Try again: {{name}}",
+      "planning": "Picking pieces from the catalogue for this look…"
+    },
+    "reason": {
+      "noFace": "We couldn't find your face clearly for this layer — a brighter, front-facing photo helps",
+      "budget": "Paused to protect the demo's try-on budget",
+      "interrupted": "Rendering was interrupted",
+      "pose": "YouCam needs a clearer, front-facing pose for this layer",
+      "noPhoto": "Your full-length photo is missing — add it and try again",
+      "credits": "The try-on service is out of credits right now",
+      "other": "YouCam couldn't render this layer (code: {{code}})"
+    },
+    "total": {
+      "over": "{{total}} · over budget",
+      "within": "within your {{budget}} budget",
+      "noBudget": "total for the pieces"
+    },
+    "aiImageAlt": "AI-generated product image: {{name}}",
+    "aiBadge": "AI-generated product image",
+    "lightbox": {
+      "yourPhoto": "Your photo",
+      "after": "After {{layer}}",
+      "imageAlt": "{{name}} look, {{step}}",
+      "prev": "Previous layer",
+      "next": "Next layer",
+      "stepOf": "Step {{current}} of {{total}}",
+      "stepsLabel": "Layers of this look",
+      "pieces": "Pieces in this look",
+      "aiNote": "Product pictures are AI-generated illustrations. The try-on itself is rendered on your own photo by YouCam."
+    },
+    "wear": {
+      "title": "Which looks should we build?",
+      "body": "Pick the styling for your three looks. Each one is rendered on your own photo.",
+      "women": "Women's wear",
+      "men": "Men's wear",
+      "womenLayers": "Outfit, necklace, earrings, makeup and hair",
+      "menLayers": "Outfit and hair"
+    },
+    "live": {
+      "note": "Your looks are rendered live by YouCam on your own photo, one layer at a time. It takes a few minutes — you can leave this page and come back.",
+      "doneNote": "Tap a look to see how it came together, layer by layer.",
+      "added": "{{look}}: {{layer}} added",
+      "failed": "{{look}}: {{layer}} couldn't be rendered",
+      "allDone": "All looks have finished rendering."
+    },
+    "rebuild": {
+      "button": "Build three new looks",
+      "confirm": "This replaces your three current looks with new ones. Build new looks?",
+      "yes": "Yes, build new looks",
+      "cancel": "Keep these looks",
+      "left_one": "{{n}} rebuild left",
+      "left_other": "{{n}} rebuilds left",
+      "waitFinish": "You can rebuild once these looks finish.",
+      "none": "No rebuilds left for this session."
+    },
+    "errors": {
+      "photo_required": "Add a full-length photo first, so the looks can be rendered on you.",
+      "round_limit": "You've used every rebuild for this session.",
+      "catalogue_empty": "Our catalogue is still being prepared. Please try again in a minute.",
+      "generic": "We couldn't load your looks. Check your connection and try again.",
+      "action": "That didn't work. Please try again.",
+      "addPhoto": "Add my photo"
+    }
   }
 }

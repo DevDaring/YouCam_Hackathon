@@ -66,6 +66,7 @@ class Session(Base):
     budget_amount: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     locale: Mapped[str] = mapped_column(String(8), default="en")
     style_tags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
+    wear: Mapped[str | None] = mapped_column(String(8))  # women | men — which catalogue to build looks from
     consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     delete_after: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
 
@@ -106,6 +107,8 @@ class CatalogueItem(Base):
     weight_class: Mapped[str | None] = mapped_column(String(8))  # light | medium | heavy
     event_tags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     youcam_params: Mapped[dict | None] = mapped_column(JSONB)  # e.g. garment_category, makeup palette
+    wear: Mapped[str] = mapped_column(String(8), default="any")  # women | men | any
+    base_inr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))  # India base price; per-country prices in catalogue_prices
     image_path: Mapped[str | None] = mapped_column(Text)
     licence: Mapped[str] = mapped_column(String(80))
     is_ai_generated: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -135,6 +138,9 @@ class Look(Base):
     verified_count: Mapped[int] = mapped_column(Integer, default=0)
     total_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     currency: Mapped[str] = mapped_column(String(3))
+    slot: Mapped[int] = mapped_column(Integer, default=1)          # 1..3 within a round
+    preset: Mapped[str | None] = mapped_column(String(32))         # makeup / mood preset key
+    created_at: Mapped[datetime] = _created()
 
 
 class LookLayer(Base):
@@ -148,6 +154,11 @@ class LookLayer(Base):
     drift_json: Mapped[dict | None] = mapped_column(JSONB)
     verdict: Mapped[str] = mapped_column(VerdictEnum, default="pending")
     units_spent: Mapped[int] = mapped_column(Integer, default=0)
+    position: Mapped[int] = mapped_column(Integer, default=0)      # render order
+    status: Mapped[str] = mapped_column(String(12), default="pending")  # pending | rendering | done | failed | skipped
+    error: Mapped[str | None] = mapped_column(Text)
+    params: Mapped[dict | None] = mapped_column(JSONB)             # template id / makeup effects for non-catalogue layers
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
 class Room(Base):
@@ -222,6 +233,8 @@ class UnitLedger(Base):
     cache_hit: Mapped[bool] = mapped_column(Boolean, default=False)
     mock: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(16), default="ok")  # ok | failed | refused
+    account: Mapped[int | None] = mapped_column(Integer)  # which YouCam account paid (1 or 2)
+    task_id: Mapped[str | None] = mapped_column(String(128))
     balance_before: Mapped[int | None] = mapped_column(Integer)
     balance_after: Mapped[int | None] = mapped_column(Integer)
     note: Mapped[str | None] = mapped_column(Text)

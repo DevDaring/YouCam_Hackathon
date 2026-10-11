@@ -79,3 +79,25 @@ The product is renamed **DearYou** everywhere. Entries above that were written a
   - `dearme.koushikdeb.com` now sends a permanent redirect (301) to the new domain.
   - Cron and the Caddy block, now between `# >>> dearyou` markers, were updated to match.
 - **Hero:** an animated line-art sequence of brides from several traditions, with falling glowing "flower souls". Each bride is identified only by her attire and jewellery, never by religious symbols.
+
+## D-010 · Image generation: YouCam first, NanoGPT as fallback (owner, Oct 11 2026)
+This is a YouCam hackathon, so the owner set a rule: **YouCam is always tried first.** Images come from YouCam's AI Image Generator V2 (`/s2s/v2.0/task/text-to-image/youcam`, model `youcam-image-v2`, 1 unit per image). If YouCam cannot deliver, the app tries two NanoGPT accounts in order: `NanoGPT_2009_API_KEY`, then `NanoGPT_88_API_Key`, with model `nano-banana-pro`. The older `Nano_GPT_API_KEY` is rejected by NanoGPT and is not used.
+
+Both providers were checked with one live call each; the captured responses are in `fixtures/youcam/probe/`:
+- YouCam returns the image link at `data.results.url`.
+- NanoGPT returns the image inline, at `data[0].b64_json`.
+
+**Lesson learned (my mistake, about 22 units wasted).** YouCam processes an account's image jobs one at a time. On the first run I sent 5–7 jobs at once with a 2-minute wait. The later jobs timed out on my side but still finished and were charged, and I had not saved their task IDs, so those images were lost. The fix:
+- one image job per account at a time, with a 15-minute wait;
+- every task ID is stored in `unit_ledger.task_id`;
+- a timeout is recorded as `status=timeout`, so the result can still be collected.
+
+The five catalogue images that fell back to NanoGPT during that run were regenerated with YouCam, so the whole catalogue now comes from YouCam.
+
+## D-011 · Two YouCam accounts (owner, Oct 11 2026)
+The two accounts are `YouCam_Phd_API_KEY` and `YouCam_Phd_API_KEY2`. On Oct 11 they held 1,016 and 1,040 units. The secret keys (RSA) are not needed, because Bearer auth with the API key is enough.
+- **Account choice:** each call takes the next account in rotation that still has more than its reserve after paying. An account's balance is read live on first use and every 20 calls, and counted down locally in between.
+- **Reserve:** each account keeps its own `YOUCAM_UNIT_RESERVE` (150) for judging. The real account balance is the source of truth, because the dev and prod ledgers are separate databases.
+- **One account per call:** uploaded file IDs belong to the account that uploaded them. So the uploads, the task and the polling of a single call all use the same account.
+- **Failover:** if an account refuses a task with `CreditInsufficiency` or a key error, the call is retried on the other account with fresh uploads.
+- **Ledger:** `unit_ledger.account` records which account paid for each call.

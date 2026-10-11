@@ -12,7 +12,9 @@ from app.auth import seed_demo_user
 from app.db import SessionLocal
 from app.integrity.quality import close_detector
 from app.retention import purge_loop
-from app.routers import auth, health, ledger, regions, sessions
+from app import catalogue
+from app.looks import render
+from app.routers import auth, health, ledger, looks, regions, sessions
 
 log = logging.getLogger("dearyou")
 
@@ -24,6 +26,9 @@ async def lifespan(_: FastAPI):
     settings.STORAGE_DIR.mkdir(parents=True, exist_ok=True)
     async with SessionLocal() as db:
         await seed_demo_user(db)
+        n = await catalogue.seed(db)
+    await render.mark_interrupted()
+    log.warning("catalogue: %d items", n)
     log.warning("DearYou API starting — MOCK_MODE=%s, unit budget %s (reserve %s)",
                 settings.MOCK_MODE, settings.YOUCAM_UNIT_BUDGET, settings.YOUCAM_UNIT_RESERVE)
     purger = asyncio.create_task(purge_loop()) if settings.APP_ENV != "test" else None
@@ -48,4 +53,5 @@ app.include_router(auth.router)
 app.include_router(regions.router)
 app.include_router(ledger.router)
 app.include_router(sessions.router)
+app.include_router(looks.router)
 

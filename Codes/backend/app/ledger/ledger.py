@@ -53,9 +53,11 @@ async def record(
     balance_before: int | None = None,
     balance_after: int | None = None,
     note: str | None = None,
+    account: int | None = None,
+    task_id: str | None = None,
 ) -> UnitLedger:
     row = UnitLedger(feature=feature, units=units, cache_hit=cache_hit, mock=mock, status=status, session_id=session_id,
-                     balance_before=balance_before, balance_after=balance_after, note=note)
+                     balance_before=balance_before, balance_after=balance_after, note=note, account=account, task_id=task_id)
     db.add(row)
     await db.commit()
     return row

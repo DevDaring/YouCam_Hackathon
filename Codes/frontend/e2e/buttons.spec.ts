@@ -317,7 +317,9 @@ test.describe('signed in', () => {
     await expect(page).toHaveURL(new RegExp(`/studio/${sid}$`))
     await expect(page.getByRole('heading', { name: 'Your look studio' })).toBeVisible()
     await expect(page.getByRole('img', { name: 'Your face close-up' })).toBeVisible()
-    for (const n of ['Sindoor Dusk', 'Marigold Morning', 'Ivory Moon']) await expect(page.getByText(n)).toBeVisible()
+    // Bride → the three looks start rendering on their own; each card is named after its look.
+    for (const n of ['Sindoor Dusk', 'Marigold Morning', 'Ivory Moon']) await expect(page.getByRole('heading', { level: 3, name: n })).toBeAttached()
+    await expect(page.getByText('Waiting for try-on')).toHaveCount(0)
 
     await page.getByRole('link', { name: 'Retake photos' }).click()
     await expect(page).toHaveURL(new RegExp(`/photo/${sid}$`))
@@ -342,6 +344,60 @@ test.describe('signed in', () => {
     await page.getByRole('button', { name: 'Skip for now' }).click()
     await expect(page.getByRole('heading', { name: 'Your look studio' })).toBeVisible()
     await expect(page.getByText("No close-up — that's fine")).toBeVisible()
+  })
+
+  test('look studio: auto-start, layers render, lightbox stepper, rebuild', async ({ page }) => {
+    test.setTimeout(180_000)
+    const sid = await newSession(page)
+    await page.locator('input[type=file]').setInputFiles(PORTRAIT)
+    await page.getByRole('button', { name: /Use this photo/ }).click()
+    await page.getByRole('button', { name: 'Skip for now' }).click()
+    await expect(page).toHaveURL(new RegExp(`/studio/${sid}$`))
+
+    // Demo family is a bride: the first round starts by itself (no wear chooser), and says how it works.
+    await expect(page.getByText(/rendered live by YouCam on your own photo/)).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Which looks should we build?' })).toHaveCount(0)
+    const looksSection = page.getByRole('region', { name: 'Your three looks' })
+    await expect(looksSection.getByRole('progressbar')).toHaveCount(3, { timeout: 20_000 })
+
+    // Mock renders take ~1–2 s a layer: wait for the first finished layer, then open that look.
+    const open = page.getByRole('button', { name: /^Open .+ layer by layer$/ }).first()
+    await expect(open).toBeVisible({ timeout: 60_000 })
+    await expect(page.getByText(/^[1-5] of [25] layers$/).first()).toBeVisible()
+    await open.click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByRole('heading', { level: 2 })).toBeVisible()
+    const stepText = dialog.getByText(/^Step \d of \d$/)
+    const [, cur, total] = (await stepText.textContent())!.match(/Step (\d) of (\d)/)!
+    expect(Number(cur)).toBe(Number(total))
+    expect(Number(total)).toBeGreaterThanOrEqual(2)
+    await expect(dialog.getByRole('button', { name: 'Next layer' })).toBeDisabled()
+    await dialog.getByRole('button', { name: 'Previous layer' }).click()
+    await expect(stepText).toHaveText(`Step ${Number(total) - 1} of ${total}`)
+    await dialog.getByRole('button', { name: 'Your photo' }).click()
+    await expect(stepText).toHaveText(`Step 1 of ${total}`)
+    await expect(dialog.getByRole('button', { name: 'Previous layer' })).toBeDisabled()
+    await dialog.getByRole('button', { name: 'Next layer' }).click()
+    await expect(stepText).toHaveText(`Step 2 of ${total}`)
+    await expect(dialog.getByText('AI-generated product image').first()).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await open.click()
+    await expect(dialog).toBeVisible()
+    await dialog.getByRole('button', { name: 'Close' }).click()
+    await expect(dialog).toBeHidden()
+
+    // Rebuild unlocks once every look has finished; confirm, then a fresh round starts.
+    const rebuild = page.getByRole('button', { name: 'Build three new looks' })
+    await expect(page.getByText(/^2 rebuilds left/)).toBeVisible()
+    await expect(rebuild).toBeEnabled({ timeout: 150_000 })
+    await rebuild.click()
+    await page.getByRole('button', { name: 'Keep these looks' }).click()
+    await rebuild.click()
+    await page.getByRole('button', { name: 'Yes, build new looks' }).click()
+    await expect(page.getByText(/^1 rebuild left/)).toBeVisible({ timeout: 20_000 })
+    await expect(rebuild).toBeDisabled()
   })
 
   test('camera blocked: friendly message and upload instead', async ({ page }) => {

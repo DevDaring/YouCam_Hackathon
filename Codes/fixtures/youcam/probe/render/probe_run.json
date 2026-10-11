@@ -1,0 +1,155 @@
+{
+ "balance_before": 2032.0,
+ "outfits": [
+  {
+   "sku": "OUT-SAR-RED",
+   "name": "Rakta Banarasi Silk Saree",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-SAR-RED.jpg",
+   "s": 32
+  },
+  {
+   "sku": "OUT-LEH-MRN",
+   "name": "Sindoor Velvet Bridal Lehenga",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-LEH-MRN.jpg",
+   "s": 31
+  },
+  {
+   "sku": "OUT-SHA-YEL",
+   "name": "Genda Phool Haldi Sharara Set",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-SHA-YEL.jpg",
+   "s": 30
+  },
+  {
+   "sku": "OUT-ANA-PNK",
+   "name": "Gulabi Mirror-work Anarkali",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-ANA-PNK.jpg",
+   "s": 29
+  },
+  {
+   "sku": "OUT-SHR-GRN",
+   "name": "Zumurrud Embroidered Gharara",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-SHR-GRN.jpg",
+   "s": 64
+  },
+  {
+   "sku": "OUT-GWN-IVR",
+   "name": "Moonlace Ivory Bridal Gown",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-GWN-IVR.jpg",
+   "s": 68
+  },
+  {
+   "sku": "OUT-OSA-WHT",
+   "name": "Kandyan Osariya, White and Gold",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-OSA-WHT.jpg",
+   "s": 66
+  },
+  {
+   "sku": "OUT-SAR-NVY",
+   "name": "Raat Ki Rani Sequin Saree",
+   "model": "demo_bride",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_bride_OUT-SAR-NVY.jpg",
+   "s": 75
+  },
+  {
+   "sku": "OUT-SHW-IVR",
+   "name": "Shahi Ivory Sherwani",
+   "model": "demo_groom",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_groom_OUT-SHW-IVR.jpg",
+   "s": 98
+  },
+  {
+   "sku": "OUT-BND-MRN",
+   "name": "Maroon Velvet Bandhgala",
+   "model": "demo_groom",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_groom_OUT-BND-MRN.jpg",
+   "s": 108
+  },
+  {
+   "sku": "OUT-KUR-YEL",
+   "name": "Haldi Mustard Kurta Pyjama",
+   "model": "demo_groom",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_groom_OUT-KUR-YEL.jpg",
+   "s": 109
+  },
+  {
+   "sku": "OUT-TUX-BLK",
+   "name": "Classic Black Tuxedo Jacket",
+   "model": "demo_groom",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/outfit_demo_groom_OUT-TUX-BLK.jpg",
+   "s": 115
+  }
+ ],
+ "bride_chain": [
+  {
+   "layer": "outfit",
+   "sku": "OUT-SAR-RED",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/chain_demo_bride_0_outfit.jpg",
+   "s": 0
+  },
+  {
+   "layer": "necklace",
+   "sku": "NEC-TMP-GLD",
+   "status": "failed",
+   "error": "4",
+   "s": 6
+  },
+  {
+   "layer": "earrings",
+   "sku": "EAR-JHM-GLD",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/chain_demo_bride_2_earrings.jpg",
+   "s": 10
+  },
+  {
+   "layer": "makeup",
+   "sku": null,
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/chain_demo_bride_3_makeup.jpg",
+   "s": 14
+  },
+  {
+   "layer": "hair",
+   "sku": null,
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/chain_demo_bride_4_hair.jpg",
+   "s": 9
+  }
+ ],
+ "groom_chain": [
+  {
+   "layer": "outfit",
+   "sku": "OUT-SHW-IVR",
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/chain_demo_groom_0_outfit.jpg",
+   "s": 1
+  },
+  {
+   "layer": "hair",
+   "sku": null,
+   "status": "rendered",
+   "file": "fixtures/youcam/probe/render/chain_demo_groom_1_hair.jpg",
+   "s": 9
+  }
+ ],
+ "balance_after": 2002.0
+}

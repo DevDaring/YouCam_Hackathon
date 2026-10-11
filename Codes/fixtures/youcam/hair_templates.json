@@ -1,0 +1,817 @@
+{
+ "_source": "GET /s2s/v2.1/task/template/hair-transfer (live, free)",
+ "templates": [
+  {
+   "id": "male_short_curly",
+   "thumb": "https://app-cdn.makeupar.com/cms/47633eff-2086-4791-b454-825aa6f9e160/1780481384535/file.jpg",
+   "title": "Short Curly",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_sleek_middle_part",
+   "thumb": "https://app-cdn.makeupar.com/cms/658e8776-fdd0-4d78-8f35-1bbe27e902d4/1780543845278/file.jpg",
+   "title": "Sleek Middle Part",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_blunt_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/9bc19ca5-2e6d-4816-8dc3-a6a1daf6593d/1781145851280/file.jpg",
+   "title": "Blunt Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_s_wave_brunette",
+   "thumb": "https://app-cdn.makeupar.com/cms/8074cf6e-9299-4b2e-a10a-19849c5be4c2/1780540769370/file.jpg",
+   "title": "S-Wave Brunette",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_combover",
+   "thumb": "https://app-cdn.makeupar.com/cms/32a0e78f-31e8-4a7f-a19d-6a4084b68ff6/1781072606913/file.jpg",
+   "title": "Combover",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_messy_bun_brown",
+   "thumb": "https://app-cdn.makeupar.com/cms/0fcab08b-2e07-4173-bd91-aee43d6ad4a7/1780541079712/file.jpg",
+   "title": "Messy Bun Brown",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_two_braids",
+   "thumb": "https://app-cdn.makeupar.com/cms/174d25bc-b623-4a33-8069-ba6a1b97851f/1781079933103/file.jpg",
+   "title": "Two Braids",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_slicked_back_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/857dbcb2-94bf-4863-a0ba-fd45c2240ca3/1781110592389/file.jpg",
+   "title": "Slicked-Back Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_retro_brown_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/ed330fc6-41b1-4d12-abcb-71dd43e620f8/1780540975822/file.jpg",
+   "title": "Retro Brown Waves",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_crimped_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/6966ba54-f8b2-481a-9248-a412869d87ff/1781110699172/file.jpg",
+   "title": "Crimped Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_dark_tone_fringe_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/6d42c131-d435-42de-bed1-95c14ae53f6b/1780543673483/file.jpg",
+   "title": "Dark-Tone Fringe Bob",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_soft_red_ombre_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/76b16f51-fc51-4640-a5a1-7ea6e5ebd50d/1780481443123/file.jpg",
+   "title": "Soft Red Ombre Waves",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_loose_crimped_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/b6d441a7-7cc4-4387-aebb-d2dbb7ffee8b/1781110796167/file.jpg",
+   "title": "Loose Crimped Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_buzz_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/c9ecae17-d0ee-45fc-b0d7-f7575d672454/1781145545980/file.jpg",
+   "title": "Buzz Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_neon_root_black_hair",
+   "thumb": "https://app-cdn.makeupar.com/cms/4f48c736-3a09-442b-9435-44870edf8088/1780540714947/file.jpg",
+   "title": "Neon Root Black Hair",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_long_brown_crimps",
+   "thumb": "https://app-cdn.makeupar.com/cms/544b9d72-e09f-49b0-b7e5-b2d6e54f9c40/1780540289515/file.jpg",
+   "title": "Long Brown Crimps",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_bouncy_curls",
+   "thumb": "https://app-cdn.makeupar.com/cms/f0f7cd99-88ef-4c4c-925d-b327649c6bcd/1780543784410/file.png",
+   "title": "Bouncy Curls",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_pink_brown_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/78248248-9984-4ed9-a7a0-d69695e47117/1781062362695/file.jpg",
+   "title": "Pink & Brown Waves",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "male_gray_taper_fade",
+   "thumb": "https://app-cdn.makeupar.com/cms/02a90e43-398a-4eda-b0bc-e9595d75430f/1778825209411/file.jpg",
+   "title": "Gray Taper Fade",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "male_textured_crop",
+   "thumb": "https://app-cdn.makeupar.com/cms/430a5763-f41c-4ea6-a9c8-7c64b9b3b942/1778665908784/file.jpg",
+   "title": "Textured Crop",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "male_textured_comma",
+   "thumb": "https://app-cdn.makeupar.com/cms/ceea0fd7-a766-4d39-a067-625f4638954c/1778825131587/file.jpg",
+   "title": "Textured Comma",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "male_afro",
+   "thumb": "https://app-cdn.makeupar.com/cms/59db293e-2053-4c7a-90a1-70781e8b7949/1778750239189/file.jpg",
+   "title": "Afro",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_dark_c_curl_layers",
+   "thumb": "https://app-cdn.makeupar.com/cms/c0678f27-af7f-4f1b-902a-cbb22be12a0f/1778825368023/file.jpg",
+   "title": "Dark C-Curl Layers",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_blunt_fringe_straight",
+   "thumb": "https://app-cdn.makeupar.com/cms/2de504ff-60d8-477f-bae1-027f16d0491e/1778750396458/file.jpg",
+   "title": "Blunt Fringe Straight",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_afro",
+   "thumb": "https://app-cdn.makeupar.com/cms/bceafb66-3743-42c1-989f-842a480fe93e/1778749474456/file.jpg",
+   "title": "Afro",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_tousled_black_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/e6355428-6d46-488f-9667-bff0d6e559dc/1778659320287/file.jpg",
+   "title": "Tousled black bob",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_casual_updo",
+   "thumb": "https://app-cdn.makeupar.com/cms/d2990bab-1a72-4ac5-865a-091e4e165b09/1778749407727/file.jpg",
+   "title": "Casual Updo",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_soft_flip",
+   "thumb": "https://app-cdn.makeupar.com/cms/56652402-6cc8-4f9c-b017-f363e9930158/1778658595539/file.jpg",
+   "title": "Soft Flip",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_crewcut",
+   "thumb": "https://app-cdn.makeupar.com/cms/f704b694-6896-4783-b33b-07102dbc7840/1778825631669/file.jpg",
+   "title": "Crewcut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_brunette_wolf_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/cce45445-cbef-4105-b91b-c82d94918214/1778750321675/file.jpg",
+   "title": "Brunette Wolf Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_bangs_updo",
+   "thumb": "https://app-cdn.makeupar.com/cms/2b90cd17-7ce3-4a5f-91d6-c25b95c7688b/1778663068840/file.jpg",
+   "title": "Bangs Updo",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "male_bald",
+   "thumb": "https://app-cdn.makeupar.com/cms/e4955b95-f99a-46fa-9931-8ed5927959d0/1770199528708/file.jpg",
+   "title": "Bald",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "male_wavy_undercut",
+   "thumb": "https://app-cdn.makeupar.com/cms/f9bb06a7-fd1b-42ae-938d-275f3fde65cc/1770112938420/file.jpg",
+   "title": "Wavy Undercut",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "male_tousled_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/e7912a84-747b-4ac2-93db-cf26179d319c/1773989170905/file.jpg",
+   "title": "Tousled Cut",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_long_wavy",
+   "thumb": "https://app-cdn.makeupar.com/cms/f7a7ff02-2988-4729-bdde-a52ac978ede7/1770112816917/file.jpg",
+   "title": "Long Wavy",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_bald",
+   "thumb": "https://app-cdn.makeupar.com/cms/64f2ad78-a39d-4b2c-ada5-f10ef484db3c/1770194745048/file.jpg",
+   "title": "Bald",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_choppy_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/a9f78e07-8917-41ec-97bd-8d47167d29f5/1770174371623/file.jpg",
+   "title": "Choppy Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_long_straight",
+   "thumb": "https://app-cdn.makeupar.com/cms/e9dae350-1313-46a2-9cad-1f94988da1e2/1770194631310/file.jpg",
+   "title": "Long Straight",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_soft_chestnut_midcut",
+   "thumb": "https://app-cdn.makeupar.com/cms/5d2e0c82-c8a9-49bf-9485-c7e860d46edb/1770192746597/file.jpg",
+   "title": "Soft Chestnut Midcut",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_light_brown_wisps",
+   "thumb": "https://app-cdn.makeupar.com/cms/0844a9f8-7b25-45ae-acb8-68af3a56f4fc/1770177230975/file.jpg",
+   "title": "Light Brown Wisps",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_side_part_straight",
+   "thumb": "https://app-cdn.makeupar.com/cms/015eb8f2-eba5-4f59-980e-a5b4ad16687b/1770112894136/file.jpg",
+   "title": "Side-Part Straight",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_bobcut_curly",
+   "thumb": "https://app-cdn.makeupar.com/cms/e4f56b76-d492-45a6-a992-e5d7e800ede6/1770174109275/file.jpg",
+   "title": "Bobcut Curly",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_long_boho_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/1a8c911c-8336-4fb1-a94e-f62e5c414933/1770174497405/file.jpg",
+   "title": "Long Boho Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_messy_bun",
+   "thumb": "https://app-cdn.makeupar.com/cms/af5db364-8a4b-4447-978c-f4579592f1f7/1770170840959/file.jpg",
+   "title": "Messy Bun",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_pixie_pink",
+   "thumb": "https://app-cdn.makeupar.com/cms/99c1677e-21df-4a2e-9833-b8a620bc47e2/1770170809981/file.jpg",
+   "title": "Pixie Pink",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "female_medium_straight",
+   "thumb": "https://app-cdn.makeupar.com/cms/85e1151e-a616-4cdc-8ace-204033e347d7/1770174183367/file.jpg",
+   "title": "Medium Straight",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_bobcut_wavy",
+   "thumb": "https://app-cdn.makeupar.com/cms/faffd75d-bad1-4bea-8f35-107077372911/1770198811895/file.jpg",
+   "title": "Bobcut Wavy",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_long_spiral_curls",
+   "thumb": "https://app-cdn.makeupar.com/cms/d8ebd3f0-503f-4ad3-baf6-11ba77b2d756/1775543705441/file.jpg",
+   "title": "Long Spiral Curls",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_modern_wavy_lob",
+   "thumb": "https://app-cdn.makeupar.com/cms/6f5ed48c-541f-4a22-b967-b3f77f50fb68/1773991575084/file.jpg",
+   "title": "Modern Wavy Lob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_fresh_fringe_lob",
+   "thumb": "https://app-cdn.makeupar.com/cms/0b9d5c31-2f8e-4f4c-8159-82c8ae0ed765/1773991602850/file.jpg",
+   "title": "Fresh Fringe Lob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "female_boho_side_braid",
+   "thumb": "https://app-cdn.makeupar.com/cms/e8c94fe7-6d94-445f-9653-0ecdfecae73a/1773994281256/file.jpg",
+   "title": "Boho Side Braid",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_goddess_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/a6339fb0-03f8-4cd3-8ba9-d85895b4ddfd/1776757568161/file.jpg",
+   "title": "Goddess Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_bow_accents",
+   "thumb": "https://app-cdn.makeupar.com/cms/db0b320b-7f83-443c-912a-27a70ff63439/1776757082414/file.jpg",
+   "title": "Bow Accents",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_split_rainbow",
+   "thumb": "https://app-cdn.makeupar.com/cms/426d2981-5725-4d9c-b07a-4a3af1908b61/1776670174933/file.jpg",
+   "title": "Split Rainbow",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_curly_double_buns",
+   "thumb": "https://app-cdn.makeupar.com/cms/c9f5ddf3-2c18-4665-a937-acdfa27bff9c/1776669869952/file.jpg",
+   "title": "Curly Double Buns",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_leopard_highlights",
+   "thumb": "https://app-cdn.makeupar.com/cms/9111b26e-3edd-4c71-b4eb-ae019fc42b4d/1776669843095/file.jpg",
+   "title": "Leopard Highlights",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_half_up_curls",
+   "thumb": "https://app-cdn.makeupar.com/cms/a4c91db2-a316-40be-8ab8-a113d792ac3a/1776669736020/file.jpg",
+   "title": "Half-Up Curls",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_crewcut",
+   "thumb": "https://app-cdn.makeupar.com/cms/9771949d-a29c-4ae8-8e0a-aea5d83b28b6/1774947461596/file.jpg",
+   "title": "Crewcut",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_messy_tapered_fade",
+   "thumb": "https://app-cdn.makeupar.com/cms/619e705a-beb9-4ebf-98d8-a59168df6c7e/1775122911642/file.jpg",
+   "title": "Messy Tapered Fade",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_tousled_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/5f7c2a40-03e5-4ec1-8df4-74a7c1f5eecc/1775100852986/file.jpg",
+   "title": "Tousled Waves",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_blonde_balayage",
+   "thumb": "https://app-cdn.makeupar.com/cms/9e7589a4-57ab-4918-8faa-a447bb11b547/1775123057470/file.jpg",
+   "title": "Blonde Balayage",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_curtain_wavy",
+   "thumb": "https://app-cdn.makeupar.com/cms/05699388-d710-4bdf-8460-c79f6bd4c641/1775120328122/file.jpg",
+   "title": "Curtain Wavy",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_bobcut",
+   "thumb": "https://app-cdn.makeupar.com/cms/162fb7a3-0067-4a3d-a591-8ca80e85bca7/1774950103533/file.jpg",
+   "title": "Bobcut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_caramel_bubble_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/7ffeaa9c-2e8a-4cab-ad43-f66482f1264a/1775122989473/file.jpg",
+   "title": "Caramel Bubble Bob",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_wavy_bob_with_bangs",
+   "thumb": "https://app-cdn.makeupar.com/cms/07411143-42e3-401a-9553-8ad71d97465b/1775120259313/file.jpg",
+   "title": "Wavy Bob With Bangs",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_dark_lob_bangs",
+   "thumb": "https://app-cdn.makeupar.com/cms/b41a87a6-39c6-444a-969d-684539834374/1775123948139/file.jpg",
+   "title": "Dark Lob & Bangs",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_long_straight_black",
+   "thumb": "https://app-cdn.makeupar.com/cms/0874fd3a-b905-45c2-9bec-1dd4b8fb8e69/1775123841558/file.jpg",
+   "title": "Long Straight Black",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_short_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/d098f031-6a16-41ae-9f61-6ac2f943ba61/1775101570916/file.jpg",
+   "title": "Short Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_pixie",
+   "thumb": "https://app-cdn.makeupar.com/cms/66060d01-0427-4bdd-8942-5bca565cfcbd/1775101460877/file.jpg",
+   "title": "Pixie",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_dark_kitty_bun",
+   "thumb": "https://app-cdn.makeupar.com/cms/975b93ad-ba27-4e0c-9856-f063b415a768/1775120148246/file.jpg",
+   "title": "Dark Kitty Bun",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_tousled_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/3825ee48-eaf4-46bb-ba57-bd2bd640652f/1775101403660/file.jpg",
+   "title": "Tousled Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_aura_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/4356b2e4-972f-4f5f-bd90-deb1ee826ce3/1775123764334/file.jpg",
+   "title": "Aura Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_spiral_buns",
+   "thumb": "https://app-cdn.makeupar.com/cms/40566453-2860-4708-8e29-8e4ac0eaafbe/1775022729090/file.jpg",
+   "title": "Spiral Buns",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_defined_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/31ab1008-a5c8-4f42-90ae-0650ce51debb/1775123843885/file.jpg",
+   "title": "Defined Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_copper_flipped_shag",
+   "thumb": "https://app-cdn.makeupar.com/cms/8becde21-7884-4d0f-bd2c-4608c9d29f1c/1775104003982/file.jpg",
+   "title": "Copper Flipped Shag",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_dark_idol_twintails",
+   "thumb": "https://app-cdn.makeupar.com/cms/ada1918b-2b2e-41de-8b2f-fc0b0764dc9a/1773304031372/file.jpg",
+   "title": "Dark Idol Twintails",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_honey_highlight",
+   "thumb": "https://app-cdn.makeupar.com/cms/0e4b7049-32aa-474c-9782-bffe027eaece/1773386938309/file.jpg",
+   "title": "Honey Highlight",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_wavy_shag",
+   "thumb": "https://app-cdn.makeupar.com/cms/7728b4fd-fe57-4beb-a09c-783a2dcbdef7/1773386859274/file.jpg",
+   "title": "Wavy Shag",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_curtain_wavy_red",
+   "thumb": "https://app-cdn.makeupar.com/cms/ca6fd02e-94e0-49d0-b15b-4f45e122d50c/1773386812034/file.jpg",
+   "title": "Curtain Wavy Red",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_gentle_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/865b61eb-9caf-4545-92ba-cdf6c9deb770/1773386759466/file.jpg",
+   "title": "Gentle Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_modern_mid_part_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/c7b53c7f-9c04-42d9-b1fb-3c4a66a401f1/1773312271706/file.jpg",
+   "title": "Modern Mid-Part Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_long_wavy_blonde",
+   "thumb": "https://app-cdn.makeupar.com/cms/f351afb1-91e0-42f7-8c40-504fa74ff0e3/1773386898927/file.jpg",
+   "title": "Long Wavy Blonde",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_bixie_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/1984ae3e-b53a-4437-b05c-52d53f7691e7/1773312166554/file.jpg",
+   "title": "Bixie Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_violet_space_buns",
+   "thumb": "https://app-cdn.makeupar.com/cms/faf4ce8a-283a-4932-a649-897cf3af8b59/1773304088346/file.jpg",
+   "title": "Violet Space Buns",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_romantic_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/ce59c9c4-c9ea-4ae0-8255-a619a52c4249/1773312224946/file.jpg",
+   "title": "Romantic Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_loose_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/092c4759-b384-4502-8de4-62f2a8437074/1773303942050/file.jpg",
+   "title": "Loose Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_beachy",
+   "thumb": "https://app-cdn.makeupar.com/cms/3ae8d2f5-791c-4879-8c8e-a158fae561a3/1773312098152/file.jpg",
+   "title": "Beachy",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_caramel_layers",
+   "thumb": "https://app-cdn.makeupar.com/cms/c4299133-9b17-46c8-b5a2-50f3153588e1/1773312030453/file.jpg",
+   "title": "Caramel Layers",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_headband_flipped_ends",
+   "thumb": "https://app-cdn.makeupar.com/cms/ce8b19d7-dd70-4c08-ba8f-47f2706a7ec3/1773295380730/file.jpg",
+   "title": "Headband Flipped Ends",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_curly_space_buns",
+   "thumb": "https://app-cdn.makeupar.com/cms/c98ca7ab-8bdc-4f0c-924c-5239438be170/1773295308739/file.jpg",
+   "title": "Curly Space Buns",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_wispy_fringe_pixie",
+   "thumb": "https://app-cdn.makeupar.com/cms/6e902e3f-53f7-4c92-9549-39ac8f6c529a/1773284369357/file.jpg",
+   "title": "Wispy Fringe Pixie",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_soft_flipped_layers",
+   "thumb": "https://app-cdn.makeupar.com/cms/be3dc88c-9b2f-461a-8f45-9e3d57220145/1773284249597/file.jpg",
+   "title": "Soft Flipped Layers",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_half_up_soft_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/9d4d9e61-4ae4-4837-ade1-e3fe47f05dce/1773306203428/file.jpg",
+   "title": "Half-Up Soft Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_hime_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/a7c647f9-2a83-401a-8051-4871b6296eb8/1773305799124/file.jpg",
+   "title": "Hime Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_pink_blue_fade",
+   "thumb": "https://app-cdn.makeupar.com/cms/5752427c-af4e-4304-9c61-08a28fbff7ba/1770016528785/file.jpg",
+   "title": "Pink Blue Fade",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_highlight_pixie_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/6dbce53c-35b6-4be4-a5c5-1f9430ec4371/1768899921847/file.jpg",
+   "title": "Highlight Pixie Cut",
+   "category_name": "Male",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_high_pony_tail",
+   "thumb": "https://app-cdn.makeupar.com/cms/9c0ef14d-1952-4c2c-b09e-3ffc00f378da/1768811140017/file.jpg",
+   "title": "High Pony Tail",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_steel_blonde_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/c46f15a6-767c-43d2-8d3e-fe9849aeb92a/1768890408018/file.jpg",
+   "title": "Steel Blonde Bob",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_lavender_messy_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/337a5566-9ee6-441b-af22-534f4f8a0151/1770016322648/file.jpg",
+   "title": "Lavender Messy Bob",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_purple_curly",
+   "thumb": "https://app-cdn.makeupar.com/cms/e9487a1e-2f1f-41e3-9cac-59ec15a61950/1770016047236/file.jpg",
+   "title": "Purple Curly",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_mist_violet_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/fa8af219-7f61-47f6-884e-7a8c756e3318/1768890498317/file.jpg",
+   "title": "Mist Violet Bob",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_highlight_wave_rainbow",
+   "thumb": "https://app-cdn.makeupar.com/cms/a1636330-5307-4c5e-a754-a89ef5f31691/1771912532102/file.jpg",
+   "title": "Highlight Wave Rainbow",
+   "category_name": "Female",
+   "keep_users_color": false
+  },
+  {
+   "id": "all_dreadlocks",
+   "thumb": "https://app-cdn.makeupar.com/cms/ee789d47-c009-4bde-b585-5cb76dc02576/1774603196507/file.jpg",
+   "title": "Dreadlocks",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_side_swept_undercut",
+   "thumb": "https://app-cdn.makeupar.com/cms/b7554bb7-a51e-413c-89c3-e36e71df51bc/1770086982870/file.jpg",
+   "title": "Side-Swept Undercut",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_hippie_wave",
+   "thumb": "https://app-cdn.makeupar.com/cms/52e611d2-3b52-4a1d-9c86-7e35ab53d0f4/1770006588603/file.jpg",
+   "title": "Hippie Wave",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_buzz_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/9e1bbc56-f235-4609-beb3-213e91c0f984/1770091124492/file.jpg",
+   "title": "Buzz Cut",
+   "category_name": "Male",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_medium_curve_hair",
+   "thumb": "https://app-cdn.makeupar.com/cms/48805d1c-2632-449f-bba8-e923b42d9795/1768811431421/file.jpg",
+   "title": "Medium Curve Hair",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_short_feather_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/15dd8ba1-d1ff-457d-9332-41412e1be14a/1771829284476/file.jpg",
+   "title": "Short Feather Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_classic_hollywood_waves",
+   "thumb": "https://app-cdn.makeupar.com/cms/d288812e-638e-4622-8a05-dcc967e58e6e/1770880858767/file.jpg",
+   "title": "Classic Hollywood Waves",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_bubble_braids",
+   "thumb": "https://app-cdn.makeupar.com/cms/c125a6e1-718a-4747-a569-11043ccb5c4b/1774603055486/file.jpg",
+   "title": "Bubble Braids",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_french_bob",
+   "thumb": "https://app-cdn.makeupar.com/cms/3ec08a45-89a4-4855-a51e-144caa2870a3/1770091312495/file.jpg",
+   "title": "French Bob",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_face_framing_shag_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/2ead8fe5-76f3-4233-94f2-98684a3f9d41/1770007724171/file.jpg",
+   "title": "Face Framing Shag Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_baby_braids",
+   "thumb": "https://app-cdn.makeupar.com/cms/475bc9ff-76be-4f41-956e-3e93bebd13b1/1774603159718/file.jpg",
+   "title": "Baby braids",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_wolf_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/bbb40a9e-7113-4428-83b0-86b8d832cbb5/1771829230119/file.jpg",
+   "title": "Wolf Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_hush_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/ac74e18d-30d1-4f49-9134-e2dee0baed8f/1771829255242/file.jpg",
+   "title": "Hush Cut",
+   "category_name": "Female",
+   "keep_users_color": true
+  },
+  {
+   "id": "all_two_tone_blonde_cut",
+   "thumb": "https://app-cdn.makeupar.com/cms/51cada39-b0a9-4d98-a708-19111064fb8f/1771902897142/file.jpg",
+   "title": "Two-Tone Blonde Cut",
+   "category_name": "Female",
+   "keep_users_color": false
+  }
+ ]
+}

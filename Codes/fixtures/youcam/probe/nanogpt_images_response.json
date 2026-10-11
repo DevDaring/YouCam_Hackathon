@@ -1,0 +1,15 @@
+{
+  "_note": "NanoGPT /api/v1/images/generations live response (fallback provider), payload truncated",
+  "example": {
+    "created": 1791729276126,
+    "cost": 0.0085,
+    "paymentSource": "USD",
+    "remainingBalance": 41.67246913,
+    "requestId": "media-image:08e7555b-83f9-4845-ab58-9d5a4857f8b7:1791729273200:tl9vwf",
+    "data": [
+      {
+        "b64_json": "/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRP\u2026"
+      }
+    ]
+  }
+}

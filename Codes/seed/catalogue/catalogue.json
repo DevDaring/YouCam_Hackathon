@@ -1,0 +1,679 @@
+{
+ "store": "Utsav House",
+ "items": [
+  {
+   "provider": "youcam",
+   "model": "youcam-image-v2",
+   "sku": "OUT-SAR-RED",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Rakta Banarasi Silk Saree",
+   "garment_category": "full_body",
+   "colour_family": "red",
+   "weight_class": "heavy",
+   "base_inr": 38500,
+   "event_tags": [
+    "wedding",
+    "reception",
+    "durga_puja",
+    "puja",
+    "traditional"
+   ],
+   "image": "images/OUT-SAR-RED.jpg",
+   "colour_lab": [
+    39.28,
+    53.21,
+    38.44
+   ],
+   "licence": "AI-generated (YouCam AI Image Generator V2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "OUT-LEH-MRN",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Sindoor Velvet Bridal Lehenga",
+   "garment_category": "full_body",
+   "colour_family": "maroon",
+   "weight_class": "heavy",
+   "base_inr": 64000,
+   "event_tags": [
+    "wedding",
+    "baraat",
+    "reception",
+    "nikah",
+    "traditional",
+    "statement"
+   ],
+   "image": "images/OUT-LEH-MRN.jpg",
+   "colour_lab": [
+    65.43,
+    7.57,
+    23.65
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "OUT-SHA-YEL",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Genda Phool Haldi Sharara Set",
+   "garment_category": "full_body",
+   "colour_family": "yellow",
+   "weight_class": "light",
+   "base_inr": 14500,
+   "event_tags": [
+    "haldi",
+    "gaye_holud",
+    "mehendi",
+    "teej",
+    "day",
+    "modern"
+   ],
+   "image": "images/OUT-SHA-YEL.jpg",
+   "colour_lab": [
+    72.74,
+    11.63,
+    69.08
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "OUT-ANA-PNK",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Gulabi Mirror-work Anarkali",
+   "garment_category": "full_body",
+   "colour_family": "pink",
+   "weight_class": "medium",
+   "base_inr": 18900,
+   "event_tags": [
+    "mehendi",
+    "sangeet",
+    "engagement",
+    "diwali",
+    "eid",
+    "party",
+    "modern"
+   ],
+   "image": "images/OUT-ANA-PNK.jpg",
+   "colour_lab": [
+    82.85,
+    5.5,
+    7.08
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "OUT-SHR-GRN",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Zumurrud Embroidered Gharara",
+   "garment_category": "full_body",
+   "colour_family": "green",
+   "weight_class": "medium",
+   "base_inr": 26500,
+   "event_tags": [
+    "nikah",
+    "walima",
+    "eid",
+    "mehendi",
+    "reception",
+    "traditional"
+   ],
+   "image": "images/OUT-SHR-GRN.jpg",
+   "colour_lab": [
+    52.32,
+    -39.56,
+    9.09
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "OUT-GWN-IVR",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Moonlace Ivory Bridal Gown",
+   "garment_category": "full_body",
+   "colour_family": "ivory",
+   "weight_class": "medium",
+   "base_inr": 52000,
+   "event_tags": [
+    "wedding",
+    "engagement",
+    "reception",
+    "homecoming",
+    "minimal",
+    "modern"
+   ],
+   "image": "images/OUT-GWN-IVR.jpg",
+   "colour_lab": [
+    86.33,
+    -1.89,
+    -4.05
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "OUT-OSA-WHT",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Kandyan Osariya, White and Gold",
+   "garment_category": "full_body",
+   "colour_family": "white",
+   "weight_class": "medium",
+   "base_inr": 33000,
+   "event_tags": [
+    "wedding",
+    "homecoming",
+    "avurudu",
+    "traditional"
+   ],
+   "image": "images/OUT-OSA-WHT.jpg",
+   "colour_lab": [
+    83.41,
+    -0.58,
+    5.35
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "OUT-SAR-NVY",
+   "category": "outfit",
+   "wear": "women",
+   "name": "Raat Ki Rani Sequin Saree",
+   "garment_category": "full_body",
+   "colour_family": "navy",
+   "weight_class": "light",
+   "base_inr": 16800,
+   "event_tags": [
+    "reception",
+    "party",
+    "sangeet",
+    "diwali",
+    "modern",
+    "statement"
+   ],
+   "image": "images/OUT-SAR-NVY.jpg",
+   "colour_lab": [
+    9.76,
+    0.04,
+    -16.78
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam",
+   "model": "youcam-image-v2",
+   "sku": "OUT-SHW-IVR",
+   "category": "outfit",
+   "wear": "men",
+   "name": "Shahi Ivory Sherwani",
+   "garment_category": "full_body",
+   "colour_family": "ivory",
+   "weight_class": "heavy",
+   "base_inr": 42000,
+   "event_tags": [
+    "wedding",
+    "baraat",
+    "nikah",
+    "reception",
+    "traditional",
+    "statement"
+   ],
+   "image": "images/OUT-SHW-IVR.jpg",
+   "colour_lab": [
+    89.39,
+    -1.06,
+    4.44
+   ],
+   "licence": "AI-generated (YouCam AI Image Generator V2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "OUT-BND-MRN",
+   "category": "outfit",
+   "wear": "men",
+   "name": "Maroon Velvet Bandhgala",
+   "garment_category": "full_body",
+   "colour_family": "maroon",
+   "weight_class": "medium",
+   "base_inr": 28500,
+   "event_tags": [
+    "reception",
+    "sangeet",
+    "engagement",
+    "walima",
+    "party",
+    "modern"
+   ],
+   "image": "images/OUT-BND-MRN.jpg",
+   "colour_lab": [
+    9.41,
+    16.37,
+    3.37
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "OUT-KUR-YEL",
+   "category": "outfit",
+   "wear": "men",
+   "name": "Haldi Mustard Kurta Pyjama",
+   "garment_category": "full_body",
+   "colour_family": "yellow",
+   "weight_class": "light",
+   "base_inr": 6900,
+   "event_tags": [
+    "haldi",
+    "gaye_holud",
+    "mehendi",
+    "puja",
+    "durga_puja",
+    "eid",
+    "teej",
+    "day",
+    "minimal"
+   ],
+   "image": "images/OUT-KUR-YEL.jpg",
+   "colour_lab": [
+    78.24,
+    5.33,
+    60.68
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "OUT-TUX-BLK",
+   "category": "outfit",
+   "wear": "men",
+   "name": "Classic Black Tuxedo Jacket",
+   "garment_category": "upper_body",
+   "colour_family": "black",
+   "weight_class": "medium",
+   "base_inr": 34000,
+   "event_tags": [
+    "wedding",
+    "reception",
+    "engagement",
+    "homecoming",
+    "party",
+    "minimal"
+   ],
+   "image": "images/OUT-TUX-BLK.jpg",
+   "colour_lab": [
+    6.11,
+    -2.52,
+    -0.37
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "NEC-TMP-GLD",
+   "category": "necklace",
+   "wear": "women",
+   "name": "Lakshmi Temple Gold Necklace",
+   "metal": "gold",
+   "weight_class": "heavy",
+   "colour_family": "gold",
+   "base_inr": 21000,
+   "event_tags": [
+    "wedding",
+    "reception",
+    "durga_puja",
+    "puja",
+    "traditional",
+    "statement"
+   ],
+   "image": "images/NEC-TMP-GLD.jpg",
+   "colour_lab": [
+    72.45,
+    4.09,
+    49.14
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "NEC-KUN-GLD",
+   "category": "necklace",
+   "wear": "women",
+   "name": "Kundan Choker with Pearls",
+   "metal": "gold",
+   "weight_class": "medium",
+   "colour_family": "gold",
+   "base_inr": 14500,
+   "event_tags": [
+    "mehendi",
+    "sangeet",
+    "nikah",
+    "walima",
+    "eid",
+    "engagement",
+    "traditional"
+   ],
+   "image": "images/NEC-KUN-GLD.jpg",
+   "colour_lab": [
+    79.63,
+    1.1,
+    10.4
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "NEC-SIT-GLD",
+   "category": "necklace",
+   "wear": "women",
+   "name": "Sitahaar Layered Bridal Haar",
+   "metal": "gold",
+   "weight_class": "heavy",
+   "colour_family": "gold",
+   "base_inr": 33000,
+   "event_tags": [
+    "wedding",
+    "baraat",
+    "durga_puja",
+    "traditional",
+    "statement"
+   ],
+   "image": "images/NEC-SIT-GLD.jpg",
+   "colour_lab": [
+    71.07,
+    5.81,
+    50.21
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "NEC-PRL-WHT",
+   "category": "necklace",
+   "wear": "women",
+   "name": "Moti Single-strand Pearls",
+   "metal": "silver",
+   "weight_class": "light",
+   "colour_family": "white",
+   "base_inr": 7800,
+   "event_tags": [
+    "wedding",
+    "engagement",
+    "homecoming",
+    "haldi",
+    "gaye_holud",
+    "minimal",
+    "modern"
+   ],
+   "image": "images/NEC-PRL-WHT.jpg",
+   "colour_lab": [
+    82.08,
+    -3.03,
+    0.48
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "NEC-DMD-SLV",
+   "category": "necklace",
+   "wear": "women",
+   "name": "Tara Silver Crystal Collar",
+   "metal": "silver",
+   "weight_class": "medium",
+   "colour_family": "silver",
+   "base_inr": 11900,
+   "event_tags": [
+    "reception",
+    "party",
+    "engagement",
+    "sangeet",
+    "modern",
+    "statement"
+   ],
+   "image": "images/NEC-DMD-SLV.jpg",
+   "colour_lab": [
+    83.77,
+    -2.49,
+    0.9
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "NEC-OXI-SLV",
+   "category": "necklace",
+   "wear": "women",
+   "name": "Oxidised Silver Hasli",
+   "metal": "oxidised",
+   "weight_class": "light",
+   "colour_family": "grey",
+   "base_inr": 3900,
+   "event_tags": [
+    "haldi",
+    "mehendi",
+    "gaye_holud",
+    "teej",
+    "puja",
+    "minimal",
+    "modern"
+   ],
+   "image": "images/NEC-OXI-SLV.jpg",
+   "colour_lab": [
+    27.42,
+    -2.16,
+    8.25
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "EAR-JHM-GLD",
+   "category": "earrings",
+   "wear": "women",
+   "name": "Gold Jhumka Pair",
+   "metal": "gold",
+   "weight_class": "medium",
+   "colour_family": "gold",
+   "base_inr": 6900,
+   "event_tags": [
+    "wedding",
+    "durga_puja",
+    "puja",
+    "mehendi",
+    "traditional"
+   ],
+   "image": "images/EAR-JHM-GLD.jpg",
+   "colour_lab": [
+    70.12,
+    7.67,
+    42.9
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "EAR-CHB-KUN",
+   "category": "earrings",
+   "wear": "women",
+   "name": "Kundan Chandbali Pair",
+   "metal": "gold",
+   "weight_class": "medium",
+   "colour_family": "gold",
+   "base_inr": 8400,
+   "event_tags": [
+    "nikah",
+    "walima",
+    "eid",
+    "sangeet",
+    "reception",
+    "statement"
+   ],
+   "image": "images/EAR-CHB-KUN.jpg",
+   "colour_lab": [
+    82.48,
+    1.47,
+    13.68
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "EAR-PRL-DRP",
+   "category": "earrings",
+   "wear": "women",
+   "name": "Pearl Drop Pair",
+   "metal": "silver",
+   "weight_class": "light",
+   "colour_family": "white",
+   "base_inr": 3400,
+   "event_tags": [
+    "wedding",
+    "engagement",
+    "homecoming",
+    "haldi",
+    "minimal",
+    "modern"
+   ],
+   "image": "images/EAR-PRL-DRP.jpg",
+   "colour_lab": [
+    83.08,
+    0.01,
+    4.07
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "EAR-SLV-CRY",
+   "category": "earrings",
+   "wear": "women",
+   "name": "Crystal Cascade Pair",
+   "metal": "silver",
+   "weight_class": "light",
+   "colour_family": "silver",
+   "base_inr": 5200,
+   "event_tags": [
+    "reception",
+    "party",
+    "sangeet",
+    "engagement",
+    "modern",
+    "statement"
+   ],
+   "image": "images/EAR-SLV-CRY.jpg",
+   "colour_lab": [
+    80.66,
+    -2.12,
+    1.87
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-1",
+   "model": "youcam-image-v2",
+   "sku": "EAR-POL-GLD",
+   "category": "earrings",
+   "wear": "women",
+   "name": "Polki Statement Pair",
+   "metal": "gold",
+   "weight_class": "heavy",
+   "colour_family": "gold",
+   "base_inr": 12500,
+   "event_tags": [
+    "wedding",
+    "baraat",
+    "reception",
+    "nikah",
+    "statement",
+    "traditional"
+   ],
+   "image": "images/EAR-POL-GLD.jpg",
+   "colour_lab": [
+    79.49,
+    -1.23,
+    6.15
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  },
+  {
+   "provider": "youcam-2",
+   "model": "youcam-image-v2",
+   "sku": "EAR-OXI-JHM",
+   "category": "earrings",
+   "wear": "women",
+   "name": "Oxidised Jhumki Pair",
+   "metal": "oxidised",
+   "weight_class": "light",
+   "colour_family": "grey",
+   "base_inr": 1600,
+   "event_tags": [
+    "haldi",
+    "mehendi",
+    "gaye_holud",
+    "teej",
+    "puja",
+    "minimal"
+   ],
+   "image": "images/EAR-OXI-JHM.jpg",
+   "colour_lab": [
+    17.88,
+    -0.77,
+    5.91
+   ],
+   "licence": "AI-generated (NanoGPT youcam-image-v2)",
+   "is_ai_generated": true
+  }
+ ]
+}
