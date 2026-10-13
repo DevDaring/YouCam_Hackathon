@@ -169,3 +169,119 @@ async def test_orphaned_pending_layers_can_be_restarted(client, db, tmp_path):
     assert (await client.post(f"/api/looks/{look['id']}/retry")).status_code == 200
     await wait_renders()
     assert (await client.get(f"/api/sessions/{sid}/looks")).json()["looks"][0]["layers_done"] == 5
+
+
+async def _ready_look(client, db, tmp_path, **override):
+    await seed_items(db, tmp_path)
+    sid = await login_and_session(client, db, **override)
+    await client.post(f"/api/sessions/{sid}/looks", json={})
+    await wait_renders()
+    look = (await client.get(f"/api/sessions/{sid}/looks")).json()["looks"][0]
+    return sid, look
+
+
+async def test_editor_options_for_every_layer(client, db, tmp_path):
+    sid, look = await _ready_look(client, db, tmp_path)
+    o = (await client.get(f"/api/looks/{look['id']}/options/necklace")).json()
+    assert o["removable"] and o["layers_affected"] == ["necklace", "earrings", "makeup", "hair"]
+    assert o["units_to_rerender"] == 1 + 1 + 1 + 2 and o["edits_left"] == 20
+    assert sum(i["current"] for i in o["items"]) == 1 and {i["name"] for i in o["items"]} == {"N-GLD", "N-PRL"}
+    assert all(i["image_url"].startswith("/api/catalogue/") for i in o["items"])
+    out = (await client.get(f"/api/looks/{look['id']}/options/outfit")).json()
+    assert not out["removable"] and all(i["name"].startswith("O-") and i["name"] not in ("O-SHW", "O-KUR") for i in out["items"])
+    mk = (await client.get(f"/api/looks/{look['id']}/options/makeup")).json()["makeup"]
+    assert len(mk["presets"]) == 3 and len(mk["lip_shades"]) == 10 and mk["current_lip"].startswith("#")
+    hair = (await client.get(f"/api/looks/{look['id']}/options/hair")).json()["hair"]
+    assert len(hair) > 10 and sum(h["current"] for h in hair) == 1 and hair[0]["thumb"].startswith("https://")
+
+
+async def test_swap_necklace_rerenders_from_that_layer_and_reprices(client, db, tmp_path):
+    sid, look = await _ready_look(client, db, tmp_path)
+    outfit_url = look["layers"][0]["render_url"]
+    other = next(i for i in (await client.get(f"/api/looks/{look['id']}/options/necklace")).json()["items"] if not i["current"])
+    r = await client.patch(f"/api/looks/{look['id']}/layers/necklace", json={"item_id": other["id"]})
+    assert r.status_code == 200, r.text
+    edited = next(l for l in r.json()["looks"] if l["id"] == look["id"])
+    st = {l["layer"]: l["status"] for l in edited["layers"]}
+    assert st["outfit"] == "done" and all(st[k] == "pending" for k in ("necklace", "earrings", "makeup", "hair"))
+    assert Decimal(edited["total_price"]) != Decimal(look["total_price"])
+    assert r.json()["edits_left"] == 19
+    # busy while rendering
+    assert (await client.patch(f"/api/looks/{look['id']}/layers/hair", json={"template_id": "x"})).status_code == 409
+    await wait_renders()
+    done = next(l for l in (await client.get(f"/api/sessions/{sid}/looks")).json()["looks"] if l["id"] == look["id"])
+    assert done["layers_done"] == 5 and done["layers"][1]["item"]["id"] == other["id"]
+    assert done["layers"][0]["render_url"] == outfit_url  # outfit was not re-rendered
+
+
+async def test_makeup_mood_lip_hair_remove_and_add_back(client, db, tmp_path):
+    sid, look = await _ready_look(client, db, tmp_path)
+    lid = look["id"]
+    r = await client.patch(f"/api/looks/{lid}/layers/makeup", json={"preset": "ivory_moon", "lip": "#7A1F3D"})
+    assert r.status_code == 200
+    await wait_renders()
+    mk = (await client.get(f"/api/looks/{lid}/options/makeup")).json()["makeup"]
+    assert mk["current_preset"] == "ivory_moon" and mk["current_lip"].upper() == "#7A1F3D"
+    tpl = next(h for h in (await client.get(f"/api/looks/{lid}/options/hair")).json()["hair"] if not h["current"])
+    assert (await client.patch(f"/api/looks/{lid}/layers/hair", json={"template_id": tpl["template_id"]})).status_code == 200
+    await wait_renders()
+    # remove earrings → off, total drops, later layers re-render without them
+    r = await client.patch(f"/api/looks/{lid}/layers/earrings", json={"enabled": False})
+    look2 = next(l for l in r.json()["looks"] if l["id"] == lid)
+    assert {l["layer"]: l["status"] for l in look2["layers"]}["earrings"] == "off" and look2["layers_total"] == 4
+    assert Decimal(look2["total_price"]) < Decimal(look["total_price"])
+    await wait_renders()
+    look3 = next(l for l in (await client.get(f"/api/sessions/{sid}/looks")).json()["looks"] if l["id"] == lid)
+    assert look3["layers_done"] == 4
+    r = await client.patch(f"/api/looks/{lid}/layers/earrings", json={"enabled": True})
+    assert r.status_code == 200
+    await wait_renders()
+    look4 = next(l for l in (await client.get(f"/api/sessions/{sid}/looks")).json()["looks"] if l["id"] == lid)
+    assert look4["layers_done"] == 5
+
+
+async def test_edit_validation_and_limit(client, db, tmp_path):
+    from sqlalchemy import update as sa_update
+    from app.models import Session as S
+    sid, look = await _ready_look(client, db, tmp_path)
+    lid = look["id"]
+    assert (await client.patch(f"/api/looks/{lid}/layers/outfit", json={"enabled": False})).json()["detail"] == "not_removable"
+    men = (await client.get(f"/api/looks/{lid}/options/outfit")).json()  # bride: men's outfits never offered
+    assert all(i["name"] not in ("O-SHW", "O-KUR") for i in men["items"])
+    assert (await client.patch(f"/api/looks/{lid}/layers/makeup", json={"lip": "red"})).status_code == 422
+    assert (await client.patch(f"/api/looks/{lid}/layers/hair", json={"template_id": "nope"})).status_code == 422
+    await db.execute(sa_update(S).values(edit_count=20))
+    await db.commit()
+    assert (await client.patch(f"/api/looks/{lid}/layers/makeup", json={"preset": "ivory_moon"})).json()["detail"] == "edit_limit"
+
+
+async def test_enhance_look_and_clear_on_edit(client, db, tmp_path):
+    sid, look = await _ready_look(client, db, tmp_path)
+    lid = look["id"]
+    r = await client.post(f"/api/looks/{lid}/enhance")
+    assert r.status_code == 200 and next(l for l in r.json()["looks"] if l["id"] == lid)["enhance_status"] == "running"
+    await asyncio.gather(*list(render.ENHANCING.values()))
+    l = next(l for l in (await client.get(f"/api/sessions/{sid}/looks")).json()["looks"] if l["id"] == lid)
+    assert l["enhance_status"] == "done" and l["enhanced_by"] == "mock" and l["enhanced_url"]
+    assert (await client.get(l["enhanced_url"])).status_code == 200
+    # editing a layer invalidates the enhanced image
+    r = await client.patch(f"/api/looks/{lid}/layers/hair", json={"enabled": False})
+    assert next(x for x in r.json()["looks"] if x["id"] == lid)["enhanced_url"] is None
+    await wait_renders()
+    await client.post(f"/api/looks/{lid}/enhance")
+    await asyncio.gather(*list(render.ENHANCING.values()))
+    r = await client.delete(f"/api/looks/{lid}/enhance")
+    assert next(x for x in r.json()["looks"] if x["id"] == lid)["enhanced_url"] is None
+
+
+async def test_enhance_and_restore_uploaded_photo(client, db, tmp_path):
+    await seed_items(db, tmp_path)
+    sid = await login_and_session(client, db)
+    before = (await client.get(f"/api/sessions/{sid}")).json()["photos"][0]
+    r = await client.post(f"/api/sessions/{sid}/photos/full/enhance")
+    assert r.status_code == 200, r.text
+    p = r.json()
+    assert p["enhanced"] is True and p["url"] != before["url"] and p["quality"]["enhanced"] is True
+    r = await client.post(f"/api/sessions/{sid}/photos/full/restore")
+    assert r.status_code == 200 and r.json()["enhanced"] is False and r.json()["url"] == before["url"]
+    assert (await client.post(f"/api/sessions/{sid}/photos/full/restore")).status_code == 409

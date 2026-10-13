@@ -63,6 +63,7 @@ FEATURES: dict[str, Feature] = {f.key: f for f in [
     Feature("face", "v2.0", "face-attr-analysis", False, _face_units),
     Feature("image_gen", "v2.0", "text-to-image/youcam", True, lambda p: 1),  # demo catalogue images (D-010)
     Feature("bg_remove", "v2.0", "sod", True, lambda p: 1),
+    Feature("enhance", "v2.0", "enhance", True, lambda p: 2),  # AI Photo Enhance V1.0 (live probe 2026-10-13)
 ]}
 
 # Free GET template lists (not in the price list — Unverified as free, see API_NOTES §4)

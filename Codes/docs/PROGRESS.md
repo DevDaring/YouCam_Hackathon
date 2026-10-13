@@ -49,6 +49,13 @@
 - **Production:** live (`MOCK_MODE=false`). A three-look bride session on dearyou.koushikdeb.com rendered 15 of 15 layers in about 70 s.
 - **Tests:** backend 47, frontend unit 33, Playwright 30 (phone + desktop), all passing.
 
+## Look editing + enhance (Oct 13 2026)
+- **Editor:** every layer can be changed. Swap outfit, necklace or earrings from the catalogue (prices and budget update), pick a makeup mood or one of 10 lipstick shades, pick a hairstyle (62 women's, 16 men's YouCam templates), or remove and add back optional layers. Only the changed layer and the layers after it re-render, and the unit cost is shown before applying. Edits are capped at 20 per session.
+- **Enhance:** YouCam AI Photo Enhance (2 units, about 5 s), with NanoGPT clarity upscaler as the fallback. It works on the uploaded photo (the original can be restored) and on a finished look (before/after toggle, cleared by any later edit).
+- **Cards:** look images are anchored to the top, so heads are no longer cut off.
+- **Live on production:** a lipstick change re-rendered makeup and hair only, and enhance was done by YouCam.
+- **Tests:** backend 53, frontend 49, Playwright 34. All passing.
+
 ## Next
 - Owner adds units and provides the probe inputs. Run `garment_probe.py --yes` and review the drape results.
 - Then M2: Look Studio.

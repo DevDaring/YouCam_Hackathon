@@ -333,7 +333,18 @@
     },
     "privacy": "Your photos are private and deleted automatically after {{hours}} hours.",
     "notFound": "We couldn't find this session. Please set up your event again.",
-    "backToSetup": "Back to event setup"
+    "backToSetup": "Back to event setup",
+    "enhance": {
+      "button": "Enhance photo",
+      "hint": "Sharpens detail and clarity for crisper try-ons",
+      "suggest": "Your photo looks a little soft — enhance it for sharper try-ons.",
+      "running": "Enhancing…",
+      "runningNote": "Usually a few seconds — occasionally up to a minute.",
+      "done": "Enhanced",
+      "by": "by {{who}}",
+      "restore": "Restore original",
+      "failed": "We couldn't enhance this photo. Your original is unchanged — please try again."
+    }
   },
   "camera": {
     "title": {
@@ -392,7 +403,8 @@
       "rendering": "rendering now",
       "done": "done",
       "failed": "couldn't be rendered",
-      "skipped": "skipped"
+      "skipped": "skipped",
+      "off": "removed"
     },
     "card": {
       "starting": "Starting…",
@@ -469,6 +481,93 @@
       "generic": "We couldn't load your looks. Check your connection and try again.",
       "action": "That didn't work. Please try again.",
       "addPhoto": "Add my photo"
+    },
+    "edit": {
+      "hint": "Tap Change on any layer to swap pieces, makeup or hair.",
+      "change": "Change",
+      "changeLabel": "Change {{layer}} for {{look}}",
+      "addBack": "Add back",
+      "addBackLabel": "Add {{layer}} back to {{look}}",
+      "removed": "Removed",
+      "busyNote": "You can edit this look once it finishes rendering.",
+      "title": "Change {{layer}}",
+      "loading": "Loading options…",
+      "loadError": "We couldn't load the options. Check your connection and try again.",
+      "current": "Current",
+      "eventMatch": "Suits your event",
+      "sortPrice": "Price: low to high",
+      "filtersLabel": "Sort and filter",
+      "optionsLabel": "{{layer}} options",
+      "remove": "Remove {{layer}}",
+      "removeHint": "Leave it out of this look",
+      "removeUndo": "Tap again to keep it",
+      "removedPrice": "removed",
+      "moodTitle": "Makeup mood",
+      "moodSwatches": "Lip, blush and eyeshadow colours",
+      "lipTitle": "Lipstick shade",
+      "lipHint": "Picking a mood resets the lipstick to that mood's shade.",
+      "hairTitle": "Hairstyle",
+      "totalOf": "total {{total}} of {{budget}}",
+      "totalOnly": "total {{total}}",
+      "overBudget": "over budget",
+      "rerenders": "Re-renders {{layers}}",
+      "noRerender": "Nothing to re-render — the look updates straight away",
+      "units_one": "about {{n}} YouCam unit",
+      "units_other": "about {{n}} YouCam units",
+      "minutes": "~{{n}} min",
+      "editsLeft_one": "{{n}} edit left",
+      "editsLeft_other": "{{n}} edits left",
+      "noEditsLeft": "No edits left",
+      "noChange": "Pick something new to apply",
+      "apply": "Apply & re-render",
+      "cancel": "Cancel",
+      "toast": {
+        "changed": "{{layer}} changed — re-rendering",
+        "removed": "{{layer}} removed — updating the look",
+        "added": "{{layer}} added back — re-rendering"
+      },
+      "errors": {
+        "look_busy": "This look is still rendering — try again when it's finished.",
+        "edit_limit": "You've used all edits for this session.",
+        "invalid_choice": "That option isn't available any more — please pick another.",
+        "not_removable": "This layer can't be removed.",
+        "generic": "That didn't work. Please try again."
+      },
+      "shades": {
+        "classic_red": "Classic red",
+        "deep_berry": "Deep berry",
+        "brick": "Brick",
+        "coral": "Coral",
+        "rose_nude": "Rose nude",
+        "mauve": "Mauve",
+        "terracotta": "Terracotta",
+        "plum": "Plum",
+        "rose_pink": "Rose pink",
+        "peach_nude": "Peach nude"
+      }
+    },
+    "enhance": {
+      "button": "Enhance photo",
+      "buttonLabel": "Enhance photo: {{name}}",
+      "note": "Sharpens detail and clarity · {{n}} YouCam units",
+      "running": "Enhancing…",
+      "badge": "Enhanced",
+      "by": "by {{who}}",
+      "before": "Before",
+      "after": "After",
+      "compareLabel": "Compare {{name}} before and after enhancing",
+      "remove": "Remove enhancement",
+      "removeLabel": "Remove enhancement: {{name}}",
+      "failed": "We couldn't enhance this photo. Please try again.",
+      "retryLabel": "Try enhancing again: {{name}}",
+      "lightboxStep": "Enhanced",
+      "toast": {
+        "started": "Enhancing {{name}} — this takes a few seconds",
+        "removed": "Enhancement removed from {{name}}"
+      },
+      "errors": {
+        "nothing": "There's no finished image to enhance yet."
+      }
     }
   }
 }

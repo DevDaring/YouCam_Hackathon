@@ -695,3 +695,20 @@ The MCP tool input schemas were not inspected (**Unverified**). REST is the docu
 - `fixtures/youcam/feature_cost.json`: all 102 SKUs from the live `GET /s2s/v2.0/credit/feature-cost`.
 - `fixtures/youcam/docs_examples/*.json`: examples quoted verbatim in the official docs. Each file is wrapped as `{_source, _note?, example}`. The only edits were removing `//` comments and trailing commas, and quoting one unquoted token.
 - `fixtures/youcam/schema_derived/*.json`: shapes built from the OpenAPI schemas, for features that have no example in the docs. The values in them are illustrative.
+
+### 5.13 AI Photo Enhance (Confirmed by a live probe on 2026-10-13)
+
+Source: https://docs.perfectcorp.com/reference/ai_photo_enhance (`_bundle/reference/ai_photo_enhance.json`).
+
+- Create: `POST /s2s/v2.0/task/enhance` with body `{src_file_id | src_file_url, scale}`. `scale` is **required** and must be 1, 2 or 4.
+- Poll: `GET /s2s/v2.0/task/enhance/{task_id}`. The result URL is in `data.results.url`.
+- Input limits: long side ≤ 4096 px, under 10 MB, jpg, jpeg or png.
+- Cost: **2 units**, per the live feature-cost list.
+- Live timing: about 5 s for a 1104×1472 render at scale 1. The output had the same dimensions as the input.
+- Fixtures: `fixtures/youcam/probe/enhance_create.json`, `enhance_poll.json` and `enhance_youcam.jpg`.
+
+**NanoGPT fallback (Confirmed by a live probe):**
+- Request: `POST https://nano-gpt.com/api/v1/images` with `{model: "clarity-ai-flux-upscaler", prompt, input_references: ["data:image/jpeg;base64,…"], n: 1}`.
+- Response: a signed link in `data[0].url`, valid for about 7 days.
+- Live timing: about 72 s. Cost: $0.20.
+- Fixture: `fixtures/youcam/probe/nanogpt_enhance_response.json`.

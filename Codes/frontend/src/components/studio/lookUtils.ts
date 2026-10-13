@@ -30,8 +30,27 @@ export function hasOpenLayers(p: LooksPayload | null): boolean {
  * so the retry button can recover them.
  */
 export function lookBusy(look: Look, payloadRendering: boolean): boolean {
-  return look.layers.some((l) => l.status === 'rendering') || (payloadRendering && look.layers.some((l) => l.status === 'pending'))
+  return (
+    look.layers.some((l) => l.status === 'rendering') ||
+    (payloadRendering && look.layers.some((l) => l.status === 'pending')) ||
+    look.enhance_status === 'running'
+  )
 }
+
+/** Whether any look is being enhanced right now (keeps polling alive). */
+export function hasRunningEnhance(p: LooksPayload | null): boolean {
+  return !!p?.looks.some((look) => look.enhance_status === 'running')
+}
+
+/** "YouCam" / "NanoGPT" for the "Enhanced by …" note; null for the mock service. */
+export function enhancerName(by: string | null | undefined): string | null {
+  if (by === 'youcam') return 'YouCam'
+  if (by === 'nanogpt') return 'NanoGPT'
+  return null
+}
+
+/** YouCam units one look enhancement spends. */
+export const ENHANCE_UNITS = 2
 
 /** Friendly, translated reason for a failed or skipped layer. Unknown codes are shown verbatim. */
 export function layerReason(t: TFunction, error: string | null): string {

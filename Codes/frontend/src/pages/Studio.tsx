@@ -1,15 +1,17 @@
-import { AlertTriangle, CalendarDays, Camera, Clock, Loader2, MapPin, Pencil, RefreshCw, Sparkles, Wallet } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, CalendarDays, Camera, Check, Clock, Loader2, MapPin, Pencil, RefreshCw, Sparkles, Wallet } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { GoldRule } from '../components/Motifs'
+import { LayerEditor } from '../components/studio/LayerEditor'
 import { LookCard } from '../components/studio/LookCard'
 import { LookLightbox } from '../components/studio/LookLightbox'
-import { layerLabel, makeMoney, makeNumber, SLOTS } from '../components/studio/lookUtils'
+import { layerLabel, lookBusy, lookName, makeMoney, makeNumber, SLOTS } from '../components/studio/lookUtils'
 import { useLooks } from '../components/studio/useLooks'
 import { WearChooser } from '../components/studio/WearChooser'
 import { buttonClass, cardClass } from '../components/ui'
-import { ApiError, getLatestSession, getSession, type SessionInfo } from '../lib/api'
+import { ApiError, getLatestSession, getSession, type LayerName, type LayerPatch, type SessionInfo } from '../lib/api'
 import { countryName, flagEmoji, formatEventDate } from '../lib/format'
 import { useRegion } from '../lib/region'
 
@@ -63,6 +65,10 @@ function StudioReady({ session }: { session: SessionInfo }) {
   const { payload, phase, error, notice, busy, events, active, finished } = looks
   const [openId, setOpenId] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
+  const [editing, setEditing] = useState<{ lookId: string; layer: LayerName } | null>(null)
+  const [addingBack, setAddingBack] = useState<string | null>(null)
+  const [enhancing, setEnhancing] = useState<string | null>(null)
+  const { toast, show: showToast } = useToast()
 
   const money = useMemo(() => makeMoney(session.currency, locale, session.country_code), [session.currency, session.country_code, locale])
   const num = useMemo(() => makeNumber(locale, session.country_code), [locale, session.country_code])
@@ -78,6 +84,46 @@ function StudioReady({ session }: { session: SessionInfo }) {
   const openLook = openId ? payload?.looks.find((l) => l.id === openId) : undefined
   const showCards = phase === 'loading' || phase === 'starting' || (phase === 'ready' && hasLooks)
   const working = phase === 'starting' || active
+  const editLook = editing ? payload?.looks.find((l) => l.id === editing.lookId) : undefined
+
+  const toastFor = (layer: LayerName, body: LayerPatch) => {
+    const name = layerLabel(t, layer)
+    if ('enabled' in body) return t(body.enabled ? 'studio.edit.toast.added' : 'studio.edit.toast.removed', { layer: name })
+    return t('studio.edit.toast.changed', { layer: name })
+  }
+
+  const applyEdit = async (lookId: string, layer: LayerName, body: LayerPatch) => {
+    await looks.edit(lookId, layer, body)
+    showToast(toastFor(layer, body), 'ok')
+  }
+
+  const enhance = async (lookId: string, remove = false) => {
+    const look = payload?.looks.find((l) => l.id === lookId)
+    setEnhancing(lookId)
+    try {
+      await looks.enhance(lookId, remove)
+      if (look) showToast(t(remove ? 'studio.enhance.toast.removed' : 'studio.enhance.toast.started', { name: lookName(t, look.slot) }), 'ok')
+    } catch (err) {
+      const code = err instanceof Error ? err.message : 'generic'
+      const msg = code === 'nothing_to_enhance' ? 'studio.enhance.errors.nothing' : ['look_busy', 'edit_limit'].includes(code) ? `studio.edit.errors.${code}` : 'studio.edit.errors.generic'
+      showToast(t(msg), 'error')
+    } finally {
+      setEnhancing(null)
+    }
+  }
+
+  const addBack = async (lookId: string, layer: LayerName) => {
+    setAddingBack(`${lookId}:${layer}`)
+    try {
+      await applyEdit(lookId, layer, { enabled: true })
+    } catch (err) {
+      const code = err instanceof Error ? err.message : 'generic'
+      const known = ['look_busy', 'edit_limit'].includes(code) ? code : 'generic'
+      showToast(t(`studio.edit.errors.${known}`), 'error')
+    } finally {
+      setAddingBack(null)
+    }
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -113,6 +159,13 @@ function StudioReady({ session }: { session: SessionInfo }) {
           </p>
         ) : null}
 
+        {phase === 'ready' && hasLooks ? (
+          <p className="flex items-start gap-2 px-1 text-sm text-muted">
+            <Pencil aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-heading" />
+            <span>{t('studio.edit.hint')}</span>
+          </p>
+        ) : null}
+
         {phase === 'choose' ? <WearChooser busy={busy === 'wear'} onChoose={looks.chooseWear} /> : null}
 
         {phase === 'error' ? <LooksError code={error} sessionId={session.id} onRetry={looks.reload} /> : null}
@@ -140,6 +193,12 @@ function StudioReady({ session }: { session: SessionInfo }) {
                   retrying={busy === look?.id}
                   onOpen={setOpenId}
                   onRetry={(id) => void looks.retry(id)}
+                  onEdit={(lookId, layer) => setEditing({ lookId, layer })}
+                  onAddBack={(lookId, layer) => void addBack(lookId, layer)}
+                  addingBack={addingBack}
+                  onEnhance={(lookId, remove) => void enhance(lookId, remove)}
+                  enhancing={enhancing === look?.id}
+                  editsLeft={payload?.edits_left}
                 />
               )
             })}
@@ -206,11 +265,19 @@ function StudioReady({ session }: { session: SessionInfo }) {
           ].map(({ p, key }) => (
             <figure key={key} className="overflow-hidden rounded-2xl border border-line bg-surface-raised">
               {p ? (
-                <img src={p.url} alt={t(`photo.previewAlt.${key}`)} className="aspect-[3/4] w-full object-cover" />
+                <img src={p.url} alt={t(`photo.previewAlt.${key}`)} className="aspect-[3/4] w-full object-cover object-top" />
               ) : (
                 <div className="flex aspect-[3/4] items-center justify-center p-3 text-center text-sm text-muted">{t('studio.noFace')}</div>
               )}
-              <figcaption className="px-3 py-2 text-xs font-semibold text-muted">{t(`studio.photoLabel.${key}`)}</figcaption>
+              <figcaption className="flex flex-wrap items-center gap-1.5 px-3 py-2 text-xs font-semibold text-muted">
+                {t(`studio.photoLabel.${key}`)}
+                {p?.enhanced ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[0.6875rem] text-on-accent">
+                    <Sparkles aria-hidden="true" className="size-3" />
+                    {t('studio.enhance.badge')}
+                  </span>
+                ) : null}
+              </figcaption>
             </figure>
           ))}
         </div>
@@ -251,6 +318,23 @@ function StudioReady({ session }: { session: SessionInfo }) {
           onClose={() => setOpenId(null)}
         />
       ) : null}
+
+      {editing && editLook ? (
+        <LayerEditor
+          key={`${editing.lookId}:${editing.layer}`}
+          look={editLook}
+          layer={editing.layer}
+          busy={lookBusy(editLook, payload?.rendering ?? false)}
+          money={money}
+          num={num}
+          locale={locale}
+          budget={session.budget_amount}
+          onClose={() => setEditing(null)}
+          onApply={(body) => applyEdit(editing.lookId, editing.layer, body)}
+        />
+      ) : null}
+
+      <Toast toast={toast} />
     </div>
   )
 }
@@ -285,5 +369,56 @@ function Chip({ icon, children }: { icon: React.ReactNode; children: React.React
       <span aria-hidden="true">{icon}</span>
       {children}
     </li>
+  )
+}
+
+interface ToastMsg {
+  id: number
+  text: string
+  tone: 'ok' | 'error'
+}
+
+const TOAST_MS = 4000
+
+function useToast() {
+  const [toast, setToast] = useState<ToastMsg | null>(null)
+  const timer = useRef<number | undefined>(undefined)
+  const seq = useRef(0)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  const show = useCallback((text: string, tone: ToastMsg['tone']) => {
+    window.clearTimeout(timer.current)
+    setToast({ id: ++seq.current, text, tone })
+    timer.current = window.setTimeout(() => setToast(null), TOAST_MS)
+  }, [])
+  return { toast, show }
+}
+
+/** Page-level confirmation after an edit; the live region is always mounted so it is announced. */
+function Toast({ toast }: { toast: ToastMsg | null }) {
+  const reduce = useReducedMotion() ?? false
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 flex justify-center px-4"
+    >
+      <AnimatePresence>
+        {toast ? (
+          <motion.p
+            key={toast.id}
+            initial={reduce ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: 8 }}
+            transition={{ duration: 0.25 }}
+            className={`flex max-w-md items-start gap-2 rounded-2xl px-4 py-3 text-sm font-semibold shadow-lg ${
+              toast.tone === 'error' ? 'border border-danger bg-surface-raised text-danger' : 'bg-primary text-on-primary'
+            }`}
+          >
+            {toast.tone === 'error' ? <AlertTriangle aria-hidden="true" className="mt-0.5 size-4 shrink-0" /> : <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0" />}
+            {toast.text}
+          </motion.p>
+        ) : null}
+      </AnimatePresence>
+    </div>
   )
 }

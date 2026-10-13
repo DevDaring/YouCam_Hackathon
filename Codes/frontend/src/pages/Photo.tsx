@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, Camera, CheckCircle2, ImageUp, Loader2, RotateCcw, ShieldCheck, XCircle } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Camera, CheckCircle2, ImageUp, Loader2, RotateCcw, ShieldCheck, Sparkles, Undo2, XCircle } from 'lucide-react'
 import { useCallback, useEffect, useId, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -6,7 +6,8 @@ import { GoldRule } from '../components/Motifs'
 import { ProgressDots } from '../components/ProgressDots'
 import { CameraCapture } from '../components/photo/CameraCapture'
 import { buttonClass, cardClass } from '../components/ui'
-import { ApiError, getSession, uploadPhoto, type PhotoInfo, type PhotoKind, type QualityCheck } from '../lib/api'
+import { enhancerName } from '../components/studio/lookUtils'
+import { ApiError, enhancePhoto, getSession, restorePhoto, uploadPhoto, type PhotoInfo, type PhotoKind, type QualityCheck } from '../lib/api'
 import { IMAGE_RETENTION_HOURS } from '../lib/config'
 import { prepareUpload } from '../lib/image'
 
@@ -26,6 +27,8 @@ export default function Photo() {
   const [cameraOpen, setCameraOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  /** 'enhance' while sharpening (can take up to about a minute), 'restore' while putting the original back. */
+  const [improving, setImproving] = useState<'enhance' | 'restore' | null>(null)
 
   useEffect(() => {
     const ctrl = new AbortController()
@@ -63,6 +66,20 @@ export default function Photo() {
     [sessionId, stage, t],
   )
 
+  const improve = async (mode: 'enhance' | 'restore') => {
+    setImproving(mode)
+    setError(null)
+    try {
+      const info = await (mode === 'enhance' ? enhancePhoto(sessionId, stage) : restorePhoto(sessionId, stage))
+      setPhotos((p) => ({ ...p, [stage]: info }))
+    } catch (err) {
+      const code = err instanceof ApiError ? err.detail : ''
+      setError(mode === 'enhance' && code.startsWith('enhance_failed') ? t('photo.enhance.failed') : t('photo.errors.generic'))
+    } finally {
+      setImproving(null)
+    }
+  }
+
   const onFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = '' // allow choosing the same file again
@@ -98,6 +115,9 @@ export default function Photo() {
   const current = photos[stage]
   const checks = current?.quality?.checks ?? []
   const hardFail = current?.quality ? !current.quality.ok : false
+  /** Soft or dark photo: suggest enhancing prominently. */
+  const soft = checks.some((c) => (c.key === 'sharp' || c.key === 'light') && c.status !== 'pass')
+  const by = enhancerName(current?.enhanced_by)
 
   return (
     <div className="mx-auto max-w-xl px-4 py-8 sm:px-6 sm:py-12">
@@ -112,11 +132,12 @@ export default function Photo() {
 
       <input id={fileInputId} type="file" accept={ACCEPT} className="sr-only" tabIndex={-1} onChange={onFile} />
 
-      <section className={`${cardClass} mt-6 space-y-5`} aria-live="polite" aria-busy={uploading}>
-        {uploading ? (
+      <section className={`${cardClass} mt-6 space-y-5`} aria-live="polite" aria-busy={uploading || !!improving}>
+        {uploading || improving ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <Loader2 aria-hidden="true" className="size-10 animate-spin text-heading" />
-            <p className="font-semibold text-heading">{t('photo.checking')}</p>
+            <p className="font-semibold text-heading">{improving === 'enhance' ? t('photo.enhance.running') : t('photo.checking')}</p>
+            {improving === 'enhance' ? <p className="max-w-xs text-sm text-muted">{t('photo.enhance.runningNote')}</p> : null}
           </div>
         ) : current ? (
           <>
@@ -124,6 +145,38 @@ export default function Photo() {
               <img src={current.url} alt={t(`photo.previewAlt.${stage}`)} className="mx-auto max-h-[60vh] w-auto object-contain" />
             </div>
             <QualityChips checks={checks} kind={stage} />
+            {current.enhanced ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-surface-raised px-4 py-2">
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-success">
+                  <CheckCircle2 aria-hidden="true" className="size-4 shrink-0" />
+                  {t('photo.enhance.done')}
+                  {by ? <span className="font-normal text-muted">{t('photo.enhance.by', { who: by })}</span> : null}
+                </p>
+                <button type="button" onClick={() => void improve('restore')} className="inline-flex min-h-11 items-center gap-1.5 px-1 text-sm font-semibold text-heading underline underline-offset-4">
+                  <Undo2 aria-hidden="true" className="size-4" />
+                  {t('photo.enhance.restore')}
+                </button>
+              </div>
+            ) : soft ? (
+              <div className="space-y-3 rounded-2xl border border-rule/60 bg-accent-soft/40 p-4">
+                <p className="flex items-start gap-2 text-sm font-medium text-text">
+                  <Sparkles aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-heading" />
+                  {t('photo.enhance.suggest')}
+                </p>
+                <button type="button" onClick={() => void improve('enhance')} className={`${buttonClass.primary} w-full`}>
+                  <Sparkles aria-hidden="true" className="size-5" />
+                  {t('photo.enhance.button')}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <button type="button" onClick={() => void improve('enhance')} className={`${buttonClass.secondary} w-full`}>
+                  <Sparkles aria-hidden="true" className="size-5" />
+                  {t('photo.enhance.button')}
+                </button>
+                <p className="text-center text-xs text-muted">{t('photo.enhance.hint')}</p>
+              </div>
+            )}
             <div className="flex flex-col gap-3 sm:flex-row-reverse">
               <button type="button" onClick={next} className={`${buttonClass.primary} flex-1`}>
                 {hardFail ? t('photo.continueAnyway') : t('photo.usePhoto')}

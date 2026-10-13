@@ -67,6 +67,7 @@ class Session(Base):
     locale: Mapped[str] = mapped_column(String(8), default="en")
     style_tags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     wear: Mapped[str | None] = mapped_column(String(8))  # women | men — which catalogue to build looks from
+    edit_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")  # Studio layer edits (unit guard)
     consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     delete_after: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
 
@@ -81,6 +82,8 @@ class Photo(Base):
     hash: Mapped[str] = mapped_column(String(64), index=True)
     width: Mapped[int | None] = mapped_column(Integer)
     height: Mapped[int | None] = mapped_column(Integer)
+    original_path: Mapped[str | None] = mapped_column(Text)   # set when the photo was enhanced (restorable)
+    enhanced_by: Mapped[str | None] = mapped_column(String(24))
     created_at: Mapped[datetime] = _created()
 
 
@@ -139,6 +142,10 @@ class Look(Base):
     total_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     currency: Mapped[str] = mapped_column(String(3))
     slot: Mapped[int] = mapped_column(Integer, default=1)          # 1..3 within a round
+    enhanced_path: Mapped[str | None] = mapped_column(Text)        # sharpened final image (cleared on any layer edit)
+    enhance_status: Mapped[str | None] = mapped_column(String(12))  # running | done | failed
+    enhance_error: Mapped[str | None] = mapped_column(Text)
+    enhanced_by: Mapped[str | None] = mapped_column(String(24))
     preset: Mapped[str | None] = mapped_column(String(32))         # makeup / mood preset key
     created_at: Mapped[datetime] = _created()
 

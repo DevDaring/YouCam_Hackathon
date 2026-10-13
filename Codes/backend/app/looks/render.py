@@ -24,6 +24,7 @@ from app.youcam.client import YouCamError
 log = logging.getLogger("dearyou.render")
 YOUCAM_SLOTS = asyncio.Semaphore(4)          # concurrent YouCam tasks across all looks
 RUNNING: dict[uuid.UUID, asyncio.Task] = {}  # look_id → render task (one API worker)
+ENHANCING: dict[uuid.UUID, asyncio.Task] = {}  # look_id → enhance task
 
 NECKLACE_PARAMS = {"necklace_need_remove_background": True, "necklace_shadow_intensity": 0.3, "necklace_ambient_light_intensity": 0.9}
 EARRING_PARAMS = {"earring_need_remove_background": True, "earring_shadow_intensity": 0.3, "earring_ambient_light_intensity": 0.9}
@@ -76,7 +77,7 @@ async def render_look(look_id: uuid.UUID, from_position: int = 0) -> None:
                 current = _open(storage.read(l.render_path))
         stop_reason = None
         for layer in layers:
-            if layer.position < from_position:
+            if layer.position < from_position or layer.status == "off":  # "off" = removed by the user
                 continue
             if stop_reason:
                 layer.status, layer.error = "skipped", stop_reason
@@ -117,4 +118,34 @@ async def mark_interrupted() -> None:
     async with SessionLocal() as db:
         await db.execute(update(LookLayer).where(LookLayer.status.in_(("rendering", "pending")))
                          .values(status="failed", error="interrupted"))
+        await db.execute(update(Look).where(Look.enhance_status == "running").values(enhance_status="failed", enhance_error="interrupted"))
         await db.commit()
+
+
+async def enhance_look(look_id: uuid.UUID) -> None:
+    from app.enhance import EnhanceError, enhance
+    async with SessionLocal() as db:
+        look = await db.get(Look, look_id)
+        last = (await db.execute(select(LookLayer).where(LookLayer.look_id == look_id, LookLayer.status == "done")
+                                 .order_by(LookLayer.position.desc()).limit(1))).scalar_one_or_none()
+        if look is None or last is None:
+            return
+        try:
+            data, provider = await enhance(db, storage.read(last.render_path), session_id=look.session_id)
+            look.enhanced_path = storage.save(f"sessions/{look.session_id}/looks/{look.id}/enhanced-{last.position}.jpg", data)
+            look.enhance_status, look.enhance_error, look.enhanced_by = "done", None, provider
+        except (EnhanceError, YouCamError, ledger.BudgetExceeded) as e:
+            look.enhance_status, look.enhance_error = "failed", str(getattr(e, "code", e))[:200]
+        except Exception as e:
+            log.exception("enhance of look %s failed", look_id)
+            look.enhance_status, look.enhance_error = "failed", type(e).__name__
+        await db.commit()
+
+
+def start_enhance(look_id: uuid.UUID) -> None:
+    task = ENHANCING.get(look_id)
+    if task and not task.done():
+        return
+    t = asyncio.create_task(enhance_look(look_id))
+    ENHANCING[look_id] = t
+    t.add_done_callback(lambda _: ENHANCING.pop(look_id, None))

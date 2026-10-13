@@ -41,6 +41,9 @@ export function LookLightbox({ look, photoUrl, money, num, budget, onClose }: Pr
       steps.push({ key: l.layer, label: t('studio.lightbox.after', { layer: layerLabel(t, l.layer).toLocaleLowerCase(i18n.language) }), url: l.render_url })
     }
   }
+  if (look.enhance_status === 'done' && look.enhanced_url) {
+    steps.push({ key: 'enhanced', label: t('studio.enhance.lightboxStep'), url: look.enhanced_url })
+  }
   const [index, setIndex] = useState(() => Math.max(0, steps.length - 1))
   const i = Math.min(index, steps.length - 1)
   const step = steps[i]
@@ -74,7 +77,7 @@ export function LookLightbox({ look, photoUrl, money, num, budget, onClose }: Pr
     }
   }
 
-  const pieces = look.layers.filter((l) => CATALOGUE_LAYERS.includes(l.layer) && l.item)
+  const pieces = look.layers.filter((l) => CATALOGUE_LAYERS.includes(l.layer) && l.item && l.status !== 'off')
   const navBtn =
     'inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-rule/70 bg-surface-raised text-heading transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40'
 

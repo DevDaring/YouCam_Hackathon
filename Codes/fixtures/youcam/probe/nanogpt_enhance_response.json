@@ -1,0 +1,13 @@
+{
+ "created": 1791889789636,
+ "data": [
+  {
+   "url": "https://1582531d6020f89735962a5d51046adb.r2.cloudflarestorage.com/image-generations/images/bc6dee6a-52d6-4b52-9561-54e0d685c7af/clarity-ai-flux-upscaler/1791889789785-7vq3lkj8q3TuqaAT.png?<presigned-query-redacted>",
+   "storageKey": "images/bc6dee6a-52d6-4b52-9561-54e0d685c7af/clarity-ai-flux-upscaler/1791889789785-7vq3lkj8q3TuqaAT.png"
+  }
+ ],
+ "cost": 0.2,
+ "paymentSource": "USD",
+ "remainingBalance": 20.74140719,
+ "requestId": "media-image:bc6dee6a-52d6-4b52-9561-54e0d685c7af:1791889721322:5welsu"
+}

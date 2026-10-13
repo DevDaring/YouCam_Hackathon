@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ApiError, getLooks, retryLook, startLooks, type LayerName, type LooksPayload, type Wear } from '../../lib/api'
-import { hasOpenLayers } from './lookUtils'
+import { ApiError, clearLookEnhance, enhanceLook, getLooks, patchLayer, retryLook, startLooks, type LayerName, type LayerPatch, type LooksPayload, type Wear } from '../../lib/api'
+import { hasOpenLayers, hasRunningEnhance } from './lookUtils'
 
 export const POLL_MS = 3000
 /** Polls in a row with queued layers but no running render task before we stop asking. */
@@ -18,7 +18,7 @@ export interface LayerEvent {
   kind: 'done' | 'failed'
 }
 
-function errorCode(err: unknown): string {
+export function errorCode(err: unknown): string {
   return err instanceof ApiError && err.detail ? err.detail : 'generic'
 }
 
@@ -142,7 +142,7 @@ export function useLooks(sessionId: string | null) {
     return () => ctrl.abort()
   }, [sessionId, nonce, start, apply])
 
-  const active = !!payload && payload.round > 0 && (payload.rendering || hasOpenLayers(payload)) && !stalled
+  const active = !!payload && payload.round > 0 && (payload.rendering || hasOpenLayers(payload) || hasRunningEnhance(payload)) && !stalled
 
   // Poll while active; pause when the tab is hidden, resume immediately when it is shown.
   useEffect(() => {
@@ -208,6 +208,40 @@ export function useLooks(sessionId: string | null) {
     [sessionId, apply],
   )
 
+  /**
+   * Applies one layer change (PATCH). The response marks the edited layer and every later one
+   * "pending", which re-activates polling; the stall guard is reset so a stopped poll restarts.
+   * Rejects with the server's error code (e.g. "look_busy", "edit_limit").
+   */
+  const edit = useCallback(
+    async (lookId: string, layer: LayerName, body: LayerPatch) => {
+      try {
+        const p = await patchLayer(lookId, layer, body)
+        idleStreak.current = 0
+        setStalled(false)
+        apply(p)
+      } catch (err) {
+        throw new Error(errorCode(err))
+      }
+    },
+    [apply],
+  )
+
+  /** Starts (or, with `remove`, clears) a look's photo enhancement. Rejects with the error code. */
+  const enhance = useCallback(
+    async (lookId: string, remove = false) => {
+      try {
+        const p = await (remove ? clearLookEnhance(lookId) : enhanceLook(lookId))
+        idleStreak.current = 0
+        setStalled(false)
+        apply(p)
+      } catch (err) {
+        throw new Error(errorCode(err))
+      }
+    },
+    [apply],
+  )
+
   const reload = useCallback(() => {
     startedFor.current = null
     setError(null)
@@ -215,5 +249,5 @@ export function useLooks(sessionId: string | null) {
     setNonce((n) => n + 1)
   }, [])
 
-  return { payload, phase, error, notice, busy, events, active, finished, chooseWear, replan, retry, reload }
+  return { payload, phase, error, notice, busy, events, active, finished, chooseWear, replan, retry, edit, enhance, reload }
 }

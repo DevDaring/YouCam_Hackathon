@@ -101,3 +101,16 @@ The two accounts are `YouCam_Phd_API_KEY` and `YouCam_Phd_API_KEY2`. On Oct 11 t
 - **One account per call:** uploaded file IDs belong to the account that uploaded them. So the uploads, the task and the polling of a single call all use the same account.
 - **Failover:** if an account refuses a task with `CreditInsufficiency` or a key error, the call is retried on the other account with fresh uploads.
 - **Ledger:** `unit_ledger.account` records which account paid for each call.
+
+## D-012 · Look editing and enhancement (owner, Oct 13 2026)
+- **Editor:** every layer of every look can be changed.
+  - Outfit, necklace and earrings: any wear-appropriate catalogue piece, priced for the session's market.
+  - Makeup: one of three moods, plus 10 lipstick shades.
+  - Hair: any of YouCam's hairstyle templates; for women, only templates that keep the wearer's own hair colour.
+  - Optional layers can be removed and added back.
+- **What a change re-renders:** only the changed layer and the enabled layers after it; earlier layers are reused. The editor shows the unit cost before the user applies the change. Edits are capped at 20 per session to protect the budget. Editing is blocked while the look is rendering.
+- **Enhance** (owner: "option to sharpen the image or enhance"): YouCam AI Photo Enhance first, NanoGPT `clarity-ai-flux-upscaler` as the fallback (D-010).
+  - On the uploaded photo: improves every later layer. The original is kept and can be restored. Small photos (long side ≤ 1024) are enhanced at 2× and then resized back.
+  - On a finished look: runs as a background job and offers a before/after comparison.
+  - Any later layer edit clears the enhancement, because it would no longer match the look.
+  - Each enhancement counts as one edit.

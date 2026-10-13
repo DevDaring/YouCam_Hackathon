@@ -131,7 +131,12 @@ export interface PhotoInfo {
   height: number | null
   url: string
   quality: { ok: boolean; checks: QualityCheck[]; source?: string } | null
+  /** True when the shown photo is the sharpened version (the original is kept). */
+  enhanced?: boolean
+  enhanced_by?: EnhancedBy | null
 }
+
+export type EnhancedBy = 'youcam' | 'nanogpt' | 'mock'
 
 export interface SessionInfo {
   id: string
@@ -185,7 +190,8 @@ export function uploadPhoto(sessionId: string, kind: PhotoKind, file: Blob, sour
 
 export type Wear = 'women' | 'men'
 export type LayerName = 'outfit' | 'necklace' | 'earrings' | 'makeup' | 'hair'
-export type LayerStatus = 'pending' | 'rendering' | 'done' | 'failed' | 'skipped'
+/** "off" = removed by the shopper: not rendered, can be added back. */
+export type LayerStatus = 'pending' | 'rendering' | 'done' | 'failed' | 'skipped' | 'off'
 export type LookPreset = 'sindoor_dusk' | 'marigold_morning' | 'ivory_moon'
 
 export interface LookItem {
@@ -222,6 +228,11 @@ export interface Look {
   layers_done: number
   layers_total: number
   layers: LookLayer[]
+  /** Photo enhancement of the latest finished image (cleared by any layer edit or retry). */
+  enhance_status?: 'running' | 'done' | 'failed' | null
+  enhance_error?: string | null
+  enhanced_by?: EnhancedBy | null
+  enhanced_url?: string | null
 }
 
 export interface LooksPayload {
@@ -230,6 +241,8 @@ export interface LooksPayload {
   round: number
   rounds_left: number
   rendering: boolean
+  /** Per-session layer edits remaining (absent on older servers). */
+  edits_left?: number
   looks: Look[]
 }
 
@@ -245,4 +258,93 @@ export function startLooks(sessionId: string, body: { wear?: Wear; replan?: bool
 /** Re-renders a look from its first failed or skipped layer. */
 export function retryLook(lookId: string): Promise<LooksPayload> {
   return request<LooksPayload>(`/api/looks/${encodeURIComponent(lookId)}/retry`, { method: 'POST' })
+}
+
+// ---------------------------------------------------------------- Layer editor
+
+export interface OptionItem {
+  id: string
+  sku: string
+  name: string
+  price: string | null
+  currency: string
+  image_url: string
+  metal: string | null
+  weight_class: string
+  colour_family: string
+  licence: string
+  event_match: boolean
+  current: boolean
+}
+
+export interface MakeupPresetOption {
+  key: LookPreset
+  lip: string
+  blush: string
+  shadow: string
+  current: boolean
+}
+
+export interface LipShade {
+  key: string
+  hex: string
+}
+
+export interface HairOption {
+  template_id: string
+  title: string
+  thumb: string
+  current: boolean
+}
+
+export interface LayerOptions {
+  layer: LayerName
+  enabled: boolean
+  removable: boolean
+  /** YouCam units this change would spend (this layer + every later enabled layer). */
+  units_to_rerender: number
+  layers_affected: LayerName[]
+  edits_left: number
+  items?: OptionItem[]
+  makeup?: { presets: MakeupPresetOption[]; lip_shades: LipShade[]; current_preset: string; current_lip: string }
+  hair?: HairOption[]
+}
+
+/** One change per request. */
+export type LayerPatch =
+  | { item_id: string }
+  | { preset: LookPreset; lip?: string }
+  | { lip: string }
+  | { template_id: string }
+  | { enabled: boolean }
+
+export function getLayerOptions(lookId: string, layer: LayerName, signal?: AbortSignal): Promise<LayerOptions> {
+  return request<LayerOptions>(`/api/looks/${encodeURIComponent(lookId)}/options/${layer}`, { signal })
+}
+
+/** Applies one change; that layer and every later enabled layer go back to "pending" and re-render. */
+export function patchLayer(lookId: string, layer: LayerName, body: LayerPatch): Promise<LooksPayload> {
+  return request<LooksPayload>(`/api/looks/${encodeURIComponent(lookId)}/layers/${layer}`, { method: 'PATCH', body: JSON.stringify(body) })
+}
+
+// ---------------------------------------------------------------- Enhance
+
+/** Starts sharpening the look's latest finished image (counts as one edit). */
+export function enhanceLook(lookId: string): Promise<LooksPayload> {
+  return request<LooksPayload>(`/api/looks/${encodeURIComponent(lookId)}/enhance`, { method: 'POST' })
+}
+
+/** Drops the enhancement and goes back to the original render. */
+export function clearLookEnhance(lookId: string): Promise<LooksPayload> {
+  return request<LooksPayload>(`/api/looks/${encodeURIComponent(lookId)}/enhance`, { method: 'DELETE' })
+}
+
+/** Sharpens an uploaded photo (synchronous: seconds, up to about a minute on the fallback). */
+export function enhancePhoto(sessionId: string, kind: PhotoKind): Promise<PhotoInfo> {
+  return request<PhotoInfo>(`/api/sessions/${encodeURIComponent(sessionId)}/photos/${kind}/enhance`, { method: 'POST' })
+}
+
+/** Puts the original photo back. */
+export function restorePhoto(sessionId: string, kind: PhotoKind): Promise<PhotoInfo> {
+  return request<PhotoInfo>(`/api/sessions/${encodeURIComponent(sessionId)}/photos/${kind}/restore`, { method: 'POST' })
 }
