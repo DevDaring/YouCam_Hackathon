@@ -1,0 +1,6 @@
+# Root of the DearYou repository: only README.md is published from this level.
+/*.md
+!/README.md
+# Never publish secrets or local data (Codes/.gitignore has the full list)
+.env
+*.env
