@@ -12,6 +12,8 @@ export default defineConfig({
     proxy: {
       '/api': { target: BACKEND, changeOrigin: true },
       '/health': { target: BACKEND, changeOrigin: true },
+      // public share pages (/s/{token}) are server-rendered by the API
+      '/s/': { target: BACKEND, changeOrigin: true },
     },
   },
   build: {

@@ -56,6 +56,17 @@
 - **Live on production:** a lipstick change re-rendered makeup and hair only, and enhance was done by YouCam.
 - **Tests:** backend 53, frontend 49, Playwright 34. All passing.
 
+## Hair, mobile camera, social sharing (Oct 17 2026)
+- **Hair:** the defaults are now neat, close-to-head styles that keep the wearer's own colour, and the editor lists them first as "Recommended". The owner's three groom looks were re-rendered live: no more big, long or spiky hair.
+- **Mobile camera:** on phones, "Take my photo" opens the phone's own camera app (`capture`), which works in every browser and in-app webview. The live guided camera was hardened: simpler fallback settings, iPhone inline video, a give-up timer, and a hint when inside an in-app browser. The server now accepts iPhone HEIC photos.
+- **Share:** a Share button on every look.
+  - On phones it opens the native share menu with the actual image, so Instagram and Snapchat work.
+  - Buttons for WhatsApp, Facebook, X, Telegram, Pinterest, LinkedIn, Reddit, Email and SMS, plus copy link and download. No brand logos (spec rule 7).
+  - Public `/s/<token>` page with Open Graph image previews. The link expires with the photos.
+- **Live on production:** the share page and its og:image are public and work; the new hair renders are in place.
+- **Not yet verified:** the camera on a physical phone.
+- **Tests:** backend 55, frontend 73, Playwright 38 (+2 skipped by design).
+
 ## Next
 - Owner adds units and provides the probe inputs. Run `garment_probe.py --yes` and review the drape results.
 - Then M2: Look Studio.

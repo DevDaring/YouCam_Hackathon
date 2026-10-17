@@ -143,6 +143,7 @@ class Look(Base):
     currency: Mapped[str] = mapped_column(String(3))
     slot: Mapped[int] = mapped_column(Integer, default=1)          # 1..3 within a round
     enhanced_path: Mapped[str | None] = mapped_column(Text)        # sharpened final image (cleared on any layer edit)
+    share_token_hash: Mapped[str | None] = mapped_column(String(64), unique=True, index=True)  # sha256 of the public share token
     enhance_status: Mapped[str | None] = mapped_column(String(12))  # running | done | failed
     enhance_error: Mapped[str | None] = mapped_column(Text)
     enhanced_by: Mapped[str | None] = mapped_column(String(24))

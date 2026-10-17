@@ -285,3 +285,37 @@ async def test_enhance_and_restore_uploaded_photo(client, db, tmp_path):
     r = await client.post(f"/api/sessions/{sid}/photos/full/restore")
     assert r.status_code == 200 and r.json()["enhanced"] is False and r.json()["url"] == before["url"]
     assert (await client.post(f"/api/sessions/{sid}/photos/full/restore")).status_code == 409
+
+
+async def test_share_link_public_page_and_expiry(client, db, tmp_path):
+    from datetime import datetime, timedelta, timezone
+    from sqlalchemy import select as sa_select, update as sa_update
+    from app.models import Look, Session as S
+    sid, look = await _ready_look(client, db, tmp_path)
+    r = await client.post(f"/api/looks/{look['id']}/share")
+    assert r.status_code == 200
+    share = r.json()
+    assert share["url"].split("/s/")[1] and share["title"].startswith("Look 1") and "Haan" in share["text"]
+    assert (await client.post(f"/api/looks/{look['id']}/share")).json()["url"] == share["url"]  # stable
+    token = share["url"].split("/s/")[1]
+    stored = (await db.execute(sa_select(Look.share_token_hash).where(Look.id == __import__("uuid").UUID(look["id"])))).scalar_one()
+    assert stored and token not in stored  # only the hash is stored
+    await client.post("/api/auth/logout")  # public: no login needed
+    img = await client.get(share["image_url"])
+    assert img.status_code == 200 and img.headers["content-type"] == "image/jpeg"
+    page = await client.get(f"/s/{token}")
+    assert page.status_code == 200 and 'property="og:image"' in page.text and share["image_url"] in page.text
+    assert (await client.get("/s/not-a-real-token")).status_code == 404
+    await db.execute(sa_update(S).values(delete_after=datetime.now(timezone.utc) - timedelta(minutes=1)))
+    await db.commit()
+    gone = await client.get(f"/s/{token}")
+    assert gone.status_code == 404 and "no longer available" in gone.text
+    assert (await client.get(share["image_url"])).status_code == 404
+
+
+async def test_share_requires_a_rendered_layer(client, db, tmp_path, monkeypatch):
+    await seed_items(db, tmp_path)
+    sid = await login_and_session(client, db)
+    monkeypatch.setattr(render, "start", lambda *a, **k: None)  # nothing renders
+    look = (await client.post(f"/api/sessions/{sid}/looks", json={})).json()["looks"][0]
+    assert (await client.post(f"/api/looks/{look['id']}/share")).json()["detail"] == "nothing_to_share"

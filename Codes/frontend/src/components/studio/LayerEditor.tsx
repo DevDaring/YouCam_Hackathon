@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { AlertTriangle, ArrowUpNarrowWide, Ban, CalendarHeart, Check, Clock, Loader2, RefreshCw, Sparkles, X } from 'lucide-react'
+import { AlertTriangle, ArrowUpNarrowWide, Ban, CalendarHeart, Check, Clock, Loader2, RefreshCw, Sparkles, ThumbsUp, X } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getLayerOptions, type LayerName, type LayerOptions, type LayerPatch, type Look, type LookPreset, type OptionItem } from '../../lib/api'
@@ -379,6 +379,16 @@ function CurrentTag() {
   return <span className="inline-flex rounded-full bg-primary px-2 py-0.5 text-[0.6875rem] font-semibold text-on-primary">{t('studio.edit.current')}</span>
 }
 
+function RecommendedTag() {
+  const { t } = useTranslation()
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full border border-success/60 bg-success/10 px-2 py-0.5 text-[0.6875rem] font-semibold text-success">
+      <ThumbsUp aria-hidden="true" className="size-3" />
+      {t('studio.edit.recommended')}
+    </span>
+  )
+}
+
 function Chip({ pressed, onClick, icon, children }: { pressed: boolean; onClick: () => void; icon: ReactNode; children: ReactNode }) {
   return (
     <button
@@ -561,6 +571,12 @@ function HairPicker({ hair, selected, disabled, onSelect }: { hair: NonNullable<
   return (
     <fieldset disabled={disabled} className="min-w-0">
       <legend className="mb-2 text-base font-semibold text-heading">{t('studio.edit.hairTitle')}</legend>
+      {hair.some((h) => h.recommended) ? (
+        <p className="mb-3 flex items-start gap-1.5 text-sm text-muted">
+          <ThumbsUp aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-heading" />
+          {t('studio.edit.hairNote')}
+        </p>
+      ) : null}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {hair.map((h) => (
           <label key={h.template_id} className={cardBase}>
@@ -570,16 +586,17 @@ function HairPicker({ hair, selected, disabled, onSelect }: { hair: NonNullable<
               value={h.template_id}
               checked={selected === h.template_id}
               onChange={() => onSelect(h.template_id)}
-              aria-label={h.current ? `${h.title} · ${t('studio.edit.current')}` : h.title}
+              aria-label={[h.title, h.recommended ? t('studio.edit.recommended') : null, h.current ? t('studio.edit.current') : null].filter(Boolean).join(' · ')}
               className="sr-only"
             />
             <img src={h.thumb} alt="" loading="lazy" className="aspect-square w-full bg-surface object-cover object-top" />
             <CheckedMark />
             <span className="flex flex-1 flex-col gap-1 p-2.5">
               <span className="text-sm font-semibold leading-snug text-heading">{h.title}</span>
-              {h.current ? (
-                <span className="mt-auto">
-                  <CurrentTag />
+              {h.recommended || h.current ? (
+                <span className="mt-auto flex flex-wrap gap-1">
+                  {h.recommended ? <RecommendedTag /> : null}
+                  {h.current ? <CurrentTag /> : null}
                 </span>
               ) : null}
             </span>

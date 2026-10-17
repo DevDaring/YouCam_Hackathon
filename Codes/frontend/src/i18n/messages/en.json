@@ -344,7 +344,8 @@
       "by": "by {{who}}",
       "restore": "Restore original",
       "failed": "We couldn't enhance this photo. Your original is unchanged — please try again."
-    }
+    },
+    "liveCamera": "Use live camera with guide"
   },
   "camera": {
     "title": {
@@ -366,11 +367,19 @@
       "face": "Fit your face inside the oval."
     },
     "errors": {
-      "unsupported": "This browser can't open the camera here. You can upload a photo instead.",
-      "denied": "Camera access was blocked. Allow the camera in your browser settings, or upload a photo instead.",
-      "nocamera": "We couldn't find a camera on this device. You can upload a photo instead.",
-      "failed": "The camera didn't start. You can upload a photo instead."
-    }
+      "unsupported": "This browser can't open the live camera here.",
+      "denied": "Camera access was blocked. Allow the camera in your browser settings, then try again.",
+      "nocamera": "We couldn't find a camera on this device.",
+      "failed": "The camera didn't start.",
+      "insecure": "The live camera only works on a secure (https) page."
+    },
+    "alternatives": {
+      "phone": "Use your phone's own camera, or upload a photo instead.",
+      "upload": "You can upload a photo instead."
+    },
+    "inApp": "Open this page in Chrome or Safari for the live camera — or use your phone's camera button.",
+    "phoneCamera": "Use phone camera",
+    "tapToStart": "Tap to start the camera"
   },
   "studio": {
     "title": "Your look studio",
@@ -507,6 +516,8 @@
       "lipTitle": "Lipstick shade",
       "lipHint": "Picking a mood resets the lipstick to that mood's shade.",
       "hairTitle": "Hairstyle",
+      "hairNote": "Recommended styles sit close to the head and keep your own hair colour.",
+      "recommended": "Recommended",
       "totalOf": "total {{total}} of {{budget}}",
       "totalOnly": "total {{total}}",
       "overBudget": "over budget",
@@ -567,6 +578,33 @@
       },
       "errors": {
         "nothing": "There's no finished image to enhance yet."
+      }
+    },
+    "share": {
+      "button": "Share",
+      "buttonLabel": "Share {{name}}",
+      "title": "Share {{name}}",
+      "preparing": "Preparing your share link…",
+      "native": "Share…",
+      "nativeHint": "Opens your phone's share menu — post the picture to any app.",
+      "platforms": "Share to",
+      "newTab": "(opens in a new tab)",
+      "email": "Email",
+      "sms": "Text message",
+      "copy": "Copy link",
+      "copied": "Copied ✓",
+      "linkLabel": "Share link",
+      "download": "Download image",
+      "saved": "Image saved — open {{app}} and post it from your gallery.",
+      "defaultText": "Help me choose! Here's my {{lookName}} look for my {{event}} — tell me Haan, Hmm or Na 💛",
+      "privacy": "Anyone with the link can see this look image until your photos are deleted on {{date}}.",
+      "privacyNoDate": "Anyone with the link can see this look image until your photos are deleted.",
+      "imageAlt": "{{name}} look, ready to share",
+      "errors": {
+        "nothing": "This look has no finished picture yet. Share it once a layer is ready.",
+        "generic": "We couldn't create a share link. Check your connection and try again.",
+        "native": "The share menu didn't open. Use one of the buttons below instead.",
+        "copy": "Couldn't copy automatically — select the link above and copy it."
       }
     }
   }

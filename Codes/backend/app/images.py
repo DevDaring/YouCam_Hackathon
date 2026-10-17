@@ -6,10 +6,16 @@ import io
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+try:  # iPhones can hand over HEIC photos from the camera; decode them server-side too.
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:  # pragma: no cover
+    pass
+
 MAX_BYTES = 12 * 1024 * 1024
 MAX_SIDE = 2048          # YouCam limits: long side <= 4096 (clothes), < 1920 (makeup) — resized per feature later
 MIN_SIDE = 320           # fitzpatrick needs >= 320 short side
-ALLOWED = {"JPEG", "PNG", "WEBP", "MPO"}  # MPO = multi-picture JPEG from some phones
+ALLOWED = {"JPEG", "PNG", "WEBP", "MPO", "HEIF"}  # MPO = multi-picture JPEG; HEIF = iPhone HEIC
 Image.MAX_IMAGE_PIXELS = 60_000_000      # decompression-bomb guard
 
 

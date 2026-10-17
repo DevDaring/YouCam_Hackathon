@@ -1,5 +1,5 @@
-import { AlertTriangle, ArrowRight, Camera, CheckCircle2, ImageUp, Loader2, RotateCcw, ShieldCheck, Sparkles, Undo2, XCircle } from 'lucide-react'
-import { useCallback, useEffect, useId, useState, type ChangeEvent } from 'react'
+import { AlertTriangle, ArrowRight, Camera, CheckCircle2, ImageUp, Loader2, RotateCcw, ScanFace, ShieldCheck, Sparkles, Undo2, XCircle } from 'lucide-react'
+import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { GoldRule } from '../components/Motifs'
@@ -9,16 +9,24 @@ import { buttonClass, cardClass } from '../components/ui'
 import { enhancerName } from '../components/studio/lookUtils'
 import { ApiError, enhancePhoto, getSession, restorePhoto, uploadPhoto, type PhotoInfo, type PhotoKind, type QualityCheck } from '../lib/api'
 import { IMAGE_RETENTION_HOURS } from '../lib/config'
+import { isInAppBrowser, isMobileDevice } from '../lib/device'
 import { prepareUpload } from '../lib/image'
 
 const KINDS: PhotoKind[] = ['full', 'face']
 const ACCEPT = 'image/jpeg,image/png,image/webp'
+/** The native camera input takes anything the phone's camera app produces (HEIC is converted in prepareUpload). */
+const CAMERA_ACCEPT = 'image/*'
 
 export default function Photo() {
   const { t } = useTranslation()
   const { sessionId = '' } = useParams()
   const navigate = useNavigate()
   const fileInputId = useId()
+  const cameraInputId = useId()
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  /** Phones/tablets: "Take my photo" opens the phone's own camera app (works in every browser and in-app webview). */
+  const [mobile] = useState(isMobileDevice)
+  const [inApp] = useState(() => isInAppBrowser())
 
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -80,12 +88,15 @@ export default function Photo() {
     }
   }
 
-  const onFile = (e: ChangeEvent<HTMLInputElement>) => {
+  const onFile = (source: 'camera' | 'upload') => (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = '' // allow choosing the same file again
     setCameraOpen(false)
-    if (file) void send(file, 'upload')
+    if (file) void send(file, source)
   }
+
+  /** Must stay synchronous inside the click handler: browsers only open the camera on a direct user gesture. */
+  const openNativeCamera = () => cameraInputRef.current?.click()
 
   const next = () => {
     setError(null)
@@ -130,7 +141,22 @@ export default function Photo() {
         <ProgressDots total={KINDS.length} current={KINDS.indexOf(stage)} label={t('photo.progress', { current: KINDS.indexOf(stage) + 1, total: KINDS.length })} />
       </div>
 
-      <input id={fileInputId} type="file" accept={ACCEPT} className="sr-only" tabIndex={-1} onChange={onFile} />
+      <input id={fileInputId} type="file" accept={ACCEPT} className="sr-only" tabIndex={-1} onChange={onFile('upload')} data-testid="photo-upload-input" />
+      {mobile ? (
+        <input
+          key={stage}
+          ref={cameraInputRef}
+          id={cameraInputId}
+          type="file"
+          accept={CAMERA_ACCEPT}
+          capture={stage === 'face' ? 'user' : 'environment'}
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden="true"
+          onChange={onFile('camera')}
+          data-testid="photo-camera-input"
+        />
+      ) : null}
 
       <section className={`${cardClass} mt-6 space-y-5`} aria-live="polite" aria-busy={uploading || !!improving}>
         {uploading || improving ? (
@@ -199,7 +225,7 @@ export default function Photo() {
               ))}
             </ul>
             <div className="grid gap-3 sm:grid-cols-2">
-              <button type="button" onClick={() => setCameraOpen(true)} className={`${buttonClass.primary} w-full`}>
+              <button type="button" onClick={mobile ? openNativeCamera : () => setCameraOpen(true)} className={`${buttonClass.primary} w-full`}>
                 <Camera aria-hidden="true" className="size-5" />
                 {t('photo.take')}
               </button>
@@ -208,6 +234,15 @@ export default function Photo() {
                 {t('photo.upload')}
               </label>
             </div>
+            {mobile ? (
+              <div className="space-y-1 text-center">
+                <button type="button" onClick={() => setCameraOpen(true)} className={`${buttonClass.ghost} w-full text-sm`}>
+                  <ScanFace aria-hidden="true" className="size-5" />
+                  {t('photo.liveCamera')}
+                </button>
+                {inApp ? <p className="text-xs text-muted">{t('camera.inApp')}</p> : null}
+              </div>
+            ) : null}
             {stage === 'face' ? (
               <button type="button" onClick={next} className={`${buttonClass.ghost} w-full`}>
                 {t('photo.skipFace')}
@@ -240,7 +275,11 @@ export default function Photo() {
       </div>
 
       {cameraOpen ? (
-        <CameraCapture kind={stage} fileInputId={fileInputId} onCapture={(b) => void send(b, 'camera')} onClose={() => setCameraOpen(false)} />
+        <CameraCapture
+          kind={stage}
+          fileInputId={fileInputId}
+          nativeCameraInputId={mobile ? cameraInputId : undefined}
+          onCapture={(b) => void send(b, 'camera')} onClose={() => setCameraOpen(false)} />
       ) : null}
     </div>
   )

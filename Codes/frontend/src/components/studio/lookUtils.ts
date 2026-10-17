@@ -37,6 +37,11 @@ export function lookBusy(look: Look, payloadRendering: boolean): boolean {
   )
 }
 
+/** A look can be shared once at least one layer has a finished render. */
+export function canShare(look: Look): boolean {
+  return look.layers.some((l) => l.status === 'done' && !!l.render_url) || (look.enhance_status === 'done' && !!look.enhanced_url)
+}
+
 /** Whether any look is being enhanced right now (keeps polling alive). */
 export function hasRunningEnhance(p: LooksPayload | null): boolean {
   return !!p?.looks.some((look) => look.enhance_status === 'running')

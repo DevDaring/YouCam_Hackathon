@@ -1,11 +1,11 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { AlertTriangle, Ban, Check, Circle, Clock, Expand, Loader2, Minus, Pencil, Plus, RotateCcw, Sparkles } from 'lucide-react'
+import { AlertTriangle, Ban, Check, Circle, Clock, Expand, Loader2, Minus, Pencil, Plus, RotateCcw, Share2, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { LayerName, LayerStatus, Look, LookLayer } from '../../lib/api'
 import type { AppLocale } from '../../lib/locale'
 import { buttonClass } from '../ui'
-import { ENHANCE_UNITS, enhancerName, isBad, joinList, layerLabel, layerReason, lookBusy, lookName, type MoneyFormatter } from './lookUtils'
+import { canShare, ENHANCE_UNITS, enhancerName, isBad, joinList, layerLabel, layerReason, lookBusy, lookName, type MoneyFormatter } from './lookUtils'
 import type { LayerEvent } from './useLooks'
 
 interface Props {
@@ -34,10 +34,12 @@ interface Props {
   enhancing: boolean
   /** Session edit allowance (undefined on older servers). */
   editsLeft?: number
+  /** Opens the share sheet (shown once at least one layer is rendered). */
+  onShare?: (lookId: string) => void
 }
 
 export function LookCard(props: Props) {
-  const { slot, look, rendering, photoUrl, money, num, locale, budget, toast, retrying, onOpen, onRetry, onEdit, onAddBack, addingBack, onEnhance, enhancing, editsLeft } = props
+  const { slot, look, rendering, photoUrl, money, num, locale, budget, toast, retrying, onOpen, onRetry, onEdit, onAddBack, addingBack, onEnhance, enhancing, editsLeft, onShare } = props
   const { t } = useTranslation()
   const name = lookName(t, slot)
   const busy = look ? lookBusy(look, rendering) : true
@@ -208,6 +210,18 @@ export function LookCard(props: Props) {
 
             {done > 0 && (!busy || enh === 'running') ? (
               <EnhancePanel look={look} name={name} busy={busy} pending={enhancing} editsLeft={editsLeft} num={num} onEnhance={onEnhance} />
+            ) : null}
+
+            {onShare && canShare(look) ? (
+              <button
+                type="button"
+                onClick={() => onShare(look.id)}
+                aria-label={t('studio.share.buttonLabel', { name })}
+                className={`${buttonClass.secondary} w-full`}
+              >
+                <Share2 aria-hidden="true" className="size-5" />
+                {t('studio.share.button')}
+              </button>
             ) : null}
 
             {canRetry ? (

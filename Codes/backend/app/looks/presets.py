@@ -36,10 +36,18 @@ MOODS = {  # lip, lip texture, blush, eye shadow
     "marigold_morning": ("#D9654B", "gloss", "#E8916F", "#C98A3A"),
     "ivory_moon": ("#B5656B", "matte", "#D79A9A", "#8E6B5C"),
 }
+# Owner feedback 2026-10-17: big, voluminous templates ("tousled waves", "Hollywood waves") looked
+# like far too much hair. Defaults are now neat styles that sit close to the head and keep the
+# wearer's own hair colour; voluminous styles stay available in the editor, listed after these.
 HAIR_DEFAULTS = {
-    "sindoor_dusk": {"women": "female_sleek_middle_part", "men": "male_textured_comma"},
-    "marigold_morning": {"women": "all_half_up_soft_waves", "men": "male_tousled_cut"},
-    "ivory_moon": {"women": "all_classic_hollywood_waves", "men": "all_tousled_waves"},
+    "sindoor_dusk": {"women": "female_sleek_middle_part", "men": "all_side_swept_undercut"},
+    "marigold_morning": {"women": "female_casual_updo", "men": "male_textured_comma"},
+    "ivory_moon": {"women": "female_messy_bun", "men": "male_wavy_undercut"},
+}
+RECOMMENDED_HAIR = {
+    "women": ["female_sleek_middle_part", "female_casual_updo", "female_messy_bun", "female_slicked_back_bob",
+              "female_boho_side_braid", "female_two_braids", "all_goddess_waves"],
+    "men": ["all_side_swept_undercut", "male_textured_comma", "male_wavy_undercut", "all_buzz_cut", "male_tousled_cut"],
 }
 
 
@@ -60,7 +68,10 @@ def hair_templates(wear: str) -> list[dict]:
         picked = [t for t in data if t.get("category_name") == "Male" and t["id"] != "male_bald"]
     else:
         picked = [t for t in data if t.get("category_name") == "Female" and t.get("keep_users_color")]
-    return [{"template_id": t["id"], "title": t["title"], "thumb": t["thumb"]} for t in picked]
+    rec = RECOMMENDED_HAIR["men" if wear == "men" else "women"]
+    picked.sort(key=lambda t: (rec.index(t["id"]) if t["id"] in rec else len(rec), not t.get("keep_users_color")))
+    return [{"template_id": t["id"], "title": t["title"], "thumb": t["thumb"], "recommended": t["id"] in rec,
+             "keeps_colour": bool(t.get("keep_users_color"))} for t in picked]
 SLOT_PRESETS = ["sindoor_dusk", "marigold_morning", "ivory_moon"]
 
 # Render order (spec K1). Men's looks skip jewellery and makeup layers.

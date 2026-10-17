@@ -114,3 +114,34 @@ The two accounts are `YouCam_Phd_API_KEY` and `YouCam_Phd_API_KEY2`. On Oct 11 t
   - On a finished look: runs as a background job and offers a before/after comparison.
   - Any later layer edit clears the enhancement, because it would no longer match the look.
   - Each enhancement counts as one edit.
+
+## D-013 · Hair volume, mobile camera, social sharing (owner, Oct 17 2026)
+**Hair volume.** The owner said: "The hair is coming too much on head."
+- **The problem:** the voluminous templates (Tousled Waves, Tousled Cut, Hollywood Waves) look much bigger than the wearer's own hair.
+- **What I tried first:** a post-processing step that segmented hair with MediaPipe and trimmed it back to the wearer's own silhouette. It barely helped short styles and left a translucent halo around long ones, so it was removed.
+- **The fix:**
+  - The defaults are now neat, close-to-head styles that keep the wearer's own hair colour. Men: Side-Swept Undercut, Textured Comma, Wavy Undercut. Women: Sleek Middle Part, Casual Updo, Messy Bun.
+  - The editor lists these first with a "Recommended" tag.
+  - The voluminous styles are still available.
+  - "Remove hair" keeps the wearer's own hair.
+
+**Mobile camera.** The owner said the camera "can not open" on a phone browser. Live `getUserMedia` is fragile on phones, especially inside in-app browsers (WhatsApp, Instagram, Facebook), which often block it.
+- **Phones:** "Take my photo" now opens the phone's own camera app through `<input type="file" accept="image/*" capture>`, which works in every mobile browser.
+- **The guided live camera:** still available as an option on phones, and the main option on desktop. It is now sturdier:
+  - it tries simpler camera settings when the first set fails;
+  - it applies the inline-video settings iPhone Safari needs;
+  - it gives up after a set time and offers alternatives;
+  - in an in-app browser it suggests opening Chrome or Safari.
+- **Not verified:** no physical phone was available to test on.
+
+**Social sharing.** Each look has a share link of the form `/s/<token>`.
+- **The token:** an HMAC of the look ID; only its sha256 hash is stored.
+- **The page:** server-rendered with Open Graph and Twitter tags, so chat and social apps show the look image as a preview.
+- **The image:** a public endpoint serves the enhanced look image if it has one, otherwise the latest render.
+- **Expiry:** the link stops working when the session's photos are deleted.
+- **The share sheet:**
+  - The Web Share API on phones, which can share the actual image file, so Instagram and Snapchat work.
+  - Plain-text buttons for WhatsApp, Facebook, X, Telegram, Pinterest, LinkedIn, Reddit, Email and SMS.
+  - Copy link and Download image.
+  - Brand logos are not used, per spec rule 7.
+- **Caddy:** routes `/s/*` to the API.

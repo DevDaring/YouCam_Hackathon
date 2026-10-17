@@ -14,7 +14,7 @@ from app.integrity.quality import close_detector
 from app.retention import purge_loop
 from app import catalogue
 from app.looks import render
-from app.routers import auth, health, ledger, looks, regions, sessions
+from app.routers import auth, health, ledger, looks, regions, sessions, share
 
 log = logging.getLogger("dearyou")
 
@@ -54,4 +54,5 @@ app.include_router(regions.router)
 app.include_router(ledger.router)
 app.include_router(sessions.router)
 app.include_router(looks.router)
+app.include_router(share.router)
 

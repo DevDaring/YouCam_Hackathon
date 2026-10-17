@@ -1,11 +1,11 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Share2, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Look } from '../../lib/api'
 import { GoldRule } from '../Motifs'
 import { TotalLine } from './LookCard'
-import { CATALOGUE_LAYERS, layerLabel, lookName, type MoneyFormatter } from './lookUtils'
+import { canShare, CATALOGUE_LAYERS, layerLabel, lookName, type MoneyFormatter } from './lookUtils'
 
 interface Props {
   look: Look
@@ -14,6 +14,8 @@ interface Props {
   num: (n: number) => string
   budget: string | null
   onClose: () => void
+  /** Opens the share sheet on top of the lightbox. */
+  onShare?: () => void
 }
 
 interface Step {
@@ -26,7 +28,7 @@ interface Step {
  * Full-screen (phone) / centred (desktop) dialog that steps through a look layer by layer:
  * your photo → after outfit → after necklace → … Native <dialog> gives the focus trap and Esc.
  */
-export function LookLightbox({ look, photoUrl, money, num, budget, onClose }: Props) {
+export function LookLightbox({ look, photoUrl, money, num, budget, onClose, onShare }: Props) {
   const { t, i18n } = useTranslation()
   const ref = useRef<HTMLDialogElement>(null)
   const native = useRef(false)
@@ -101,15 +103,28 @@ export function LookLightbox({ look, photoUrl, money, num, budget, onClose }: Pr
             </h2>
             <GoldRule />
           </div>
-          <button
-            type="button"
-            data-autofocus
-            onClick={close}
-            className="-mr-1 inline-flex size-12 shrink-0 items-center justify-center rounded-full text-heading hover:bg-surface"
-            aria-label={t('common.close')}
-          >
-            <X aria-hidden="true" className="size-6" />
-          </button>
+          <div className="-mr-1 flex shrink-0 items-center gap-1">
+            {onShare && canShare(look) ? (
+              <button
+                type="button"
+                onClick={onShare}
+                aria-label={t('studio.share.buttonLabel', { name })}
+                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-rule/70 bg-surface-raised px-4 text-sm font-semibold text-heading hover:bg-surface"
+              >
+                <Share2 aria-hidden="true" className="size-5" />
+                {t('studio.share.button')}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              data-autofocus
+              onClick={close}
+              className="inline-flex size-12 shrink-0 items-center justify-center rounded-full text-heading hover:bg-surface"
+              aria-label={t('common.close')}
+            >
+              <X aria-hidden="true" className="size-6" />
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 grid gap-5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">

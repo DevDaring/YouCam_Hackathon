@@ -1,11 +1,11 @@
-import { Camera, RefreshCw, Timer, Upload, X } from 'lucide-react'
+import { Camera, ImageUp, RefreshCw, RotateCcw, Smartphone, Timer, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { PhotoKind } from '../../lib/api'
+import { cameraError, cameraUnavailable, openCamera, PERMISSION_TIMEOUT_MS, READY_TIMEOUT_MS, type CamError, type Facing } from '../../lib/camera'
+import { isInAppBrowser } from '../../lib/device'
 import { buttonClass } from '../ui'
 
-type Facing = 'user' | 'environment'
-type CamError = 'unsupported' | 'denied' | 'nocamera' | 'failed'
 type Light = 'ok' | 'dark' | 'bright' | null
 const TIMERS = [0, 3, 10] as const
 
@@ -13,66 +13,129 @@ interface Props {
   kind: PhotoKind
   /** id of the page's hidden file input, so "upload instead" is a real user gesture on that input */
   fileInputId: string
+  /** id of the page's hidden native-camera input (phones only), offered when the live camera fails */
+  nativeCameraInputId?: string
   onCapture: (photo: Blob) => void
   onClose: () => void
 }
 
-function cameraError(err: unknown): CamError {
-  const name = err instanceof DOMException ? err.name : ''
-  if (name === 'NotAllowedError' || name === 'SecurityError') return 'denied'
-  if (name === 'NotFoundError' || name === 'OverconstrainedError' || name === 'NotReadableError') return 'nocamera'
-  return 'failed'
+/** iOS Safari only plays a camera stream inline when these are set before srcObject. */
+function prepareVideo(v: HTMLVideoElement) {
+  v.muted = true
+  v.playsInline = true
+  v.autoplay = true
+  v.setAttribute('muted', '')
+  v.setAttribute('playsinline', '')
+  v.setAttribute('webkit-playsinline', '')
 }
 
 /** Full-screen camera with a framing guide, live light check, front/back switch and self-timer. */
-export function CameraCapture({ kind, fileInputId, onCapture, onClose }: Props) {
+export function CameraCapture({ kind, fileInputId, nativeCameraInputId, onCapture, onClose }: Props) {
   const { t } = useTranslation()
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const shutterRef = useRef<HTMLButtonElement>(null)
+  /** Bumped whenever a start attempt is abandoned, so a late getUserMedia result is discarded. */
+  const genRef = useRef(0)
   const [facing, setFacing] = useState<Facing>(kind === 'face' ? 'user' : 'environment')
   const [error, setError] = useState<CamError | null>(null)
+  /** Bumped by "Try again" to restart the stream. */
+  const [attempt, setAttempt] = useState(0)
+  /** The stream arrived and is attached to the video (frames may not be flowing yet). */
+  const [live, setLive] = useState(false)
   const [ready, setReady] = useState(false)
+  /** play() was refused (autoplay policy / low-power mode): one tap starts it. */
+  const [needsTap, setNeedsTap] = useState(false)
   const [light, setLight] = useState<Light>(null)
   const [timer, setTimer] = useState<(typeof TIMERS)[number]>(kind === 'full' ? 3 : 0)
   const [countdown, setCountdown] = useState<number | null>(null)
+  const inApp = isInAppBrowser()
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((tr) => tr.stop())
     streamRef.current = null
+    const v = videoRef.current
+    if (v) v.srcObject = null
   }, [])
 
-  // Start / restart the stream when the facing mode changes.
+  const fail = useCallback(
+    (e: CamError) => {
+      genRef.current += 1
+      stop()
+      setLive(false)
+      setReady(false)
+      setCountdown(null)
+      setError(e)
+    },
+    [stop],
+  )
+
+  const markReady = useCallback(() => setReady(true), [])
+
+  const play = useCallback(() => {
+    const v = videoRef.current
+    if (!v) return
+    try {
+      const p = v.play() as Promise<void> | undefined
+      p?.then(
+        () => setNeedsTap(false),
+        (err: unknown) => {
+          // AbortError: a newer srcObject/load interrupted this play() — harmless.
+          if ((err as { name?: string })?.name !== 'AbortError') setNeedsTap(true)
+        },
+      )
+    } catch {
+      setNeedsTap(true)
+    }
+  }, [])
+
+  // Start / restart the stream when the facing mode changes or the shopper taps "Try again".
   useEffect(() => {
     let cancelled = false
     setReady(false)
-    if (!navigator.mediaDevices?.getUserMedia || !window.isSecureContext) {
-      setError('unsupported')
+    setLive(false)
+    setNeedsTap(false)
+    const why = cameraUnavailable()
+    if (why) {
+      setError(why)
       return
     }
     stop()
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: { ideal: facing }, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false })
+    const gen = ++genRef.current
+    const stale = () => cancelled || gen !== genRef.current
+    openCamera(facing, (c) => navigator.mediaDevices.getUserMedia(c))
       .then((stream) => {
-        if (cancelled) {
+        if (stale()) {
           stream.getTracks().forEach((tr) => tr.stop())
           return
         }
         streamRef.current = stream
+        // Another app grabbing the camera (or the OS revoking it) ends the track.
+        stream.getVideoTracks().forEach((tr) => tr.addEventListener?.('ended', () => !stale() && streamRef.current === stream && fail('failed')))
         const v = videoRef.current
         if (v) {
+          prepareVideo(v)
           v.srcObject = stream
-          void v.play().catch(() => undefined)
+          play()
         }
         setError(null)
+        setLive(true)
       })
-      .catch((err) => !cancelled && setError(cameraError(err)))
+      .catch((err) => !stale() && setError(cameraError(err)))
     return () => {
       cancelled = true
     }
-  }, [facing, stop])
+  }, [facing, attempt, stop, play, fail])
 
   useEffect(() => stop, [stop])
+
+  // Watchdog: a stream that never produces frames (or a prompt that never resolves) must not
+  // leave the shopper staring at "Starting camera…" — show the alternatives instead.
+  useEffect(() => {
+    if (ready || error) return
+    const id = window.setTimeout(() => fail('failed'), live ? READY_TIMEOUT_MS : PERMISSION_TIMEOUT_MS)
+    return () => window.clearTimeout(id)
+  }, [ready, error, live, fail, facing, attempt])
 
   // Live light check on a tiny downscaled frame (cheap: 24×24 px twice a second).
   useEffect(() => {
@@ -150,15 +213,42 @@ export function CameraCapture({ kind, fileInputId, onCapture, onClose }: Props) 
 
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {error ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-            <Camera aria-hidden="true" className="size-12 text-marigold-300" />
+          <div className="flex h-full flex-col items-center justify-center gap-4 overflow-y-auto px-6 py-4 text-center">
+            <Camera aria-hidden="true" className="size-12 shrink-0 text-marigold-300" />
             <p role="alert" className="max-w-sm text-lg">
               {t(`camera.errors.${error}`)}
             </p>
-            <label htmlFor={fileInputId} className={`${buttonClass.primary} cursor-pointer`} onClick={stop}>
-              <Upload aria-hidden="true" className="size-5" />
-              {t('photo.upload')}
-            </label>
+            <p className="max-w-sm text-sm text-white/80">{t(nativeCameraInputId ? 'camera.alternatives.phone' : 'camera.alternatives.upload')}</p>
+            {inApp ? <p className="max-w-sm rounded-2xl bg-white/10 px-4 py-2 text-sm">{t('camera.inApp')}</p> : null}
+            <div className="flex w-full max-w-xs flex-col gap-3">
+              {nativeCameraInputId ? (
+                <label htmlFor={nativeCameraInputId} className={`${buttonClass.primary} w-full cursor-pointer`} onClick={stop}>
+                  <Smartphone aria-hidden="true" className="size-5" />
+                  {t('camera.phoneCamera')}
+                </label>
+              ) : null}
+              <label
+                htmlFor={fileInputId}
+                className={`${nativeCameraInputId ? 'inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 px-6 py-2 text-base font-semibold hover:bg-white/20' : buttonClass.primary} w-full cursor-pointer`}
+                onClick={stop}
+              >
+                <ImageUp aria-hidden="true" className="size-5" />
+                {t('photo.upload')}
+              </label>
+              {error !== 'unsupported' && error !== 'insecure' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null)
+                    setAttempt((n) => n + 1)
+                  }}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 text-base font-semibold underline-offset-4 hover:underline"
+                >
+                  <RotateCcw aria-hidden="true" className="size-5" />
+                  {t('common.retry')}
+                </button>
+              ) : null}
+            </div>
           </div>
         ) : (
           <>
@@ -167,7 +257,12 @@ export function CameraCapture({ kind, fileInputId, onCapture, onClose }: Props) 
               playsInline
               muted
               autoPlay
-              onLoadedData={() => setReady(true)}
+              onLoadedMetadata={markReady}
+              onLoadedData={markReady}
+              onPlaying={() => {
+                setNeedsTap(false)
+                markReady()
+              }}
               className={`size-full object-contain ${mirrored ? '-scale-x-100' : ''}`}
             />
             <FramingGuide kind={kind} />
@@ -186,8 +281,18 @@ export function CameraCapture({ kind, fileInputId, onCapture, onClose }: Props) 
                 {countdown}
               </div>
             ) : null}
-            {!ready ? (
-              <p className="absolute inset-0 flex items-center justify-center text-lg">{t('camera.starting')}</p>
+            {needsTap ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <button type="button" onClick={play} className={buttonClass.primary}>
+                  <Camera aria-hidden="true" className="size-5" />
+                  {t('camera.tapToStart')}
+                </button>
+              </div>
+            ) : !ready ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
+                <p className="text-lg">{t('camera.starting')}</p>
+                {inApp ? <p className="max-w-sm text-sm text-white/80">{t('camera.inApp')}</p> : null}
+              </div>
             ) : null}
           </>
         )}

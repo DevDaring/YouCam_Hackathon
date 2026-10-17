@@ -88,8 +88,8 @@ function options(layer: LayerName): LayerOptions {
     return {
       ...base,
       hair: [
-        { template_id: 'sleek', title: 'Sleek Middle Part', thumb: 'https://cdn.example/sleek.jpg', current: true },
-        { template_id: 'bob', title: 'Blunt Bob', thumb: 'https://cdn.example/bob.jpg', current: false },
+        { template_id: 'sleek', title: 'Sleek Middle Part', thumb: 'https://cdn.example/sleek.jpg', current: true, recommended: true, keeps_colour: true },
+        { template_id: 'bob', title: 'Blunt Bob', thumb: 'https://cdn.example/bob.jpg', current: false, recommended: false, keeps_colour: false },
       ],
     }
   }
@@ -251,7 +251,9 @@ describe('look studio editor', () => {
     const calls = mockApi()
     renderStudio()
     const { d } = await openEditor('hair')
-    expect(d.getByRole('radio', { name: 'Sleek Middle Part · Current' })).toHaveProperty('checked', true)
+    expect(d.getByRole('radio', { name: 'Sleek Middle Part · Recommended · Current' })).toHaveProperty('checked', true)
+    expect(d.getByText('Recommended styles sit close to the head and keep your own hair colour.')).toBeTruthy()
+    expect(d.getAllByText('Recommended', { exact: true })).toHaveLength(1)
     fireEvent.click(d.getByRole('radio', { name: 'Blunt Bob' }))
     fireEvent.click(d.getByRole('button', { name: 'Apply & re-render' }))
     await waitFor(() => expect(patches(calls)[0]).toEqual({ url: '/api/looks/L1/layers/hair', method: 'PATCH', body: { template_id: 'bob' } }))

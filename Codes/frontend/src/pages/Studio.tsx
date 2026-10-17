@@ -7,6 +7,7 @@ import { GoldRule } from '../components/Motifs'
 import { LayerEditor } from '../components/studio/LayerEditor'
 import { LookCard } from '../components/studio/LookCard'
 import { LookLightbox } from '../components/studio/LookLightbox'
+import { ShareSheet } from '../components/studio/ShareSheet'
 import { layerLabel, lookBusy, lookName, makeMoney, makeNumber, SLOTS } from '../components/studio/lookUtils'
 import { useLooks } from '../components/studio/useLooks'
 import { WearChooser } from '../components/studio/WearChooser'
@@ -68,6 +69,7 @@ function StudioReady({ session }: { session: SessionInfo }) {
   const [editing, setEditing] = useState<{ lookId: string; layer: LayerName } | null>(null)
   const [addingBack, setAddingBack] = useState<string | null>(null)
   const [enhancing, setEnhancing] = useState<string | null>(null)
+  const [sharingId, setSharingId] = useState<string | null>(null)
   const { toast, show: showToast } = useToast()
 
   const money = useMemo(() => makeMoney(session.currency, locale, session.country_code), [session.currency, session.country_code, locale])
@@ -85,6 +87,7 @@ function StudioReady({ session }: { session: SessionInfo }) {
   const showCards = phase === 'loading' || phase === 'starting' || (phase === 'ready' && hasLooks)
   const working = phase === 'starting' || active
   const editLook = editing ? payload?.looks.find((l) => l.id === editing.lookId) : undefined
+  const shareLook = sharingId ? payload?.looks.find((l) => l.id === sharingId) : undefined
 
   const toastFor = (layer: LayerName, body: LayerPatch) => {
     const name = layerLabel(t, layer)
@@ -199,6 +202,7 @@ function StudioReady({ session }: { session: SessionInfo }) {
                   onEnhance={(lookId, remove) => void enhance(lookId, remove)}
                   enhancing={enhancing === look?.id}
                   editsLeft={payload?.edits_left}
+                  onShare={setSharingId}
                 />
               )
             })}
@@ -316,6 +320,19 @@ function StudioReady({ session }: { session: SessionInfo }) {
           num={num}
           budget={session.budget_amount}
           onClose={() => setOpenId(null)}
+          onShare={() => setSharingId(openLook.id)}
+        />
+      ) : null}
+
+      {shareLook ? (
+        <ShareSheet
+          key={shareLook.id}
+          look={shareLook}
+          num={num}
+          eventName={t(`events.${session.event_type}`)}
+          dateLocale={`${locale}-${session.country_code}`}
+          deleteAfter={session.delete_after}
+          onClose={() => setSharingId(null)}
         />
       ) : null}
 

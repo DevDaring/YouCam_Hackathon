@@ -295,6 +295,10 @@ export interface HairOption {
   title: string
   thumb: string
   current: boolean
+  /** Neat, close-to-head style (the server lists these first). Absent on older servers. */
+  recommended?: boolean
+  /** The style keeps the shopper's own hair colour. Absent on older servers. */
+  keeps_colour?: boolean
 }
 
 export interface LayerOptions {
@@ -347,4 +351,21 @@ export function enhancePhoto(sessionId: string, kind: PhotoKind): Promise<PhotoI
 /** Puts the original photo back. */
 export function restorePhoto(sessionId: string, kind: PhotoKind): Promise<PhotoInfo> {
   return request<PhotoInfo>(`/api/sessions/${encodeURIComponent(sessionId)}/photos/${kind}/restore`, { method: 'POST' })
+}
+
+// ---------------------------------------------------------------- Share
+
+export interface ShareInfo {
+  /** Public page with an Open Graph preview of the look (e.g. https://…/s/{token}). */
+  url: string
+  /** Public JPEG of the look (the enhanced image when enhanced, else the latest render). */
+  image_url: string
+  title: string
+  text: string
+  expires_at: string | null
+}
+
+/** Creates (or returns the existing) public share link for a look. 409 "nothing_to_share" before any layer renders. */
+export function shareLook(lookId: string): Promise<ShareInfo> {
+  return request<ShareInfo>(`/api/looks/${encodeURIComponent(lookId)}/share`, { method: 'POST' })
 }

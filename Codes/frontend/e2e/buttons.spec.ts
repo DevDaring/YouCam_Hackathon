@@ -20,6 +20,11 @@ async function login(page: Page) {
   await expect(page).not.toHaveURL(/\/login/)
 }
 
+/** Phones open the native camera from "Take my photo"; the live camera with the guide is the extra action. */
+async function openLiveCamera(page: Page, isMobile: boolean) {
+  await page.getByRole('button', { name: isMobile ? 'Use live camera with guide' : 'Take my photo' }).click()
+}
+
 /** Creates a session through the real UI (demo family → consent → continue) and returns its id. */
 async function newSession(page: Page): Promise<string> {
   await page.goto('/')
@@ -260,11 +265,11 @@ test.describe('signed in', () => {
     await expect(page.getByText('Not set')).toHaveCount(0)
   })
 
-  test('camera: open, light check, timer, flip, close, escape, capture, retake', async ({ page }) => {
+  test('camera: open, light check, timer, flip, close, escape, capture, retake', async ({ page, isMobile }) => {
     await newSession(page)
     const dialog = page.getByRole('dialog', { name: 'Full-length photo' })
 
-    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await openLiveCamera(page, isMobile)
     await expect(dialog).toBeVisible()
     await expect(dialog.getByText(/Light ✓|Too dark|Too bright/)).toBeVisible()
     await dialog.getByRole('button', { name: /Self-timer: 3 seconds/ }).click()
@@ -275,13 +280,13 @@ test.describe('signed in', () => {
     await dialog.getByRole('button', { name: 'Close' }).click()
     await expect(dialog).toBeHidden()
 
-    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await openLiveCamera(page, isMobile)
     await expect(dialog).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
 
     // Self-timer path: 3-second countdown then capture.
-    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await openLiveCamera(page, isMobile)
     await expect(dialog.getByRole('button', { name: 'Take photo' })).toBeEnabled()
     await dialog.getByRole('button', { name: 'Take photo' }).click()
     await expect(page.getByRole('list', { name: 'Photo check' })).toBeVisible({ timeout: 20_000 })
@@ -290,6 +295,48 @@ test.describe('signed in', () => {
     await expect(page.getByRole('button', { name: /Continue anyway/ })).toBeVisible()
     await page.getByRole('button', { name: 'Retake' }).click()
     await expect(page.getByRole('button', { name: 'Take my photo' })).toBeVisible()
+  })
+
+  test('phone: "Take my photo" opens the native camera (capture), and the photo uploads as a camera shot', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'native camera capture is the phone flow')
+    // Record the "source" field of each photo upload (multipart bodies with files aren't exposed to the test).
+    await page.addInitScript(() => {
+      const w = window as unknown as { __sources: unknown[] }
+      w.__sources = []
+      const orig = window.fetch.bind(window)
+      window.fetch = (input, init) => {
+        if (init?.body instanceof FormData) w.__sources.push(init.body.get('source'))
+        return orig(input, init)
+      }
+    })
+    await newSession(page)
+    await expect(page.getByTestId('photo-camera-input')).toHaveAttribute('capture', 'environment')
+    await expect(page.getByTestId('photo-upload-input')).not.toHaveAttribute('capture', /.*/)
+    const chooser = page.waitForEvent('filechooser')
+    await page.getByRole('button', { name: 'Take my photo' }).click()
+    const fc = await chooser
+    expect(await fc.element().getAttribute('capture')).toBe('environment')
+    await expect(page.getByRole('dialog', { name: 'Full-length photo' })).toHaveCount(0) // no live camera
+    await fc.setFiles(PORTRAIT)
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __sources: unknown[] }).__sources)).toEqual(['camera'])
+    await expect(page.getByText('Face found')).toBeVisible({ timeout: 20_000 })
+    await page.getByRole('button', { name: /Use this photo/ }).click()
+
+    // Face close-up: front camera.
+    await expect(page.getByRole('heading', { name: 'A close-up of your face' })).toBeVisible()
+    await expect(page.getByTestId('photo-camera-input')).toHaveAttribute('capture', 'user')
+    const chooser2 = page.waitForEvent('filechooser')
+    await page.getByRole('button', { name: 'Take my photo' }).click()
+    expect(await (await chooser2).element().getAttribute('capture')).toBe('user')
+  })
+
+  test('desktop: no native capture input; "Take my photo" is the live camera', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'desktop flow')
+    await newSession(page)
+    await expect(page.getByTestId('photo-camera-input')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Use live camera with guide' })).toHaveCount(0)
+    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await expect(page.getByRole('dialog', { name: 'Full-length photo' })).toBeVisible()
   })
 
   test('upload: full photo, back, face photo, skip, studio buttons, footer links', async ({ page }) => {
@@ -339,7 +386,7 @@ test.describe('signed in', () => {
     await page.getByRole('link', { name: 'Back to event setup' }).click()
     await expect(page).toHaveURL(/\/start$/)
     await page.goto(`/photo/${sid}`)
-    await page.locator('input[type=file]').setInputFiles(PORTRAIT)
+    await page.getByTestId('photo-upload-input').setInputFiles(PORTRAIT)
     await page.getByRole('button', { name: /Use this photo/ }).click()
     await page.getByRole('button', { name: 'Skip for now' }).click()
     await expect(page.getByRole('heading', { name: 'Your look studio' })).toBeVisible()
@@ -349,7 +396,7 @@ test.describe('signed in', () => {
   test('look studio: auto-start, layers render, lightbox stepper, rebuild', async ({ page }) => {
     test.setTimeout(180_000)
     const sid = await newSession(page)
-    await page.locator('input[type=file]').setInputFiles(PORTRAIT)
+    await page.getByTestId('photo-upload-input').setInputFiles(PORTRAIT)
     await page.getByRole('button', { name: /Use this photo/ }).click()
     await page.getByRole('button', { name: 'Skip for now' }).click()
     await expect(page).toHaveURL(new RegExp(`/studio/${sid}$`))
@@ -403,7 +450,7 @@ test.describe('signed in', () => {
   test('look studio editor: swap necklace, lipstick shade, remove and add back', async ({ page }) => {
     test.setTimeout(240_000)
     const sid = await newSession(page)
-    await page.locator('input[type=file]').setInputFiles(PORTRAIT)
+    await page.getByTestId('photo-upload-input').setInputFiles(PORTRAIT)
     await page.getByRole('button', { name: /Use this photo/ }).click()
     await page.getByRole('button', { name: 'Skip for now' }).click()
     await expect(page).toHaveURL(new RegExp(`/studio/${sid}$`))
@@ -480,7 +527,7 @@ test.describe('signed in', () => {
   test('enhance: sharpen a photo, restore it, then enhance a finished look with before/after', async ({ page }) => {
     test.setTimeout(240_000)
     const sid = await newSession(page)
-    await page.locator('input[type=file]').setInputFiles(PORTRAIT)
+    await page.getByTestId('photo-upload-input').setInputFiles(PORTRAIT)
     await expect(page.getByText('Face found')).toBeVisible({ timeout: 20_000 })
 
     // Photo page: enhance → "Enhanced" with restore; restore → button is back; enhance again and keep it.
@@ -528,18 +575,93 @@ test.describe('signed in', () => {
     await expect(enhanceLook).toBeVisible()
   })
 
-  test('camera blocked: friendly message and upload instead', async ({ page }) => {
+  test('camera blocked: friendly message and upload instead', async ({ page, isMobile }) => {
     await page.addInitScript(() => {
       navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('blocked', 'NotAllowedError'))
     })
     await newSession(page)
-    await page.getByRole('button', { name: 'Take my photo' }).click()
+    await openLiveCamera(page, isMobile)
     const dialog = page.getByRole('dialog', { name: 'Full-length photo' })
     await expect(dialog.getByRole('alert')).toHaveText(/Camera access was blocked/)
+    await expect(dialog.getByText('Use phone camera', { exact: true })).toHaveCount(isMobile ? 1 : 0)
+    await expect(dialog.getByRole('button', { name: 'Try again' })).toBeVisible()
     const chooser = page.waitForEvent('filechooser')
     await dialog.getByText('Upload a photo', { exact: true }).click()
     await (await chooser).setFiles(PORTRAIT)
     await expect(dialog).toBeHidden()
     await expect(page.getByText('Face found')).toBeVisible({ timeout: 20_000 })
+  })
+  test('share: sheet with platform links, copy link, download, public /s/ page; also from the lightbox', async ({ page, context, isMobile }) => {
+    test.setTimeout(180_000)
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    const sid = await newSession(page)
+    await page.getByTestId('photo-upload-input').setInputFiles(PORTRAIT)
+    await page.getByRole('button', { name: /Use this photo/ }).click()
+    await page.getByRole('button', { name: 'Skip for now' }).click()
+    await expect(page).toHaveURL(new RegExp(`/studio/${sid}$`))
+
+    // The Share button appears once the look has its first rendered layer.
+    const shareBtn = page.getByRole('button', { name: 'Share Sindoor Dusk' })
+    await expect(shareBtn).toBeVisible({ timeout: 90_000 })
+    const created = page.waitForResponse((r) => r.request().method() === 'POST' && /\/api\/looks\/[^/]+\/share$/.test(r.url()))
+    await shareBtn.click()
+    expect((await created).status()).toBe(200)
+    const sheet = page.getByRole('dialog', { name: 'Share Sindoor Dusk' })
+    await expect(sheet).toBeVisible()
+
+    const link = sheet.getByLabel('Share link')
+    await expect(link).toHaveValue(/\/s\/[A-Za-z0-9_-]+$/)
+    const shareUrl = await link.inputValue()
+    const enc = encodeURIComponent(shareUrl)
+    await expect(sheet.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('href', new RegExp(`^https://wa\\.me/\\?text=.*${enc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`))
+    await expect(sheet.getByRole('link', { name: /Facebook/ })).toHaveAttribute('href', `https://www.facebook.com/sharer/sharer.php?u=${enc}`)
+    for (const name of ['X', 'Telegram', 'Pinterest', 'LinkedIn', 'Reddit']) {
+      await expect(sheet.getByRole('link', { name: new RegExp(`^${name}`) })).toHaveAttribute('href', new RegExp('%2Fs%2F'))
+    }
+    await expect(sheet.getByRole('link', { name: 'Email' })).toHaveAttribute('href', /^mailto:\?subject=.*%2Fs%2F/)
+    await expect(sheet.getByRole('link', { name: 'Text message' })).toHaveCount(isMobile ? 1 : 0)
+    await expect(sheet.getByText(/Anyone with the link can see this look image until your photos are deleted/)).toBeVisible()
+
+    // The picture is public and a JPEG; the download link names it per look.
+    const img = sheet.getByRole('img', { name: 'Sindoor Dusk look, ready to share' })
+    await expect(img).toBeVisible()
+    const imgSrc = (await img.getAttribute('src'))!
+    const imgRes = await page.request.get(imgSrc)
+    expect(imgRes.status()).toBe(200)
+    expect(imgRes.headers()['content-type']).toContain('image/jpeg')
+    await expect(sheet.getByRole('link', { name: 'Download image' })).toHaveAttribute('download', 'dearyou-look-1.jpg')
+
+    // The public page (server-rendered) has an Open Graph image.
+    const pageRes = await page.request.get(new URL(shareUrl).pathname)
+    expect(pageRes.status()).toBe(200)
+    expect(await pageRes.text()).toContain('og:image')
+
+    // Copy link → "Copied ✓"; Instagram on desktop saves the image with instructions.
+    await sheet.getByRole('button', { name: 'Copy link' }).click()
+    await expect(sheet.getByRole('button', { name: 'Copied ✓' })).toBeVisible()
+    if (!isMobile) {
+      const download = page.waitForEvent('download')
+      await sheet.getByRole('button', { name: 'Instagram' }).click()
+      expect((await download).suggestedFilename()).toBe('dearyou-look-1.jpg')
+      await expect(sheet.getByText('Image saved — open Instagram and post it from your gallery.')).toBeVisible()
+    }
+
+    // Same URL again (idempotent); Escape closes.
+    await page.keyboard.press('Escape')
+    await expect(sheet).toBeHidden()
+    await shareBtn.click()
+    await expect(sheet.getByLabel('Share link')).toHaveValue(shareUrl)
+    await sheet.getByRole('button', { name: 'Close' }).click()
+    await expect(sheet).toBeHidden()
+
+    // From the lightbox: the sheet opens on top; closing it returns to the lightbox.
+    await page.getByRole('button', { name: 'Open Sindoor Dusk layer by layer' }).click()
+    const lightbox = page.getByRole('dialog', { name: 'Sindoor Dusk' })
+    await lightbox.getByRole('button', { name: 'Share Sindoor Dusk' }).click()
+    await expect(sheet).toBeVisible()
+    await expect(sheet.getByLabel('Share link')).toHaveValue(shareUrl)
+    await page.keyboard.press('Escape')
+    await expect(sheet).toBeHidden()
+    await expect(lightbox).toBeVisible()
   })
 })
