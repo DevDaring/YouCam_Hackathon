@@ -319,3 +319,63 @@ async def test_share_requires_a_rendered_layer(client, db, tmp_path, monkeypatch
     monkeypatch.setattr(render, "start", lambda *a, **k: None)  # nothing renders
     look = (await client.post(f"/api/sessions/{sid}/looks", json={})).json()["looks"][0]
     assert (await client.post(f"/api/looks/{look['id']}/share")).json()["detail"] == "nothing_to_share"
+
+
+FIX = Path(__file__).parent / "fixtures"
+
+
+async def _couple_session(client, db, tmp_path):
+    await seed_items(db, tmp_path)
+    await auth.seed_demo_user(db)
+    auth.limiter.reset("127.0.0.1")
+    await client.post("/api/auth/login", json={"username": "TestUser", "password": "TestUser11"})
+    sid = (await client.post("/api/sessions", json=SESSION)).json()["id"]
+    r = await client.post(f"/api/sessions/{sid}/photos", data={"kind": "full"}, files={"file": ("c.jpg", (FIX / "couple_ai.jpg").read_bytes(), "image/jpeg")})
+    return sid, r.json()
+
+
+async def test_group_photo_needs_a_chosen_person(client, db, tmp_path):
+    sid, full = await _couple_session(client, db, tmp_path)
+    assert len(full["people"]) == 2 and full["target"] is None
+    assert (await client.get(full["people"][0]["thumb_url"])).headers["content-type"] == "image/jpeg"
+    r = await client.post(f"/api/sessions/{sid}/looks", json={})
+    assert r.status_code == 422 and r.json()["detail"] == "person_required"
+
+
+async def test_face_closeup_picks_the_bride_and_only_she_is_dressed(client, db, tmp_path):
+    import numpy as np
+    sid, full = await _couple_session(client, db, tmp_path)
+    await client.post(f"/api/sessions/{sid}/photos", data={"kind": "face"}, files={"file": ("f.jpg", (FIX / "bride_close_ai.jpg").read_bytes(), "image/jpeg")})
+    full = next(p for p in (await client.get(f"/api/sessions/{sid}")).json()["photos"] if p["kind"] == "full")
+    assert (full["target"], full["target_source"]) == (0, "match")  # bride stands on the left
+    await client.post(f"/api/sessions/{sid}/looks", json={})
+    await wait_renders()
+    look = (await client.get(f"/api/sessions/{sid}/looks")).json()["looks"][0]
+    assert look["layers_done"] == 5
+    before = np.asarray(Image.open(io.BytesIO((await client.get(full["url"])).content)).convert("RGB")).astype(int)
+    after = np.asarray(Image.open(io.BytesIO((await client.get(look["image_url"])).content)).convert("RGB").resize((before.shape[1], before.shape[0]))).astype(int)
+    groom = full["people"][1]
+    gx0, gx1 = groom["x"] - groom["w"], groom["x"] + 2 * groom["w"]
+    bride = full["people"][0]
+    bx0, bx1 = bride["x"], bride["x"] + bride["w"]
+    groom_change = np.abs(after[:, gx0:gx1] - before[:, gx0:gx1]).mean()
+    bride_change = np.abs(after[:, bx0:bx1] - before[:, bx0:bx1]).mean()
+    assert groom_change < 2.0, groom_change   # the other person is untouched (JPEG noise only)
+    assert bride_change > 5.0, bride_change    # the bride is the one who changed
+
+
+async def test_users_tap_wins_over_auto_match(client, db, tmp_path):
+    sid, full = await _couple_session(client, db, tmp_path)
+    r = await client.post(f"/api/sessions/{sid}/photos/full/target", json={"index": 1})
+    assert (r.json()["target"], r.json()["target_source"]) == (1, "user")
+    await client.post(f"/api/sessions/{sid}/photos", data={"kind": "face"}, files={"file": ("f.jpg", (FIX / "bride_close_ai.jpg").read_bytes(), "image/jpeg")})
+    full = next(p for p in (await client.get(f"/api/sessions/{sid}")).json()["photos"] if p["kind"] == "full")
+    assert (full["target"], full["target_source"]) == (1, "user")
+    assert (await client.post(f"/api/sessions/{sid}/photos/full/target", json={"index": 7})).status_code == 422
+
+
+async def test_single_person_photo_has_no_picker(client, db, tmp_path):
+    await seed_items(db, tmp_path)
+    sid = await login_and_session(client, db)
+    full = (await client.get(f"/api/sessions/{sid}")).json()["photos"][0]
+    assert full["people"] == [] and full["target"] is None

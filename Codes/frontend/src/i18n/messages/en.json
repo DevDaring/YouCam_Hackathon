@@ -607,5 +607,25 @@
         "copy": "Couldn't copy automatically — select the link above and copy it."
       }
     }
+  },
+  "people": {
+    "title": "We found {{count}} people in this photo. Who should we dress?",
+    "helper": "Only the person you choose gets the outfit, jewellery, makeup and hair — everyone else stays exactly as they are.",
+    "person": "Person {{n}}",
+    "matched": "Matched to your face close-up ✓",
+    "tip": "Tip: add a face close-up next and we'll pick you automatically — or tap your face now.",
+    "saving": "Saving your choice…",
+    "error": "We couldn't save your choice. Please try again.",
+    "faceMatched": "We matched you in the group photo ✓",
+    "notYou": "Not you? Choose",
+    "noMatch": "We couldn't tell who you are in the group photo — tap your face",
+    "youChose": "We'll dress the person you chose ✓",
+    "change": "Change",
+    "choose": "Choose",
+    "done": "Done",
+    "dressing": "Dressing:",
+    "notChosen": "Not chosen yet",
+    "rebuildNote": "You changed who we dress. Rebuild looks to apply.",
+    "startAfter": "Your three looks start as soon as you choose."
   }
 }

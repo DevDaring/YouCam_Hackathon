@@ -134,6 +134,23 @@ export interface PhotoInfo {
   /** True when the shown photo is the sharpened version (the original is kept). */
   enhanced?: boolean
   enhanced_by?: EnhancedBy | null
+  /** People found in a group photo (full photo only; empty unless 2+ people). */
+  people?: Person[]
+  /** Index of the person being dressed (null until matched or chosen). */
+  target?: number | null
+  /** "match" = picked from the face close-up; "user" = tapped by the shopper (always wins). */
+  target_source?: 'match' | 'user' | null
+}
+
+/** One person in a group photo; `thumb_url` is a JPEG crop of their face. */
+export interface Person {
+  index: number
+  x: number
+  y: number
+  w: number
+  h: number
+  score: number
+  thumb_url: string
 }
 
 export type EnhancedBy = 'youcam' | 'nanogpt' | 'mock'
@@ -184,6 +201,16 @@ export function uploadPhoto(sessionId: string, kind: PhotoKind, file: Blob, sour
   form.append('source', source)
   form.append('file', file, source === 'camera' ? `${kind}.jpg` : (file as File).name || `${kind}.jpg`)
   return request<PhotoInfo>(`/api/sessions/${encodeURIComponent(sessionId)}/photos`, { method: 'POST', body: form })
+}
+
+/** Chooses who gets dressed in a group (full) photo. 422 "invalid_person". */
+export function choosePerson(sessionId: string, index: number): Promise<PhotoInfo> {
+  return request<PhotoInfo>(`/api/sessions/${encodeURIComponent(sessionId)}/photos/full/target`, { method: 'POST', body: JSON.stringify({ index }) })
+}
+
+/** True when the photo shows 2+ people, so someone has to be chosen. */
+export function isGroupPhoto(p: PhotoInfo | undefined | null): p is PhotoInfo & { people: Person[] } {
+  return (p?.people?.length ?? 0) >= 2
 }
 
 // ---------------------------------------------------------------- Look Studio

@@ -103,8 +103,12 @@ async def start_looks(sid: uuid.UUID, body: StartIn, user: User = Depends(curren
     wear = wear_for(s)
     if wear is None:
         raise HTTPException(422, "wear_required")
-    if (await db.execute(select(Photo).where(Photo.session_id == s.id, Photo.kind == "full"))).scalar_one_or_none() is None:
+    full = (await db.execute(select(Photo).where(Photo.session_id == s.id, Photo.kind == "full"))).scalar_one_or_none()
+    if full is None:
         raise HTTPException(422, "photo_required")
+    q = full.quality_json or {}
+    if len(q.get("people") or []) >= 2 and q.get("target") is None:
+        raise HTTPException(422, "person_required")  # never guess who gets dressed in a group photo
     latest = (await db.execute(select(func.max(Look.round)).where(Look.session_id == s.id))).scalar() or 0
     if latest and not body.replan:
         await db.commit()

@@ -7,7 +7,8 @@ export const POLL_MS = 3000
 const STALL_POLLS = 20
 const EVENT_TTL_MS = 3200
 
-export type LooksPhase = 'loading' | 'choose' | 'starting' | 'ready' | 'error'
+/** 'person' = group photo and nobody chosen yet (422 person_required): ask who to dress. */
+export type LooksPhase = 'loading' | 'choose' | 'person' | 'starting' | 'ready' | 'error'
 
 /** A layer that just finished (or failed) since the previous payload. */
 export interface LayerEvent {
@@ -40,6 +41,8 @@ export function useLooks(sessionId: string | null) {
   const [finished, setFinished] = useState(0) // bumps when a render run goes idle (for announcements)
 
   const startedFor = useRef<string | null>(null)
+  /** The last start request, replayed once the shopper has chosen who to dress. */
+  const lastStart = useRef<{ wear?: Wear; replan?: boolean }>({})
   const seen = useRef<Map<string, string> | null>(null) // `${lookId}:${layer}` → status
   const eventId = useRef(0)
   const idleStreak = useRef(0)
@@ -89,6 +92,7 @@ export function useLooks(sessionId: string | null) {
   const start = useCallback(
     async (body: { wear?: Wear; replan?: boolean }) => {
       if (!sessionId) return
+      lastStart.current = body
       setNotice(null)
       if (body.replan) setBusy('replan')
       else {
@@ -102,7 +106,8 @@ export function useLooks(sessionId: string | null) {
         setError(null)
       } catch (err) {
         const code = errorCode(err)
-        if (body.replan) setNotice(code)
+        if (code === 'person_required') setPhase('person')
+        else if (body.replan) setNotice(code)
         else if (code === 'wear_required') setPhase('choose')
         else {
           setError(code)
@@ -183,6 +188,8 @@ export function useLooks(sessionId: string | null) {
 
   const chooseWear = useCallback((wear: Wear) => void start({ wear }), [start])
   const replan = useCallback(() => void start({ replan: true }), [start])
+  /** After the person is chosen: run the request that was waiting for it (first round or rebuild). */
+  const resume = useCallback(() => void start(lastStart.current), [start])
 
   const retry = useCallback(
     async (lookId: string) => {
@@ -249,5 +256,5 @@ export function useLooks(sessionId: string | null) {
     setNonce((n) => n + 1)
   }, [])
 
-  return { payload, phase, error, notice, busy, events, active, finished, chooseWear, replan, retry, edit, enhance, reload }
+  return { payload, phase, error, notice, busy, events, active, finished, chooseWear, replan, resume, retry, edit, enhance, reload }
 }

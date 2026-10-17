@@ -24,6 +24,7 @@ from app.enhance import EnhanceError, enhance
 from app.images import MAX_BYTES, ImageRejected, normalise
 from app.ledger import ledger
 from app.youcam.client import YouCamError
+from app.integrity import people as people_mod
 from app.integrity.quality import assess
 from app.models import Photo, Session, User
 from app.regions import load_regions
@@ -56,6 +57,9 @@ class PhotoOut(BaseModel):
     url: str
     enhanced: bool = False
     enhanced_by: str | None = None
+    people: list[dict] = []          # 2+ entries only for multi-person photos (full photo)
+    target: int | None = None        # index of the person being dressed
+    target_source: str | None = None  # match (face close-up) | user (tapped)
 
 
 class SessionOut(BaseModel):
@@ -73,7 +77,12 @@ class SessionOut(BaseModel):
 
 
 def _photo_out(session_id: uuid.UUID, p: Photo) -> PhotoOut:
-    return PhotoOut(kind=p.kind, width=p.width, height=p.height, quality=p.quality_json,
+    q = dict(p.quality_json or {})
+    ppl = q.pop("people", None) or []
+    return PhotoOut(kind=p.kind, width=p.width, height=p.height, quality=q,
+                    people=[{"index": i, **people_mod.public([x])[0], "thumb_url": f"/api/sessions/{session_id}/photos/{p.kind}/people/{i}?v={p.hash[:8]}"}
+                            for i, x in enumerate(ppl)] if len(ppl) >= 2 else [],
+                    target=q.get("target") if len(ppl) >= 2 else None, target_source=q.get("target_source") if len(ppl) >= 2 else None,
                     url=f"/api/sessions/{session_id}/photos/{p.kind}?v={p.hash[:12]}",
                     enhanced=p.original_path is not None, enhanced_by=p.enhanced_by)
 
@@ -160,10 +169,17 @@ async def upload_photo(
     for p in old:
         storage.remove(p.storage_path)
     await db.execute(delete(Photo).where(Photo.session_id == s.id, Photo.kind == kind))
-    photo = Photo(session_id=s.id, kind=kind, storage_path=path, hash=digest, width=img.width, height=img.height,
-                  quality_json={**report.to_dict(), "source": source if source in ("camera", "upload") else "upload"})
+    q = {**report.to_dict(), "source": source if source in ("camera", "upload") else "upload"}
+    if kind == "full":
+        ppl = await asyncio.to_thread(_detect, img)
+        if len(ppl) >= 2:
+            q.update(people=ppl, target=None, target_source=None)
+    photo = Photo(session_id=s.id, kind=kind, storage_path=path, hash=digest, width=img.width, height=img.height, quality_json=q)
     db.add(photo)
     await db.commit()
+    await _auto_match(db, s)
+    if kind == "face":  # the response the page needs next is the full photo's choice, but keep the API shape
+        await db.refresh(photo)
     return _photo_out(s.id, photo)
 
 
@@ -207,7 +223,8 @@ async def enhance_photo(session_id: uuid.UUID, kind: str, user: User = Depends(c
         storage.remove(p.storage_path)
     p.storage_path = storage.save(f"sessions/{s.id}/{kind}-enhanced-{digest[:16]}.jpg", data)
     p.hash, p.width, p.height, p.enhanced_by = digest, img.width, img.height, provider
-    p.quality_json = {**report.to_dict(), "source": (p.quality_json or {}).get("source", "upload"), "enhanced": True}
+    keep = {k: v for k, v in (p.quality_json or {}).items() if k in ("people", "target", "target_source", "match_scores")}
+    p.quality_json = {**report.to_dict(), **keep, "source": (p.quality_json or {}).get("source", "upload"), "enhanced": True}
     await db.commit()
     return _photo_out(s.id, p)
 
@@ -224,6 +241,66 @@ async def restore_photo(session_id: uuid.UUID, kind: str, user: User = Depends(c
     report = await asyncio.to_thread(assess, np.asarray(img), kind)
     p.storage_path, p.original_path, p.enhanced_by = p.original_path, None, None
     p.hash, p.width, p.height = hashlib.sha256(data).hexdigest(), img.width, img.height
-    p.quality_json = {**report.to_dict(), "source": (p.quality_json or {}).get("source", "upload")}
+    keep = {k: v for k, v in (p.quality_json or {}).items() if k in ("people", "target", "target_source", "match_scores")}
+    p.quality_json = {**report.to_dict(), **keep, "source": (p.quality_json or {}).get("source", "upload")}
     await db.commit()
     return _photo_out(s.id, p)
+
+
+# ---------------------------------------------------------------- multi-person photos
+
+def _detect(img: Image.Image) -> list[dict]:
+    return people_mod.detect_people(np.asarray(img)) if people_mod.available() else []
+
+
+async def _auto_match(db: AsyncSession, s: Session) -> None:
+    """If the full photo has 2+ people and a face close-up exists, pick the matching person
+    (unless the user already chose by tapping)."""
+    full = (await db.execute(select(Photo).where(Photo.session_id == s.id, Photo.kind == "full"))).scalar_one_or_none()
+    face = (await db.execute(select(Photo).where(Photo.session_id == s.id, Photo.kind == "face"))).scalar_one_or_none()
+    if full is None or face is None:
+        return
+    q = dict(full.quality_json or {})
+    ppl = q.get("people") or []
+    if len(ppl) < 2 or q.get("target_source") == "user":
+        return
+    full_rgb = np.asarray(_decode(storage.read(full.storage_path)))
+    face_rgb = np.asarray(_decode(storage.read(face.storage_path)))
+    idx, scores = await asyncio.to_thread(people_mod.match, face_rgb, full_rgb, ppl)
+    q.update(target=idx, target_source="match" if idx is not None else None, match_scores=scores)
+    full.quality_json = q
+    await db.commit()
+
+
+class TargetIn(BaseModel):
+    index: int = Field(ge=0)
+
+
+@router.post("/{session_id}/photos/full/target", response_model=PhotoOut)
+async def choose_person(session_id: uuid.UUID, body: TargetIn, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)) -> PhotoOut:
+    s = await _owned(db, session_id, user)
+    p = await _photo(db, s, "full")
+    q = dict(p.quality_json or {})
+    if body.index >= len(q.get("people") or []):
+        raise HTTPException(422, "invalid_person")
+    q.update(target=body.index, target_source="user")
+    p.quality_json = q
+    await db.commit()
+    return _photo_out(s.id, p)
+
+
+@router.get("/{session_id}/photos/{kind}/people/{index}")
+async def person_thumb(session_id: uuid.UUID, kind: str, index: int, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)) -> Response:
+    s = await _owned(db, session_id, user)
+    p = await _photo(db, s, kind)
+    ppl = (p.quality_json or {}).get("people") or []
+    if not 0 <= index < len(ppl):
+        raise HTTPException(404, "no such person")
+    f = ppl[index]
+    img = _decode(storage.read(p.storage_path))
+    pad = int(max(f["w"], f["h"]) * 0.6)
+    crop = img.crop((max(0, f["x"] - pad), max(0, f["y"] - pad), min(img.width, f["x"] + f["w"] + pad), min(img.height, f["y"] + f["h"] + pad)))
+    crop.thumbnail((256, 256))
+    buf = io.BytesIO()
+    crop.save(buf, "JPEG", quality=88)
+    return Response(buf.getvalue(), media_type="image/jpeg", headers={"Cache-Control": "private, max-age=3600"})

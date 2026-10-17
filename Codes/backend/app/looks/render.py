@@ -34,18 +34,33 @@ def _open(data: bytes) -> Image.Image:
     return ImageOps.exif_transpose(Image.open(io.BytesIO(data))).convert("RGB")
 
 
-async def _render_layer(db, layer: LookLayer, current: Image.Image, session_id: uuid.UUID) -> tuple[Image.Image, int]:
+def target_for(photo: Photo, image_size: tuple[int, int]) -> compose.Target | None:
+    """Multi-person photos: the chosen person (by face match or the user's tap). None = single person."""
+    q = photo.quality_json or {}
+    people_, idx = q.get("people") or [], q.get("target")
+    if len(people_) < 2 or idx is None or not 0 <= idx < len(people_):
+        return None
+    from app.integrity.people import band
+    return compose.Target(face=people_[idx], band=band(people_, idx, image_size[0]))
+
+
+async def _render_layer(db, layer: LookLayer, current: Image.Image, session_id: uuid.UUID,
+                        target: compose.Target | None = None) -> tuple[Image.Image, int]:
     item = await db.get(CatalogueItem, layer.item_id) if layer.item_id else None
     ref = image_path(item).read_bytes() if item and image_path(item) else None
     async with YOUCAM_SLOTS:
         if layer.layer == "outfit":
             if ref is None:
                 raise ValueError("catalogue image missing")
-            src = compose.to_jpeg(current)
             gc = (item.youcam_params or {}).get("garment_category", "full_body")
+            if target is not None:  # dress only the chosen person: YouCam sees just their strip
+                sent, crop = compose.prepare(current, "outfit", target)
+                r = await service.try_on_cloth(db, sent, ref, gc, session_id=session_id)
+                return compose.blend_back(current, storage.read(r.image_path), crop), r.units
+            src = compose.to_jpeg(current)
             r = await service.try_on_cloth(db, src, ref, gc, session_id=session_id)
             return _open(storage.read(r.image_path)), r.units
-        sent, crop = compose.prepare(current, layer.layer)
+        sent, crop = compose.prepare(current, layer.layer, target)
         if layer.layer == "necklace":
             r = await service.try_on_necklace(db, sent, ref, NECKLACE_PARAMS, session_id=session_id)
         elif layer.layer == "earrings":
@@ -72,6 +87,7 @@ async def render_look(look_id: uuid.UUID, from_position: int = 0) -> None:
             return
         # Resume from the last good layer before from_position.
         current = _open(storage.read(base.storage_path))
+        target = target_for(base, current.size)
         for l in layers:
             if l.position < from_position and l.status == "done" and l.render_path:
                 current = _open(storage.read(l.render_path))
@@ -86,7 +102,7 @@ async def render_look(look_id: uuid.UUID, from_position: int = 0) -> None:
             layer.status, layer.error = "rendering", None
             await db.commit()
             try:
-                current, units = await _render_layer(db, layer, current, look.session_id)
+                current, units = await _render_layer(db, layer, current, look.session_id, target)
                 path = storage.save(f"sessions/{look.session_id}/looks/{look.id}/{layer.position}-{layer.layer}.jpg", compose.to_jpeg(current))
                 layer.render_path, layer.status, layer.units_spent = path, "done", layer.units_spent + units
             except ledger.BudgetExceeded:

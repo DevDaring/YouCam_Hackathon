@@ -145,3 +145,22 @@ The two accounts are `YouCam_Phd_API_KEY` and `YouCam_Phd_API_KEY2`. On Oct 11 t
   - Copy link and Download image.
   - Brand logos are not used, per spec rule 7.
 - **Caddy:** routes `/s/*` to the API.
+
+## D-014 · Group photos: dress only the chosen person (owner report, Oct 17 2026)
+**The bug.** The owner's wife chose a bridal outfit using a photo of the two of them, and the outfit appeared on the husband. YouCam Clothes VTO with `filter_multi_person=off` dresses "the largest person in the image" (official docs).
+
+**The fix.** It applies only when a photo has 2 or more faces.
+- **Finding people:** OpenCV YuNet finds every face. Both models run locally on the server, are Apache-2.0 licensed, and cost nothing per use.
+- **Matching:** OpenCV SFace compares the face close-up with each face. The match is accepted only if the cosine score is at least 0.363 and beats the runner-up by 0.12 or more; otherwise the user is asked to tap.
+- **The user's tap** always wins over the automatic match.
+- **Studio guard:** Studio refuses to start a group photo until a person is chosen (`person_required`). It never guesses.
+- **Rendering:** every layer is rendered only on the chosen person.
+  - YouCam receives a vertical strip containing just that person, split halfway between neighbouring faces; face layers use a crop clamped to the same strip.
+  - The result is blended back with feathering only on the strip's inner edges.
+  - Other people are pixel-for-pixel unchanged. This is checked by a test, and the live YouCam run measured a mean difference of 0.0 on the groom's side.
+
+**Why not a vision chat model?** A face-embedding comparison is cheaper, more accurate and keeps faces on our own server. The owner had said any model could be used; this local one was the best fit.
+
+**Limitation.** When people overlap heavily, for example hugging, the strip can include part of the other person. YouCam still dresses the largest person within the strip, which is almost always the chosen one because the strip is centred on them.
+
+**Older photos.** `scripts/backfill_people.py` detects people in photos uploaded before this fix.

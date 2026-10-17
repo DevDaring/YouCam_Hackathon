@@ -12,3 +12,4 @@ scripts/probe/inputs/
 .DS_Store
 frontend/test-results/
 frontend/playwright-report/
+backend/app/integrity/models/*.onnx

@@ -5,9 +5,11 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { GoldRule } from '../components/Motifs'
 import { ProgressDots } from '../components/ProgressDots'
 import { CameraCapture } from '../components/photo/CameraCapture'
+import { PersonPicker, PersonThumb } from '../components/photo/PersonPicker'
+import { usePersonTarget } from '../components/photo/usePersonTarget'
 import { buttonClass, cardClass } from '../components/ui'
 import { enhancerName } from '../components/studio/lookUtils'
-import { ApiError, enhancePhoto, getSession, restorePhoto, uploadPhoto, type PhotoInfo, type PhotoKind, type QualityCheck } from '../lib/api'
+import { ApiError, enhancePhoto, getSession, isGroupPhoto, restorePhoto, uploadPhoto, type PhotoInfo, type PhotoKind, type QualityCheck } from '../lib/api'
 import { IMAGE_RETENTION_HOURS } from '../lib/config'
 import { isInAppBrowser, isMobileDevice } from '../lib/device'
 import { prepareUpload } from '../lib/image'
@@ -37,6 +39,11 @@ export default function Photo() {
   const [error, setError] = useState<string | null>(null)
   /** 'enhance' while sharpening (can take up to about a minute), 'restore' while putting the original back. */
   const [improving, setImproving] = useState<'enhance' | 'restore' | null>(null)
+  /** Face stage, group photo: picker shown because there was no confident match, or reopened via "Not you?". */
+  const [picker, setPicker] = useState<'nomatch' | 'choose' | null>(null)
+  const setFull = useCallback((p: PhotoInfo) => setPhotos((ps) => ({ ...ps, full: p })), [])
+  const person = usePersonTarget(sessionId, photos.full, setFull)
+  const groupFull = isGroupPhoto(photos.full)
 
   useEffect(() => {
     const ctrl = new AbortController()
@@ -64,6 +71,17 @@ export default function Photo() {
         const prepared = await prepareUpload(blob)
         const info = await uploadPhoto(sessionId, stage, prepared, source)
         setPhotos((p) => ({ ...p, [stage]: info }))
+        setPicker(null)
+        if (stage === 'face' && groupFull) {
+          // The close-up just ran the face match on the server: read the group photo's choice back.
+          try {
+            const s = await getSession(sessionId)
+            const full = s.photos.find((p) => p.kind === 'full')
+            if (full) setFull(full)
+          } catch {
+            /* keep what we have; the studio asks again if needed */
+          }
+        }
       } catch (err) {
         const code = err instanceof ApiError ? err.detail : ''
         setError(['too_large', 'not_image', 'unsupported_format', 'too_small'].includes(code) ? t(`photo.errors.${code}`) : t('photo.errors.generic'))
@@ -71,7 +89,7 @@ export default function Photo() {
         setUploading(false)
       }
     },
-    [sessionId, stage, t],
+    [sessionId, stage, t, groupFull, setFull],
   )
 
   const improve = async (mode: 'enhance' | 'restore') => {
@@ -124,7 +142,9 @@ export default function Photo() {
   }
 
   const current = photos[stage]
-  const checks = current?.quality?.checks ?? []
+  /** Group photo on the full stage: the picker below explains it, so drop the "only you" warning. */
+  const groupHere = stage === 'full' && isGroupPhoto(current)
+  const checks = (current?.quality?.checks ?? []).filter((c) => !(groupHere && c.key === 'face'))
   const hardFail = current?.quality ? !current.quality.ok : false
   /** Soft or dark photo: suggest enhancing prominently. */
   const soft = checks.some((c) => (c.key === 'sharp' || c.key === 'light') && c.status !== 'pass')
@@ -171,6 +191,41 @@ export default function Photo() {
               <img src={current.url} alt={t(`photo.previewAlt.${stage}`)} className="mx-auto max-h-[60vh] w-auto object-contain" />
             </div>
             <QualityChips checks={checks} kind={stage} />
+            {stage === 'full' && isGroupPhoto(current) ? (
+              <PersonPicker
+                people={current.people}
+                selected={current.target ?? null}
+                onChoose={(i) => void person.choose(i)}
+                saving={person.saving}
+                failed={person.failed}
+                note={
+                  current.target_source === 'match' && current.target != null ? (
+                    <p className="flex items-center gap-1.5 text-sm font-semibold text-success">
+                      <CheckCircle2 aria-hidden="true" className="size-4 shrink-0" />
+                      {t('people.matched')}
+                    </p>
+                  ) : current.target == null ? (
+                    <p className="flex items-start gap-1.5 text-sm text-muted">
+                      <ScanFace aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-heading" />
+                      {t('people.tip')}
+                    </p>
+                  ) : null
+                }
+              />
+            ) : null}
+            {stage === 'face' && isGroupPhoto(photos.full) ? (
+              <FaceMatch
+                full={photos.full}
+                picker={picker ?? (photos.full.target == null ? 'nomatch' : null)}
+                onOpen={() => setPicker('choose')}
+                onChoose={(i) => {
+                  setPicker((m) => m ?? 'nomatch') // keep the picker open after a tap
+                  void person.choose(i)
+                }}
+                saving={person.saving}
+                failed={person.failed}
+              />
+            ) : null}
             {current.enhanced ? (
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-surface-raised px-4 py-2">
                 <p className="flex items-center gap-1.5 text-sm font-semibold text-success">
@@ -281,6 +336,50 @@ export default function Photo() {
           nativeCameraInputId={mobile ? cameraInputId : undefined}
           onCapture={(b) => void send(b, 'camera')} onClose={() => setCameraOpen(false)} />
       ) : null}
+    </div>
+  )
+}
+
+/** Face stage of a group photo: "we matched you ✓" (with "Not you?"), or the picker when unsure. */
+function FaceMatch({
+  full,
+  picker,
+  onOpen,
+  onChoose,
+  saving,
+  failed,
+}: {
+  full: PhotoInfo & { people: NonNullable<PhotoInfo['people']> }
+  picker: 'nomatch' | 'choose' | null
+  onOpen: () => void
+  onChoose: (index: number) => void
+  saving: boolean
+  failed: boolean
+}) {
+  const { t } = useTranslation()
+  const chosen = full.target != null ? full.people.find((p) => p.index === full.target) : undefined
+  if (picker || !chosen) {
+    return (
+      <PersonPicker
+        people={full.people}
+        selected={full.target ?? null}
+        onChoose={onChoose}
+        title={picker === 'choose' ? undefined : t('people.noMatch')}
+        saving={saving}
+        failed={failed}
+      />
+    )
+  }
+  const matched = full.target_source === 'match'
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border-2 border-rule/60 bg-accent-soft/40 p-3" data-testid="person-summary">
+      <PersonThumb person={chosen} size="size-14" />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-success">{matched ? t('people.faceMatched') : t('people.youChose')}</p>
+        <button type="button" onClick={onOpen} className="inline-flex min-h-11 items-center text-sm font-semibold text-heading underline underline-offset-4">
+          {matched ? t('people.notYou') : t('people.change')}
+        </button>
+      </div>
     </div>
   )
 }

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { GoldRule } from '../components/Motifs'
+import { PersonPicker, PersonThumb } from '../components/photo/PersonPicker'
+import { usePersonTarget } from '../components/photo/usePersonTarget'
 import { LayerEditor } from '../components/studio/LayerEditor'
 import { LookCard } from '../components/studio/LookCard'
 import { LookLightbox } from '../components/studio/LookLightbox'
@@ -12,7 +14,7 @@ import { layerLabel, lookBusy, lookName, makeMoney, makeNumber, SLOTS } from '..
 import { useLooks } from '../components/studio/useLooks'
 import { WearChooser } from '../components/studio/WearChooser'
 import { buttonClass, cardClass } from '../components/ui'
-import { ApiError, getLatestSession, getSession, type LayerName, type LayerPatch, type SessionInfo } from '../lib/api'
+import { ApiError, getLatestSession, getSession, isGroupPhoto, type LayerName, type LayerPatch, type PhotoInfo, type SessionInfo } from '../lib/api'
 import { countryName, flagEmoji, formatEventDate } from '../lib/format'
 import { useRegion } from '../lib/region'
 
@@ -71,11 +73,18 @@ function StudioReady({ session }: { session: SessionInfo }) {
   const [enhancing, setEnhancing] = useState<string | null>(null)
   const [sharingId, setSharingId] = useState<string | null>(null)
   const { toast, show: showToast } = useToast()
+  const reduce = useReducedMotion() ?? false
+  const rebuildRef = useRef<HTMLDivElement>(null)
+  /** The full photo can change here (who gets dressed in a group photo). */
+  const [full, setFull] = useState<PhotoInfo | undefined>(() => session.photos.find((p) => p.kind === 'full'))
+  const person = usePersonTarget(session.id, full, setFull)
+  const [changingPerson, setChangingPerson] = useState(false)
+  /** Person changed after looks exist: the current looks still dress the previous choice. */
+  const [needsRebuild, setNeedsRebuild] = useState(false)
 
   const money = useMemo(() => makeMoney(session.currency, locale, session.country_code), [session.currency, session.country_code, locale])
   const num = useMemo(() => makeNumber(locale, session.country_code), [locale, session.country_code])
 
-  const full = session.photos.find((p) => p.kind === 'full')
   const face = session.photos.find((p) => p.kind === 'face')
   const budgetText = money(session.budget_amount)
   const deleteOn = session.delete_after
@@ -88,6 +97,18 @@ function StudioReady({ session }: { session: SessionInfo }) {
   const working = phase === 'starting' || active
   const editLook = editing ? payload?.looks.find((l) => l.id === editing.lookId) : undefined
   const shareLook = sharingId ? payload?.looks.find((l) => l.id === sharingId) : undefined
+
+  const pickPerson = async (index: number) => {
+    const ok = await person.choose(index)
+    if (!ok) return
+    if (phase === 'person') looks.resume()
+    else if (hasLooks) setNeedsRebuild(true)
+  }
+
+  const askRebuild = () => {
+    setConfirming(true)
+    rebuildRef.current?.scrollIntoView?.({ block: 'center', behavior: reduce ? 'auto' : 'smooth' })
+  }
 
   const toastFor = (layer: LayerName, body: LayerPatch) => {
     const name = layerLabel(t, layer)
@@ -151,7 +172,7 @@ function StudioReady({ session }: { session: SessionInfo }) {
           {t('studio.looksTitle')}
         </h2>
 
-        {phase !== 'choose' && phase !== 'error' ? (
+        {phase !== 'choose' && phase !== 'error' && phase !== 'person' ? (
           <p className="flex items-start gap-2 rounded-2xl border border-line bg-accent-soft/50 px-4 py-3 text-sm text-text">
             {working ? (
               <Clock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-heading" />
@@ -170,6 +191,22 @@ function StudioReady({ session }: { session: SessionInfo }) {
         ) : null}
 
         {phase === 'choose' ? <WearChooser busy={busy === 'wear'} onChoose={looks.chooseWear} /> : null}
+
+        {phase === 'person' ? (
+          isGroupPhoto(full) ? (
+            <PersonPicker
+              people={full.people}
+              selected={full.target ?? null}
+              onChoose={(i) => void pickPerson(i)}
+              heading="h3"
+              saving={person.saving}
+              failed={person.failed}
+              note={<p className="text-sm text-muted">{t('people.startAfter')}</p>}
+            />
+          ) : (
+            <LooksError code={null} sessionId={session.id} onRetry={looks.reload} />
+          )
+        ) : null}
 
         {phase === 'error' ? <LooksError code={error} sessionId={session.id} onRetry={looks.reload} /> : null}
 
@@ -216,7 +253,7 @@ function StudioReady({ session }: { session: SessionInfo }) {
         ) : null}
 
         {payload && hasLooks ? (
-          <div className="flex flex-col items-center gap-2 pt-2 text-center">
+          <div ref={rebuildRef} className="flex flex-col items-center gap-2 pt-2 text-center">
             {confirming ? (
               <div className={`${cardClass} w-full max-w-md space-y-3`}>
                 <p className="font-medium text-heading">{t('studio.rebuild.confirm')}</p>
@@ -226,6 +263,7 @@ function StudioReady({ session }: { session: SessionInfo }) {
                     className={buttonClass.primary}
                     onClick={() => {
                       setConfirming(false)
+                      setNeedsRebuild(false)
                       looks.replan()
                     }}
                   >
@@ -285,6 +323,51 @@ function StudioReady({ session }: { session: SessionInfo }) {
             </figure>
           ))}
         </div>
+        {isGroupPhoto(full) ? (
+          <div className="max-w-md space-y-3" data-testid="dressing">
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface-raised p-3">
+              <span className="text-sm font-semibold text-heading">{t('people.dressing')}</span>
+              {full.target != null && full.people[full.target] ? (
+                <PersonThumb person={full.people[full.target]} size="size-11" />
+              ) : (
+                <span className="text-sm text-muted">{t('people.notChosen')}</span>
+              )}
+              <button
+                type="button"
+                aria-expanded={changingPerson}
+                onClick={() => setChangingPerson((v) => !v)}
+                className="ml-auto inline-flex min-h-11 items-center px-1 text-sm font-semibold text-heading underline underline-offset-4"
+              >
+                {changingPerson ? t('people.done') : full.target != null ? t('people.change') : t('people.choose')}
+              </button>
+            </div>
+            {changingPerson ? (
+              <PersonPicker
+                people={full.people}
+                selected={full.target ?? null}
+                onChoose={(i) => void pickPerson(i)}
+                heading="h3"
+                saving={person.saving}
+                failed={person.failed}
+              />
+            ) : null}
+            {needsRebuild && payload && hasLooks ? (
+              <div role="status" className="flex flex-col items-start gap-3 rounded-2xl border border-rule/60 bg-accent-soft/40 p-4">
+                <p className="flex items-start gap-2 text-sm font-medium text-text">
+                  <RefreshCw aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-heading" />
+                  {payload.rounds_left <= 0 ? t('studio.rebuild.none') : t('people.rebuildNote')}
+                </p>
+                {payload.rounds_left > 0 ? (
+                  <button type="button" className={buttonClass.secondary} disabled={active || busy === 'replan'} onClick={askRebuild}>
+                    <RefreshCw aria-hidden="true" className="size-5" />
+                    {t('studio.rebuild.button')}
+                  </button>
+                ) : null}
+                {active ? <p className="text-xs text-muted">{t('studio.rebuild.waitFinish')}</p> : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         {deleteOn ? <p className="text-sm text-muted">{t('studio.deleteOn', { when: deleteOn })}</p> : null}
         <div className="flex flex-wrap gap-2">
           <Link to={`/photo/${session.id}`} className={buttonClass.secondary}>

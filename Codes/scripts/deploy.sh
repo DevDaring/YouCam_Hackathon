@@ -14,6 +14,9 @@ echo "==> tests"
 (cd "$SRC/frontend" && npm test --silent)
 python3 "$SRC/scripts/claim_lint.py"
 
+echo "==> models"
+bash "$SRC/scripts/fetch_models.sh"
+
 echo "==> build frontend"
 (cd "$SRC/frontend" && npm run build >/dev/null)
 

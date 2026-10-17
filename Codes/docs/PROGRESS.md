@@ -67,6 +67,16 @@
 - **Not yet verified:** the camera on a physical phone.
 - **Tests:** backend 55, frontend 73, Playwright 38 (+2 skipped by design).
 
+## Group photos: dress only the chosen person (Oct 17 2026)
+- **The bug:** in a couple's photo, the bride's outfit landed on the groom, because YouCam dresses the largest person.
+- **Finding people:** YuNet and SFace (OpenCV, run locally) find everyone in the photo and match the face close-up to one of them. A tap always overrides the match.
+- **No guessing:** Studio will not start a group photo until a person is chosen.
+- **Targeted rendering:** each layer is rendered on a strip containing only the chosen person and blended back.
+- **Live YouCam test:** the bride received the saree, necklace and makeup; the groom's pixels were unchanged (difference 0.0).
+- **UI:** a "Who should we dress?" picker on the Photo page and in Studio, a "We matched you ✓" message, and a "Dressing: [face]" chip with Change.
+- **Older photos:** `scripts/backfill_people.py` was run on production; one 3-person photo was found and will ask the user to choose.
+- **Tests:** backend 59, frontend 81, Playwright 42 (+2 skipped by design).
+
 ## Next
 - Owner adds units and provides the probe inputs. Run `garment_probe.py --yes` and review the drape results.
 - Then M2: Look Studio.
